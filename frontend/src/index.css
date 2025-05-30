@@ -1,0 +1,95 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 17 24 39;
+    --foreground: 243 244 246;
+
+    --card: 31 41 55;
+    --card-foreground: 243 244 246;
+
+    --popover: 31 41 55;
+    --popover-foreground: 243 244 246;
+
+    --primary: 59 130 246;
+    --primary-foreground: 243 244 246;
+
+    --secondary: 55 65 81;
+    --secondary-foreground: 243 244 246;
+
+    --muted: 55 65 81;
+    --muted-foreground: 156 163 175;
+
+    --accent: 55 65 81;
+    --accent-foreground: 243 244 246;
+
+    --destructive: 239 68 68;
+    --destructive-foreground: 254 242 242;
+
+    --border: 75 85 99;
+    --input: 75 85 99;
+    --ring: 59 130 246;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 31 41 55;
+    --sidebar-foreground: 243 244 246;
+    --sidebar-primary: 59 130 246;
+    --sidebar-primary-foreground: 243 244 246;
+    --sidebar-accent: 55 65 81;
+    --sidebar-accent-foreground: 243 244 246;
+    --sidebar-border: 75 85 99;
+    --sidebar-ring: 59 130 246;
+  }
+
+  .dark {
+    --background: 17 24 39;
+    --foreground: 243 244 246;
+
+    --card: 31 41 55;
+    --card-foreground: 243 244 246;
+
+    --popover: 31 41 55;
+    --popover-foreground: 243 244 246;
+
+    --primary: 59 130 246;
+    --primary-foreground: 243 244 246;
+
+    --secondary: 55 65 81;
+    --secondary-foreground: 243 244 246;
+
+    --muted: 55 65 81;
+    --muted-foreground: 156 163 175;
+
+    --accent: 55 65 81;
+    --accent-foreground: 243 244 246;
+
+    --destructive: 239 68 68;
+    --destructive-foreground: 254 242 242;
+
+    --border: 75 85 99;
+    --input: 75 85 99;
+    --ring: 59 130 246;
+    --sidebar-background: 31 41 55;
+    --sidebar-foreground: 243 244 246;
+    --sidebar-primary: 59 130 246;
+    --sidebar-primary-foreground: 243 244 246;
+    --sidebar-accent: 55 65 81;
+    --sidebar-accent-foreground: 243 244 246;
+    --sidebar-border: 75 85 99;
+    --sidebar-ring: 59 130 246;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-gray-900 text-white;
+  }
+}
