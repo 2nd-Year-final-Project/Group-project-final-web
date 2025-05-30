@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -6,12 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuthStore } from '@/store/authStore';
 import { toast } from '@/hooks/use-toast';
-import { Eye, EyeOff, User, Lock, GraduationCap } from 'lucide-react';
 
 const Login = () => {
-  const [credentials, setCredentials] = useState({ username: '', password: '' });
+  const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const setUser = useAuthStore((state) => state.setUser);
 
@@ -21,13 +20,13 @@ const Login = () => {
 
     // Mock authentication - replace with actual API call
     setTimeout(() => {
-      const role: 'student' | 'lecturer' | 'admin' = credentials.username.includes('admin') ? 'admin' : 
-              credentials.username.includes('lecturer') ? 'lecturer' : 'student';
+      const role: 'student' | 'lecturer' | 'admin' = credentials.email.includes('admin') ? 'admin' : 
+              credentials.email.includes('lecturer') ? 'lecturer' : 'student';
       
       const mockUser = {
         id: '1',
-        name: 'John Doe',
-        email: `${credentials.username}@university.edu`,
+        name: 'Akila Fernando',
+        email: credentials.email,
         role
       };
       
@@ -45,104 +44,54 @@ const Login = () => {
           navigate('/student');
       }
       
-      toast({ 
-        title: "Login successful", 
-        description: `Welcome back, ${mockUser.name}!`,
-        variant: "default"
-      });
+      toast({ title: "Login successful", description: `Welcome back, ${mockUser.name}!` });
       setIsLoading(false);
-    }, 1500);
+    }, 1000);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 p-4">
-      <div className="absolute inset-0 bg-black/20"></div>
-      
-      <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm border-0 shadow-2xl relative z-10">
-        <CardHeader className="text-center space-y-4 pb-8">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-            <GraduationCap className="w-8 h-8 text-white" />
-          </div>
-          <div>
-            <CardTitle className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</CardTitle>
-            <CardDescription className="text-gray-600 text-lg">
-              Sign in to EduPredict LMS
-            </CardDescription>
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-black p-4">
+      <Card className="w-full max-w-md bg-gray-800 border-gray-700">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold text-white">EduPredict LMS</CardTitle>
+          <CardDescription className="text-gray-300">Sign in to your account</CardDescription>
         </CardHeader>
-
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-6 px-8">
+          <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-gray-700 font-medium">Username</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="Enter your username"
-                  value={credentials.username}
-                  onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
-                  required
-                  className="pl-10 h-12 bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
+              <Label htmlFor="email" className="text-gray-200">University Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="student@university.edu"
+                value={credentials.email}
+                onChange={(e) => setCredentials(prev => ({ ...prev, email: e.target.value }))}
+                required
+                className="bg-gray-700 border-gray-600 text-white"
+              />
             </div>
-
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={credentials.password}
-                  onChange={(e) => setCredentials(prev => ({ ...prev, password: e.target.value }))}
-                  required
-                  className="pl-10 pr-10 h-12 bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
+              <Label htmlFor="password" className="text-gray-200">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={credentials.password}
+                onChange={(e) => setCredentials(prev => ({ ...prev, password: e.target.value }))}
+                required
+                className="bg-gray-700 border-gray-600 text-white"
+              />
             </div>
-
-            
           </CardContent>
-
-          <CardFooter className="flex flex-col space-y-4 px-8 pb-8">
-            <Button 
-              type="submit" 
-              className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold transition-all duration-200 transform hover:scale-[1.02]" 
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Signing in...</span>
-                </div>
-              ) : (
-                'Sign In'
-              )}
+          <CardFooter className="flex flex-col space-y-4">
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
-
-            <div className="text-center">
-              <p className="text-gray-600">
-                Don't have an account?{' '}
-                <Link to="/signup" className="text-blue-600 hover:text-blue-800 font-semibold transition-colors">
-                  Sign up here
-                </Link>
-              </p>
-            </div>
-
-            
-
-            
+            <p className="text-sm text-center text-gray-400">
+              Don't have an account?{' '}
+              <Link to="/signup" className="text-blue-400 hover:underline">
+                Sign up
+              </Link>
+            </p>
           </CardFooter>
         </form>
       </Card>

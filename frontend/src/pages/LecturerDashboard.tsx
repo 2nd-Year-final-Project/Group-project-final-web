@@ -16,38 +16,38 @@ const LecturerDashboard = () => {
   const courses = [
     {
       id: '1',
-      name: 'Computer Science Fundamentals',
-      code: 'CS101',
+      name: 'Introduction to Cyber Security',
+      code: 'CSCI 22062',
       students: 45,
       atRiskCount: 3
     },
     {
       id: '2',
       name: 'Data Structures & Algorithms',
-      code: 'CS201',
+      code: 'CSCI 22022',
       students: 38,
       atRiskCount: 7
     },
     {
       id: '3',
-      name: 'Web Development',
-      code: 'CS301',
+      name: 'Introduction to Web Development',
+      code: 'CSCI 22052',
       students: 52,
       atRiskCount: 2
     }
   ];
 
   const atRiskStudents = [
-    { id: '1', name: 'Alice Johnson', course: 'CS201', predictedGrade: 45, riskFactors: ['Low attendance', 'Missing assignments'] },
-    { id: '2', name: 'Bob Smith', course: 'CS201', predictedGrade: 52, riskFactors: ['Poor quiz performance'] },
-    { id: '3', name: 'Carol Williams', course: 'CS101', predictedGrade: 48, riskFactors: ['Low study hours', 'Poor sleep'] }
+    { id: '1', name: 'Harin Dulneth', course: 'CSCI 22062', predictedGrade: 45, riskFactors: ['Low attendance', 'Missing assignments'] },
+    { id: '2', name: 'Sanjana Dissanayeke', course: 'CSCI 22052', predictedGrade: 52, riskFactors: ['Poor quiz performance'] },
+    { id: '3', name: 'Kavindu Pasan', course: 'CSCI 22022', predictedGrade: 48, riskFactors: ['Low study hours', 'Poor sleep'] }
   ];
 
   const studentRoster = [
-    { id: '1', name: 'John Doe', email: 'john.doe@university.edu', currentGrade: 78, quiz1: 85, quiz2: 75, assignment1: 80, assignment2: 78, midterm: 76 },
-    { id: '2', name: 'Jane Smith', email: 'jane.smith@university.edu', currentGrade: 85, quiz1: 88, quiz2: 82, assignment1: 87, assignment2: 85, midterm: 84 },
-    { id: '3', name: 'Alice Johnson', email: 'alice.johnson@university.edu', currentGrade: 45, quiz1: 50, quiz2: 40, assignment1: 45, assignment2: 48, midterm: 42 },
-    { id: '4', name: 'Bob Williams', email: 'bob.williams@university.edu', currentGrade: 92, quiz1: 95, quiz2: 88, assignment1: 92, assignment2: 94, midterm: 91 }
+    { id: '1', name: 'Harin Dulneth', email: 'harin@outlook.com', currentGrade: 78, quiz1: 85, quiz2: 75, assignment1: 80, assignment2: 78, midterm: 76 },
+    { id: '2', name: 'Sanjana Dissanayke', email: 'snajana@outlook.com', currentGrade: 85, quiz1: 88, quiz2: 82, assignment1: 87, assignment2: 85, midterm: 84 },
+    { id: '3', name: 'Kavindu Pasan', email: 'kavindu@outlook.com', currentGrade: 45, quiz1: 50, quiz2: 40, assignment1: 45, assignment2: 48, midterm: 42 },
+    { id: '4', name: 'Ravindu Gamage', email: 'ravindu@outlook.com', currentGrade: 92, quiz1: 95, quiz2: 88, assignment1: 92, assignment2: 94, midterm: 91 }
   ];
 
   const handleAddMarks = (student) => {
@@ -64,24 +64,24 @@ const LecturerDashboard = () => {
     <DashboardLayout title="Lecturer Dashboard">
       <div className="space-y-6">
         {/* Welcome Section */}
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg p-6 text-white">
+        <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-lg p-6 text-white">
           <h2 className="text-2xl font-bold mb-2">Teaching Excellence Dashboard</h2>
           <p className="text-purple-100">Monitor student progress and identify those who need additional support.</p>
         </div>
 
         {/* At-Risk Students Alert */}
-        <Alert className="border-pink-600 bg-pink-900/20 border">
-          <AlertTitle className="text-pink-300">⚠️ Students At Risk</AlertTitle>
-          <AlertDescription className="text-pink-200">
+        <Alert className="border-red-600 bg-red-900/20 border">
+          <AlertTitle className="text-red-300">⚠️ Students At Risk</AlertTitle>
+          <AlertDescription className="text-red-200">
             {atRiskStudents.length} students are predicted to be at risk of failing. Review their details below.
           </AlertDescription>
         </Alert>
 
         <Tabs defaultValue="courses" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-gray-800">
-            <TabsTrigger value="courses" className="data-[state=active]:bg-gray-700">My Courses</TabsTrigger>
-            <TabsTrigger value="at-risk" className="data-[state=active]:bg-gray-700">At-Risk Students</TabsTrigger>
-            <TabsTrigger value="grades" className="data-[state=active]:bg-gray-700">Grade Management</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 bg-gray-800 text-white">
+            <TabsTrigger value="courses" className="data-[state=active]:bg-gray-700 data-[state=active]:text-blue-400">My Courses</TabsTrigger>
+            <TabsTrigger value="at-risk" className="data-[state=active]:bg-gray-700 data-[state=active]:text-blue-400">At-Risk Students</TabsTrigger>
+            <TabsTrigger value="grades" className="data-[state=active]:bg-gray-700 data-[state=active]:text-blue-400">Grade Management</TabsTrigger>
           </TabsList>
 
           <TabsContent value="courses" className="space-y-4">
@@ -93,7 +93,7 @@ const LecturerDashboard = () => {
                     <CardTitle className="flex justify-between items-center text-white">
                       <span>{course.code}</span>
                       {course.atRiskCount > 0 && (
-                        <Badge className="bg-pink-600 text-pink-100">{course.atRiskCount} at risk</Badge>
+                        <Badge className="bg-red-600 text-red-100">{course.atRiskCount} at risk</Badge>
                       )}
                     </CardTitle>
                     <CardDescription className="text-gray-300">{course.name}</CardDescription>
@@ -122,13 +122,13 @@ const LecturerDashboard = () => {
                         </div>
                         <div className="flex items-center space-x-3">
                           <span className="text-lg font-bold text-blue-400">{student.currentGrade}%</span>
-                          <Button size="sm" variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+                          <Button size="sm" variant="outline" className="bg-white-700 border-gray-600 text-white hover:bg-gray-700 hover:text-white">
                             View Details
                           </Button>
                           <Button 
                             size="sm" 
                             onClick={() => handleAddMarks(student)}
-                            className="bg-purple-600 hover:bg-purple-700"
+                            className="bg-blue-600 hover:bg-blue-300 text-blue-50 hover:text-blue-700"
                           >
                             Add Marks
                           </Button>
@@ -143,11 +143,11 @@ const LecturerDashboard = () => {
 
           <TabsContent value="at-risk" className="space-y-4">
             {atRiskStudents.map((student) => (
-              <Card key={student.id} className="border-pink-600 bg-gray-800">
+              <Card key={student.id} className="border-red-600 bg-gray-800">
                 <CardHeader>
                   <CardTitle className="flex justify-between items-center text-white">
                     <span>{student.name}</span>
-                    <Badge className="bg-pink-600 text-pink-100">Predicted: {student.predictedGrade}%</Badge>
+                    <Badge className="bg-red-600 text-pink-100">Predicted: {student.predictedGrade}%</Badge>
                   </CardTitle>
                   <CardDescription className="text-gray-300">Course: {student.course}</CardDescription>
                 </CardHeader>
@@ -156,7 +156,7 @@ const LecturerDashboard = () => {
                     <div className="text-sm font-medium text-gray-200">Risk Factors:</div>
                     <div className="flex flex-wrap gap-2">
                       {student.riskFactors.map((factor, index) => (
-                        <Badge key={index} variant="outline" className="text-pink-400 border-pink-600">
+                        <Badge key={index} variant="outline" className="text-red-400 border-red-600">
                           {factor}
                         </Badge>
                       ))}

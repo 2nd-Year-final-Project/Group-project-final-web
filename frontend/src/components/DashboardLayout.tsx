@@ -7,6 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { Bell } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
+import { 
+  GraduationCap
+} from "lucide-react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -29,11 +32,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
       <header className="bg-gray-800 shadow-sm border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold text-white">EduPredict LMS</h1>
-              <span className="ml-4 text-sm text-gray-300">
-                {title}
-              </span>
+            <div className="flex items-center gap-2 p-6 border-sidebar-border">
+                <GraduationCap className="h-6 w-6 text-blue-400" />
+                <h1 className="text-xl font-bold text-blue-400">EduTrack</h1>
             </div>
             <div className="flex items-center space-x-4">
               <div className="relative">
@@ -45,10 +46,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
               <span className="text-sm text-gray-300">
                 Welcome, {user?.name}
               </span>
-              <span className="text-xs bg-purple-600 text-purple-100 px-2 py-1 rounded-full capitalize">
+              <span className="text-xs bg-blue-600 text-purple-100 px-2 py-1 rounded-full capitalize">
                 {user?.role}
               </span>
-              <Button variant="outline" size="sm" onClick={handleLogout} className="border-gray-600 text-gray-300 hover:bg-gray-700">
+              <Button variant="outline" size="sm" onClick={handleLogout} className="border-blue-600 text-white bg-blue-600 hover:bg-blue-700">
                 Logout
               </Button>
             </div>

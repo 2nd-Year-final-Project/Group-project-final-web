@@ -49,94 +49,97 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-  <Card className="w-full max-w-md bg-white border-gray-300 shadow-lg">
-    <CardHeader className="text-center">
-      <CardTitle className="text-2xl font-bold text-gray-900">Join EduPredict</CardTitle>
-      <CardDescription className="text-gray-600">Create your account</CardDescription>
-    </CardHeader>
-    <form onSubmit={handleSubmit}>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="fullName" className="text-gray-700">Full Name</Label>
-          <Input
-  id="fullName"
-  type="text"
-  placeholder="John Doe"
-  value={formData.fullName}
-  onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
-  required
-  className="bg-gray-100 border-gray-300 text-gray-900 placeholder-gray-400"
-/>
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="email" className="text-gray-700">University Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="student@university.edu"
-            value={formData.email}
-            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-            required
-            className="bg-gray-100 border-gray-300 text-gray-900"
-          />
-        </div>
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold text-gray-900">Join EduPredict</CardTitle>
+          <CardDescription>Create your account</CardDescription>
+        </CardHeader>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                type="text"
+                placeholder="John Doe"
+                value={formData.fullName}
+                onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="email">University Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="student@university.edu"
+                value={formData.email}
+                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                required
+              />
+            </div>
 
-        <div className="space-y-2">
-  <Label htmlFor="role" className="text-gray-700">Role</Label>
-  <Select value={formData.role} onValueChange={(value) => setFormData(prev => ({ ...prev, role: value }))}>
-    <SelectTrigger className="bg-gray-100 border-gray-300 text-gray-900 h-10 w-full">
-      <SelectValue placeholder="Select your role" />
-    </SelectTrigger>
-    <SelectContent 
-      className="bg-white border border-gray-300 shadow-lg z-[9999] relative"
-      position="popper"
-      sideOffset={4}
-    >
-      <SelectItem 
-        value="student" 
-        className="cursor-pointer hover:bg-gray-100 text-gray-900 focus:bg-gray-100 focus:text-gray-900"
-      >
-        Student
-      </SelectItem>
-      <SelectItem 
-        value="lecturer" 
-        className="cursor-pointer hover:bg-gray-100 text-gray-900 focus:bg-gray-100 focus:text-gray-900"
-      >
-        Lecturer
-      </SelectItem>
-    </SelectContent>
-  </Select>
-</div>
+            <div className="space-y-2">
+              <Label htmlFor="role">Role</Label>
+              <Select value={formData.role} onValueChange={(value) => setFormData(prev => ({ ...prev, role: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="student">Student</SelectItem>
+                  <SelectItem value="lecturer">Lecturer</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="idPhoto" className="text-gray-700">ID Photo (for verification)</Label>
-          <Input
-            id="idPhoto"
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            required
-            className="bg-gray-100 border-gray-300 text-gray-900"
-          />
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="idPhoto">ID Photo (for verification)</Label>
+              <Input
+                id="idPhoto"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                required
+              />
+            </div>
 
-        
-      </CardContent>
-      <CardFooter className="flex flex-col space-y-4">
-        <Button type="submit" className="w-full bg-blue-600 text-white hover:bg-blue-700" disabled={isLoading}>
-          {isLoading ? 'Creating Account...' : 'Create Account'}
-        </Button>
-        <p className="text-sm text-center text-gray-600">
-          Already have an account?{' '}
-          <Link to="/login" className="text-blue-600 hover:underline">
-            Sign in
-          </Link>
-        </p>
-      </CardFooter>
-    </form>
-  </Card>
-</div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                required
+              />
+            </div>
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4">
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Creating Account...' : 'Create Account'}
+            </Button>
+            <p className="text-sm text-center text-gray-600">
+              Already have an account?{' '}
+              <Link to="/login" className="text-blue-600 hover:underline">
+                Sign in
+              </Link>
+            </p>
+          </CardFooter>
+        </form>
+      </Card>
+    </div>
   );
 };
 
