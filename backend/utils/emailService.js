@@ -5,7 +5,7 @@ function sendApprovalEmail(email, name, username, password) {
     service: "gmail",
     auth: {
       user: "akilafernando196@gmail.com", // Use your email
-      pass: "lwyft aoss qrrx mcfw",  // Use an App Password (not your real password)
+      pass: "lkkl nfqk tgzt hrwu",  // Use an App Password (not your real password)
     },
   });
 
