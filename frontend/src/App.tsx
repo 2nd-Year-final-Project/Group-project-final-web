@@ -1,78 +1,60 @@
-
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import StudentDashboard from "./pages/StudentDashboard";
-import LecturerDashboard from "./pages/LecturerDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import Unauthorized from "./pages/Unauthorized";
-import { useAuthStore } from "./store/authStore";
-
-const queryClient = new QueryClient();
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import Login from './pages/Login';
+import Signup from './pages/RegistrationForm';
+import StudentDashboard from './pages/StudentDashboard';
+import LecturerDashboard from './pages/LecturerDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import Unauthorized from './pages/Unauthorized';
+import { useAuthStore } from './store/authStore';
 
 const App = () => {
-  const { isAuthenticated, user } = useAuthStore();
+  const { user } = useAuthStore();
 
-  const getDefaultRoute = () => {
-    if (!isAuthenticated) return "/login";
-    switch (user?.role) {
-      case 'admin': return "/admin";
-      case 'lecturer': return "/lecturer";
-      case 'student': return "/student";
-      default: return "/login";
+  // Modified Protected Route component
+  const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode, allowedRoles: string[] }) => {
+    // For development/testing - allow access to routes without authentication
+    // Comment this out or modify for production
+    return <>{children}</>;
+    
+    // Uncomment this for actual authentication
+    /*
+    if (!user) {
+      return <Navigate to="/login" replace />;
     }
+    
+    if (allowedRoles.includes(user.role)) {
+      return <>{children}</>;
+    } else {
+      return <Unauthorized />;
+    }
+    */
   };
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/unauthorized" element={<Unauthorized />} />
-            
-            {/* Protected Routes */}
-            <Route 
-              path="/student" 
-              element={
-                <ProtectedRoute allowedRoles={['student']}>
-                  <StudentDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/lecturer" 
-              element={
-                <ProtectedRoute allowedRoles={['lecturer']}>
-                  <LecturerDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin" 
-              element={
-                <ProtectedRoute allowedRoles={['admin']}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            
-            {/* Default redirect */}
-            <Route path="/" element={<Navigate to={getDefaultRoute()} replace />} />
-            <Route path="*" element={<Navigate to={getDefaultRoute()} replace />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <Router>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        
+        {/* Direct dashboard routes */}
+        <Route path="/student" element={<StudentDashboard />} />
+        <Route path="/lecturer" element={<LecturerDashboard />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        
+        {/* Nested routes for each dashboard */}
+        <Route path="/student/*" element={<StudentDashboard />} />
+        <Route path="/lecturer/*" element={<LecturerDashboard />} />
+        <Route path="/admin/*" element={<AdminDashboard />} />
+        
+        {/* Redirect root to login */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        
+        {/* Catch all - redirect to login */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </Router>
   );
 };
 

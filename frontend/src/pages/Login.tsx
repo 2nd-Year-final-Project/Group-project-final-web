@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,7 @@ import { useAuthStore } from '@/store/authStore';
 import { toast } from '@/hooks/use-toast';
 
 const Login = () => {
-  const [credentials, setCredentials] = useState({ email: '', password: '' });
+  const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const setUser = useAuthStore((state) => state.setUser);
@@ -20,13 +19,13 @@ const Login = () => {
 
     // Mock authentication - replace with actual API call
     setTimeout(() => {
-      const role: 'student' | 'lecturer' | 'admin' = credentials.email.includes('admin') ? 'admin' : 
-              credentials.email.includes('lecturer') ? 'lecturer' : 'student';
+      const role: 'student' | 'lecturer' | 'admin' = credentials.username.includes('admin') ? 'admin' : 
+              credentials.username.includes('lecturer') ? 'lecturer' : 'student';
       
       const mockUser = {
         id: '1',
         name: 'Akila Fernando',
-        email: credentials.email,
+        email: `${credentials.username}@university.edu`, // Create email from username
         role
       };
       
@@ -59,13 +58,13 @@ const Login = () => {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-200">University Email</Label>
+              <Label htmlFor="username" className="text-gray-200">Username</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="student@university.edu"
-                value={credentials.email}
-                onChange={(e) => setCredentials(prev => ({ ...prev, email: e.target.value }))}
+                id="username"
+                type="text"
+                placeholder="Enter your username"
+                value={credentials.username}
+                onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
                 required
                 className="bg-gray-700 border-gray-600 text-white"
               />
@@ -83,7 +82,11 @@ const Login = () => {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white" 
+              disabled={isLoading}
+            >
               {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
             <p className="text-sm text-center text-gray-400">
