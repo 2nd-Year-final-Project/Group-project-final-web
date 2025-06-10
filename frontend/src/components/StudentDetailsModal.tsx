@@ -12,7 +12,6 @@ interface Student {
   email: string;
   attendance?: number;
   motivation?: number;
-  teacherQuality?: number;
 }
 
 interface StudentDetailsModalProps {
@@ -30,8 +29,7 @@ const StudentDetailsModal: React.FC<StudentDetailsModalProps> = ({
 }) => {
   const [formData, setFormData] = useState({
     attendance: student?.attendance || '',
-    motivation: student?.motivation || '',
-    teacherQuality: student?.teacherQuality || ''
+    motivation: student?.motivation || ''
   });
 
   const handleSave = () => {
@@ -80,19 +78,7 @@ const StudentDetailsModal: React.FC<StudentDetailsModalProps> = ({
             />
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="teacherQuality" className="text-gray-200">Teacher Quality Rating (1-10)</Label>
-            <Input
-              id="teacherQuality"
-              type="number"
-              min="1"
-              max="10"
-              placeholder="8"
-              value={formData.teacherQuality}
-              onChange={(e) => setFormData(prev => ({ ...prev, teacherQuality: e.target.value }))}
-              className="bg-gray-700 border-gray-600 text-white"
-            />
-          </div>
+          
         </div>
         
         <div className="flex justify-end space-x-2 mt-6">

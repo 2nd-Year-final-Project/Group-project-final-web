@@ -7,6 +7,17 @@ interface AdminSidebarProps {
   onTabChange: (tab: string) => void;
 }
 
+//////////////////////newly added//////////////////////////////////
+const sidebarItems = [
+  { id: 'overview', label: 'Dashboard Overview', icon: BarChart3 },
+  { id: 'students', label: 'Student Management', icon: Users },
+  { id: 'lecturers', label: 'Lecturer Management', icon: UserCheck },
+  { id: 'courses', label: 'Course Management', icon: BookOpen }, // Added this line
+  { id: 'verifications', label: 'User Verifications', icon: Shield },
+  { id: 'settings', label: 'System Settings', icon: Settings },
+];
+
+///////////////////////////////////////////////////////////////////////
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange }) => {
   const menuItems = [
     {
