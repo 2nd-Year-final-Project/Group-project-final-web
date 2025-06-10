@@ -7,6 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, Eye, Download } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
 
 // TypeScript interfaces
 interface PendingUser {
@@ -24,7 +27,6 @@ interface Student {
   course: string;
   attendance: number;
   motivation: number;
-  teacherQuality: number;
 }
 
 interface Lecturer {
@@ -60,6 +62,14 @@ const AdminDashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [processingId, setProcessingId] = useState<number | null>(null);
 
+  // Add state for course teacher quality ratings
+  const [courseTeacherQuality, setCourseTeacherQuality] = useState<{[key: string]: number}>({
+    'Computer Science': 8.5,
+    'Data Structures & Algorithms': 7.2,
+    'Web Development': 9.1
+  });
+
+
   // Your original user verification state
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
 
@@ -71,10 +81,10 @@ const AdminDashboard: React.FC = () => {
   });
 
   const allStudents: Student[] = [
-    { id: '1', name: 'Akila Fernando', email: 'AkilaF@university.edu', course: 'Computer Science', attendance: 85, motivation: 7, teacherQuality: 8 },
-    { id: '2', name: 'Hiruna Mendis', email: 'HirunaM@university.edu', course: 'Computer Science', attendance: 92, motivation: 9, teacherQuality: 9 },
-    { id: '3', name: 'Anujaya Jayanath', email: 'AnujayaJ@university.edu', course: 'Computer Science', attendance: 78, motivation: 6, teacherQuality: 7 },
-    { id: '4', name: 'Renuja Sathnidu', email: 'RenujaS@university.edu', course: 'Computer Science', attendance: 95, motivation: 8, teacherQuality: 9 },
+    { id: '1', name: 'Akila Fernando', email: 'AkilaF@university.edu', course: 'Computer Science', attendance: 85, motivation: 7 },
+    { id: '2', name: 'Hiruna Mendis', email: 'HirunaM@university.edu', course: 'Computer Science', attendance: 92, motivation: 9 },
+    { id: '3', name: 'Anujaya Jayanath', email: 'AnujayaJ@university.edu', course: 'Computer Science', attendance: 78, motivation: 6 },
+    { id: '4', name: 'Renuja Sathnidu', email: 'RenujaS@university.edu', course: 'Computer Science', attendance: 95, motivation: 8},
   ];
 
   const allLecturers: Lecturer[] = [
@@ -135,6 +145,18 @@ const AdminDashboard: React.FC = () => {
     console.log('Saving data for student:', studentId, data);
     // Here you would typically update the backend
   };
+
+  const handleTeacherQualityChange = (course: string, value: number) => {
+    setCourseTeacherQuality(prev => ({
+      ...prev,
+      [course]: value
+    }));
+    toast({
+      title: "Teacher Quality Updated",
+      description: `Teacher quality for ${course} updated to ${value}`,
+    });
+  };
+  
 
   const renderContent = (): JSX.Element => {
     switch (activeTab) {
@@ -251,7 +273,49 @@ const AdminDashboard: React.FC = () => {
             </CardContent>
           </Card>
         );
-
+      
+        case 'courses':
+          return (
+            <div className="space-y-6">
+              <Card className="bg-gray-800 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white">Course Management</CardTitle>
+                  <CardDescription className="text-gray-300">Manage courses and set teacher quality ratings</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {Object.keys(courseTeacherQuality).map((course) => (
+                      <div key={course} className="p-4 border border-gray-700 rounded-lg">
+                        <div className="flex items-center justify-between mb-4">
+                          <div>
+                            <h3 className="font-medium text-white text-lg">{course}</h3>
+                            <p className="text-gray-400 text-sm">Set teacher quality rating for this course</p>
+                          </div>
+                          <Badge variant="outline" className="border-purple-600 text-purple-400">
+                            {courseTeacherQuality[course]}/10
+                          </Badge>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <Label className="text-gray-200 whitespace-nowrap">Teacher Quality Rating:</Label>
+                          <Input
+                            type="number"
+                            min="0"
+                            max="10"
+                            step="0.1"
+                            value={courseTeacherQuality[course]}
+                            onChange={(e) => handleTeacherQualityChange(course, parseFloat(e.target.value) || 0)}
+                            className="bg-gray-700 border-gray-600 text-white max-w-24"
+                          />
+                          <span className="text-gray-400 text-sm">out of 10</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          );
+          
       case 'verifications':
         return (
           <Card className="bg-gray-800 border-gray-700">
