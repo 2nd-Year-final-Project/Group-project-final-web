@@ -3,6 +3,8 @@ const db = require("../config/db");
 const bcrypt = require("bcryptjs");
 const { sendApprovalEmail } = require("../utils/emailService"); // Import email sender
 const router = express.Router();
+const { submitAdminInput } = require("../controllers/adminController");
+
 
 // Get all pending users
 router.get("/pending-users", (req, res) => {
@@ -73,5 +75,8 @@ router.post("/reject/:id", (req, res) => {
     res.json({ message: "User rejected" });
   });
 });
+
+router.post("/input", submitAdminInput);
+
 
 module.exports = router;
