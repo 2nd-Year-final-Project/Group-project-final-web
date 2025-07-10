@@ -30,7 +30,29 @@ const submitSubjectData = (req, res) => {
   });
 };
 
+// Get student full name by username
+const getStudentName = async (req, res) => {
+  const { username } = req.params;
+
+  try {
+    const [results] = await db.promise().query(
+      "SELECT full_name FROM users WHERE username = ? AND role = 'student'",
+      [username]
+    );
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    res.json({ fullName: results[0].full_name });
+  } catch (err) {
+    console.error("Error fetching student name:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   submitCommonData,
   submitSubjectData,
+    getStudentName
 };

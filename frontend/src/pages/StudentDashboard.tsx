@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Card,
   CardContent,
@@ -67,10 +68,12 @@ const StudentDashboard = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [prediction, setPrediction] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [fullName, setFullName] = useState<string>("Loading...");
+  const username = localStorage.getItem("username");
 
   // Student profile data
   const studentProfile = {
-    name: "Akila Fernando",
+    name: fullName,
     email: "akilaf@university.edu",
     studentId: "CS2021001",
     academicYear: "3rd Year",
@@ -261,12 +264,30 @@ const StudentDashboard = () => {
     });
   };
 
+  const fetchName = async () => {
+    try {
+      if (!username) {
+        setFullName("Student");
+        return;
+      }
+      const res = await axios.get(`http://localhost:5000/api/student/name/${username}`);
+      setFullName(res.data.fullName || "Student");
+    } catch (err) {
+      console.error("Failed to fetch name", err);
+      setFullName("Student");
+    }
+  };
+
+  useEffect(() => {
+    fetchName();
+  }, [username]);
+
   const renderOverview = () => (
     <div className="space-y-6">
       {/* Welcome Section */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
         <h2 className="text-2xl font-bold mb-2">
-          Welcome back, {studentProfile.name}!
+          Welcome back, {fullName}!
         </h2>
         <p className="text-blue-100 mb-4">
           "
@@ -1039,7 +1060,7 @@ const StudentDashboard = () => {
               />
               <div className="space-y-1">
                 <h3 className="text-xl font-semibold text-white">
-                  {studentProfile.name}
+                  {fullName}
                 </h3>
                 <p className="text-gray-300">{studentProfile.email}</p>
                 <p className="text-gray-400">{studentProfile.studentId}</p>
@@ -1066,119 +1087,119 @@ const StudentDashboard = () => {
         </Card>
 
         <Card className="bg-gray-800 border-gray-700">
-  <CardHeader>
-    <CardTitle className="text-white">AI Prediction Settings</CardTitle>
-  </CardHeader>
-  <CardContent className="space-y-4">
-    <div className="grid grid-cols-2 gap-4">
-      <div className="space-y-2">
-        <Label htmlFor="hoursStudied" className="text-gray-200">Hours Studied (per week)</Label>
-        <Input
-          id="hoursStudied"
-          type="number"
-          min="0"
-          max="168"
-          placeholder="25"
-          value={academicData.hoursStudied}
-          onChange={(e) => setAcademicData(prev => ({ ...prev, hoursStudied: e.target.value }))}
-          className="bg-gray-700 border-gray-600 text-white"
-        />
-      </div>
+          <CardHeader>
+            <CardTitle className="text-white">AI Prediction Settings</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="hoursStudied" className="text-gray-200">Hours Studied (per week)</Label>
+                <Input
+                  id="hoursStudied"
+                  type="number"
+                  min="0"
+                  max="168"
+                  placeholder="25"
+                  value={academicData.hoursStudied}
+                  onChange={(e) => setAcademicData(prev => ({ ...prev, hoursStudied: e.target.value }))}
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="sleepHours" className="text-gray-200">Sleep Hours (per day)</Label>
-        <Input
-          id="sleepHours"
-          type="number"
-          min="0"
-          max="24"
-          placeholder="8"
-          value={academicData.sleepHours}
-          onChange={(e) => setAcademicData(prev => ({ ...prev, sleepHours: e.target.value }))}
-          className="bg-gray-700 border-gray-600 text-white"
-        />
-      </div>
+              <div className="space-y-2">
+                <Label htmlFor="sleepHours" className="text-gray-200">Sleep Hours (per day)</Label>
+                <Input
+                  id="sleepHours"
+                  type="number"
+                  min="0"
+                  max="24"
+                  placeholder="8"
+                  value={academicData.sleepHours}
+                  onChange={(e) => setAcademicData(prev => ({ ...prev, sleepHours: e.target.value }))}
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="physicalActivity" className="text-gray-200">Physical Activity (hours per week)</Label>
-        <Input
-          id="physicalActivity"
-          type="number"
-          min="0"
-          max="168"
-          placeholder="5"
-          value={academicData.physicalActivity}
-          onChange={(e) => setAcademicData(prev => ({ ...prev, physicalActivity: e.target.value }))}
-          className="bg-gray-700 border-gray-600 text-white"
-        />
-      </div>
+              <div className="space-y-2">
+                <Label htmlFor="physicalActivity" className="text-gray-200">Physical Activity (hours per week)</Label>
+                <Input
+                  id="physicalActivity"
+                  type="number"
+                  min="0"
+                  max="168"
+                  placeholder="5"
+                  value={academicData.physicalActivity}
+                  onChange={(e) => setAcademicData(prev => ({ ...prev, physicalActivity: e.target.value }))}
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
 
-      <div className="space-y-2">
-        <Label className="text-gray-200">Peer Influence</Label>
-        <Select value={academicData.peerInfluence} onValueChange={(value) => setAcademicData(prev => ({ ...prev, peerInfluence: value }))}>
-          <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-            <SelectValue placeholder="Select level" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="low">Low</SelectItem>
-            <SelectItem value="medium">Medium</SelectItem>
-            <SelectItem value="high">High</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+              <div className="space-y-2">
+                <Label className="text-gray-200">Peer Influence</Label>
+                <Select value={academicData.peerInfluence} onValueChange={(value) => setAcademicData(prev => ({ ...prev, peerInfluence: value }))}>
+                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                    <SelectValue placeholder="Select level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-      <div className="space-y-2">
-        <Label className="text-gray-200">Extracurricular Participation</Label>
-        <Select value={academicData.extracurricular} onValueChange={(value) => setAcademicData(prev => ({ ...prev, extracurricular: value }))}>
-          <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-            <SelectValue placeholder="Select option" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="yes">Yes</SelectItem>
-            <SelectItem value="no">No</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+              <div className="space-y-2">
+                <Label className="text-gray-200">Extracurricular Participation</Label>
+                <Select value={academicData.extracurricular} onValueChange={(value) => setAcademicData(prev => ({ ...prev, extracurricular: value }))}>
+                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                    <SelectValue placeholder="Select option" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yes">Yes</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-      <div className="space-y-2">
-        <Label className="text-gray-200">Gender</Label>
-        <RadioGroup value={academicData.gender} onValueChange={(value) => setAcademicData(prev => ({ ...prev, gender: value }))}>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="male" id="male" />
-            <Label htmlFor="male" className="text-gray-300">Male</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="female" id="female" />
-            <Label htmlFor="female" className="text-gray-300">Female</Label>
-          </div>
-        </RadioGroup>
-      </div>
-    </div>
+              <div className="space-y-2">
+                <Label className="text-gray-200">Gender</Label>
+                <RadioGroup value={academicData.gender} onValueChange={(value) => setAcademicData(prev => ({ ...prev, gender: value }))}>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="male" id="male" />
+                    <Label htmlFor="male" className="text-gray-300">Male</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="female" id="female" />
+                    <Label htmlFor="female" className="text-gray-300">Female</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            </div>
 
-    <Button 
-      onClick={handlePredictGrade} 
-      className="w-full bg-purple-600 hover:bg-purple-700"
-      disabled={isLoading}
-    >
-      {isLoading ? 'Analyzing...' : 'Update AI Prediction'}
-    </Button>
+            <Button 
+              onClick={handlePredictGrade} 
+              className="w-full bg-purple-600 hover:bg-purple-700"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Analyzing...' : 'Update AI Prediction'}
+            </Button>
 
-    {prediction && (
-      <div className="mt-4 p-4 bg-purple-900/20 rounded-lg border border-purple-600/30">
-        <div className="text-center mb-3">
-          <div className="text-3xl font-bold text-purple-400">{prediction.grade}</div>
-          <div className="text-sm text-gray-300">Predicted Grade</div>
-        </div>
-        <div className="space-y-2">
-          <h4 className="font-medium text-gray-200">Suggestions:</h4>
-          {prediction.suggestions.map((suggestion, index) => (
-            <p key={index} className="text-gray-300 text-sm">• {suggestion}</p>
-          ))}
-        </div>
-      </div>
-    )}
-  </CardContent>
-</Card>
+            {prediction && (
+              <div className="mt-4 p-4 bg-purple-900/20 rounded-lg border border-purple-600/30">
+                <div className="text-center mb-3">
+                  <div className="text-3xl font-bold text-purple-400">{prediction.grade}</div>
+                  <div className="text-sm text-gray-300">Predicted Grade</div>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-medium text-gray-200">Suggestions:</h4>
+                  {prediction.suggestions.map((suggestion, index) => (
+                    <p key={index} className="text-gray-300 text-sm">• {suggestion}</p>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Notifications */}
@@ -1326,7 +1347,7 @@ const StudentDashboard = () => {
                   ?.label || "Dashboard"}
               </h1>
               <p className="text-gray-400 text-sm">
-                Welcome back, {studentProfile.name}
+                Welcome back, {fullName}
               </p>
             </div>
 

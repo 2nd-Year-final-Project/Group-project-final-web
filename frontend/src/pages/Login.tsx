@@ -55,6 +55,9 @@ const Login: React.FC = () => {
       const data: LoginResponse = await response.json();
       
       if (response.ok && data.success) {
+        // Store username in localStorage for all roles
+        localStorage.setItem("username", username);
+        
         // If login is successful and user role is returned
         if (data.role === "student") {
           // Create user object for auth store
