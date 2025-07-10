@@ -82,16 +82,42 @@ const StudentDashboard = () => {
     attendance: 92,
   };
 
-  // Academic data form state
+  // Academic data form state - update to include per-subject data
   const [academicData, setAcademicData] = useState({
-    hoursStudied: "",
     sleepHours: "",
     physicalActivity: "",
     extracurricular: "",
     peerInfluence: "",
-    teacherQuality: "",
     gender: "",
   });
+
+  // Subject-specific data state
+  const [subjectData, setSubjectData] = useState({
+    "1": { hoursStudied: "", teacherQuality: "" },
+    "2": { hoursStudied: "", teacherQuality: "" },
+    "3": { hoursStudied: "", teacherQuality: "" },
+  });
+
+  // Function to get prediction interpretation
+  const getPredictionInterpretation = (grade: string, percentage: number) => {
+    if (percentage >= 90) return "Excellent performance! You're on track for outstanding results.";
+    if (percentage >= 80) return "Very good performance. Keep up the great work!";
+    if (percentage >= 70) return "Good performance. Consider focusing on weak areas for improvement.";
+    if (percentage >= 60) return "Satisfactory performance. Additional effort needed to improve.";
+    if (percentage >= 50) return "Below average performance. Significant improvement required.";
+    return "Poor performance. Immediate action needed to avoid failure.";
+  };
+
+  // Update subject data handler
+  const handleSubjectDataChange = (subjectId: string, field: string, value: string) => {
+    setSubjectData(prev => ({
+      ...prev,
+      [subjectId]: {
+        ...prev[subjectId],
+        [field]: value
+      }
+    }));
+  };
 
   // Performance history data for charts
   const performanceHistory = [
@@ -137,8 +163,14 @@ const StudentDashboard = () => {
       code: "CS101",
       currentGrade: 78,
       predictedFinal: 82,
+      predictedGrade: "A-",
       status: "On Track",
       attendance: 95,
+      lectureAttendance: {
+        attended: 19,
+        total: 20,
+        percentage: 95
+      },
       marks: {
         quiz1: 85,
         quiz2: 75,
@@ -154,8 +186,14 @@ const StudentDashboard = () => {
       code: "CS201",
       currentGrade: 65,
       predictedFinal: 68,
+      predictedGrade: "B-",
       status: "At Risk",
       attendance: 87,
+      lectureAttendance: {
+        attended: 17,
+        total: 20,
+        percentage: 85
+      },
       marks: {
         quiz1: 70,
         quiz2: 60,
@@ -171,8 +209,14 @@ const StudentDashboard = () => {
       code: "CS301",
       currentGrade: 92,
       predictedFinal: 94,
+      predictedGrade: "A+",
       status: "Excellent",
       attendance: 98,
+      lectureAttendance: {
+        attended: 20,
+        total: 20,
+        percentage: 100
+      },
       marks: {
         quiz1: 95,
         quiz2: 88,
@@ -628,14 +672,13 @@ const StudentDashboard = () => {
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Predicted Final:</span>
                   <span className="font-medium text-purple-400">
-                    {getGradeLetter(module.predictedFinal)} (
-                    {module.predictedFinal}%)
+                    {module.predictedGrade} ({module.predictedFinal}%)
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Attendance:</span>
+                  <span className="text-gray-400">Lecture Attendance:</span>
                   <span className="font-medium text-green-400">
-                    {module.attendance}%
+                    {module.lectureAttendance.attended}/{module.lectureAttendance.total} ({module.lectureAttendance.percentage}%)
                   </span>
                 </div>
               </div>
@@ -649,8 +692,7 @@ const StudentDashboard = () => {
         <Card className="bg-gray-800 border-gray-700">
           <CardHeader>
             <CardTitle className="text-white">
-              Detailed Analysis -{" "}
-              {modules.find((m) => m.id === selectedModule)?.name}
+              Detailed Analysis - {modules.find((m) => m.id === selectedModule)?.name}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -660,26 +702,178 @@ const StudentDashboard = () => {
 
               return (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {Object.entries(module.marks).map(([key, value], index) => (
-                      <div
-                        key={index}
-                        className="text-center p-3 bg-gray-700 rounded-lg"
-                      >
-                        <div className="text-2xl font-bold text-blue-400">
-                          {value}
+                  {/* Input Section */}
+                  <div className="grid gap-6 lg:grid-cols-2">
+                    <Card className="bg-gray-700 border-gray-600">
+                      <CardHeader>
+                        <CardTitle className="text-white text-lg">Study Parameters</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor={`hoursStudied-${module.id}`} className="text-gray-200">
+                            Hours Studied (per week)
+                          </Label>
+                          <Input
+                            id={`hoursStudied-${module.id}`}
+                            type="number"
+                            min="0"
+                            max="168"
+                            placeholder="10"
+                            value={subjectData[module.id]?.hoursStudied || ""}
+                            onChange={(e) => handleSubjectDataChange(module.id, "hoursStudied", e.target.value)}
+                            className="bg-gray-600 border-gray-500 text-white"
+                          />
                         </div>
-                        <div className="text-sm text-gray-300 capitalize">
-                          {key.replace(/([A-Z])/g, " $1")}
+
+                        <div className="space-y-2">
+                          <Label className="text-gray-200">Teacher Quality</Label>
+                          <Select
+                            value={subjectData[module.id]?.teacherQuality || ""}
+                            onValueChange={(value) => handleSubjectDataChange(module.id, "teacherQuality", value)}
+                          >
+                            <SelectTrigger className="bg-gray-600 border-gray-500 text-white">
+                              <SelectValue placeholder="Select quality" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="low">Low</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="high">High</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
-                      </div>
-                    ))}
+
+                        <Button
+                          onClick={() => {
+                            toast({
+                              title: "Parameters Updated",
+                              description: `Study parameters for ${module.code} have been updated.`,
+                            });
+                          }}
+                          className="w-full bg-blue-600 hover:bg-blue-700"
+                        >
+                          Update Parameters
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="bg-gray-700 border-gray-600">
+                      <CardHeader>
+                        <CardTitle className="text-white text-lg">Attendance Overview</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="space-y-3">
+                          <div className="flex justify-between">
+                            <span className="text-gray-300">Lectures Attended:</span>
+                            <span className="text-white font-medium">
+                              {module.lectureAttendance.attended}/{module.lectureAttendance.total}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-300">Attendance Rate:</span>
+                            <span className={`font-medium ${module.lectureAttendance.percentage >= 90 ? 'text-green-400' : 
+                              module.lectureAttendance.percentage >= 75 ? 'text-yellow-400' : 'text-red-400'}`}>
+                              {module.lectureAttendance.percentage}%
+                            </span>
+                          </div>
+                          <div className="mt-2">
+                            <Progress value={module.lectureAttendance.percentage} className="h-2" />
+                          </div>
+                        </div>
+                        
+                        <div className="mt-4 p-3 bg-gray-600 rounded-lg">
+                          <p className="text-sm text-gray-300">
+                            {module.lectureAttendance.percentage >= 90 
+                              ? "Excellent attendance! Keep it up."
+                              : module.lectureAttendance.percentage >= 75 
+                              ? "Good attendance. Try to maintain consistency."
+                              : "Poor attendance. This may affect your performance."}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
 
+                  {/* Marks Overview */}
+                  <Card className="bg-gray-700 border-gray-600">
+                    <CardHeader>
+                      <CardTitle className="text-white text-lg">Assessment Marks</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <div className="text-center p-3 bg-gray-600 rounded-lg">
+                          <div className="text-2xl font-bold text-blue-400">
+                            {module.marks.quiz1}
+                          </div>
+                          <div className="text-sm text-gray-300">Quiz 1</div>
+                        </div>
+                        <div className="text-center p-3 bg-gray-600 rounded-lg">
+                          <div className="text-2xl font-bold text-blue-400">
+                            {module.marks.quiz2}
+                          </div>
+                          <div className="text-sm text-gray-300">Quiz 2</div>
+                        </div>
+                        <div className="text-center p-3 bg-gray-600 rounded-lg">
+                          <div className="text-2xl font-bold text-purple-400">
+                            {module.marks.assignment1}
+                          </div>
+                          <div className="text-sm text-gray-300">Assignment 1</div>
+                        </div>
+                        <div className="text-center p-3 bg-gray-600 rounded-lg">
+                          <div className="text-2xl font-bold text-purple-400">
+                            {module.marks.assignment2}
+                          </div>
+                          <div className="text-sm text-gray-300">Assignment 2</div>
+                        </div>
+                        <div className="text-center p-3 bg-gray-600 rounded-lg">
+                          <div className="text-2xl font-bold text-green-400">
+                            {module.marks.midterm}
+                          </div>
+                          <div className="text-sm text-gray-300">Midterm</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Prediction Section */}
+                  <Card className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 border-purple-600/30">
+                    <CardHeader>
+                      <CardTitle className="text-white text-lg">AI Prediction Results</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid gap-6 lg:grid-cols-2">
+                        <div className="text-center space-y-2">
+                          <div className="text-4xl font-bold text-purple-400">
+                            {module.predictedFinal}%
+                          </div>
+                          <div className="text-2xl font-semibold text-white">
+                            {module.predictedGrade}
+                          </div>
+                          <div className="text-sm text-gray-300">Predicted Final Grade</div>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="p-3 bg-purple-900/20 rounded-lg">
+                            <h4 className="font-medium text-purple-300 mb-2">Interpretation:</h4>
+                            <p className="text-purple-200 text-sm">
+                              {getPredictionInterpretation(module.predictedGrade, module.predictedFinal)}
+                            </p>
+                          </div>
+                          
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-400">Confidence Level:</span>
+                            <span className="text-white font-medium">
+                              {module.predictedFinal >= 80 ? "High" : 
+                               module.predictedFinal >= 60 ? "Medium" : "Low"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* AI Recommendations */}
                   <div className="p-4 bg-blue-900/20 rounded-lg border border-blue-600/30">
-                    <h4 className="font-medium text-blue-300 mb-2">
-                      AI Recommendations:
-                    </h4>
+                    <h4 className="font-medium text-blue-300 mb-2">AI Recommendations:</h4>
                     <ul className="space-y-1 text-blue-200 text-sm">
                       {module.status === "At Risk"
                         ? [
@@ -687,20 +881,29 @@ const StudentDashboard = () => {
                             "Attend office hours for personalized help",
                             "Form study groups with classmates",
                             "Review past assignments and identify weak areas",
-                          ]
+                            "Increase weekly study hours to improve performance"
+                          ].map((rec, idx) => (
+                            <li key={idx}>• {rec}</li>
+                          ))
                         : module.status === "Excellent"
                         ? [
                             "Continue your excellent work!",
                             "Consider helping classmates to reinforce your knowledge",
                             "Explore advanced topics in this subject",
                             "Maintain consistent study habits",
-                          ]
+                            "Consider taking advanced courses in this area"
+                          ].map((rec, idx) => (
+                            <li key={idx}>• {rec}</li>
+                          ))
                         : [
                             "Keep up the good work and stay consistent",
                             "Review challenging topics before exams",
                             "Participate actively in class discussions",
                             "Complete all assignments on time",
-                          ]}
+                            "Consider increasing study hours slightly"
+                          ].map((rec, idx) => (
+                            <li key={idx}>• {rec}</li>
+                          ))}
                     </ul>
                   </div>
                 </div>
@@ -1092,19 +1295,7 @@ const StudentDashboard = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="hoursStudied" className="text-gray-200">Hours Studied (per week)</Label>
-                <Input
-                  id="hoursStudied"
-                  type="number"
-                  min="0"
-                  max="168"
-                  placeholder="25"
-                  value={academicData.hoursStudied}
-                  onChange={(e) => setAcademicData(prev => ({ ...prev, hoursStudied: e.target.value }))}
-                  className="bg-gray-700 border-gray-600 text-white"
-                />
-              </div>
+              
 
               <div className="space-y-2">
                 <Label htmlFor="sleepHours" className="text-gray-200">Sleep Hours (per day)</Label>
@@ -1184,20 +1375,7 @@ const StudentDashboard = () => {
               {isLoading ? 'Analyzing...' : 'Update AI Prediction'}
             </Button>
 
-            {prediction && (
-              <div className="mt-4 p-4 bg-purple-900/20 rounded-lg border border-purple-600/30">
-                <div className="text-center mb-3">
-                  <div className="text-3xl font-bold text-purple-400">{prediction.grade}</div>
-                  <div className="text-sm text-gray-300">Predicted Grade</div>
-                </div>
-                <div className="space-y-2">
-                  <h4 className="font-medium text-gray-200">Suggestions:</h4>
-                  {prediction.suggestions.map((suggestion, index) => (
-                    <p key={index} className="text-gray-300 text-sm">• {suggestion}</p>
-                  ))}
-                </div>
-              </div>
-            )}
+            
           </CardContent>
         </Card>
       </div>
