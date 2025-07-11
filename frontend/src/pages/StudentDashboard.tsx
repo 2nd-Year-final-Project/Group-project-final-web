@@ -293,6 +293,77 @@ const StudentDashboard = () => {
     }
   };
 
+  const handleUpdateProfileData = async () => {
+    setIsLoading(true);
+    try {
+      // Validate required fields
+      if (!academicData.sleepHours || !academicData.physicalActivity || 
+          !academicData.peerInfluence || !academicData.extracurricular || 
+          !academicData.gender) {
+        toast({
+          title: "Validation Error",
+          description: "Please fill in all required fields.",
+          variant: "destructive"
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Map the form values to API format
+      const peerInfluenceMap = {
+        "negative": 0,
+        "natural": 1,
+        "positive": 2
+      };
+
+      const extracurricularMap = {
+        "no": 0,
+        "yes": 1
+      };
+
+      const genderMap = {
+        "female": 0,
+        "male": 1
+      };
+
+      // Prepare the request payload
+      const payload = {
+        student_id: 1, // You might want to get this from user context/localStorage
+        gender: genderMap[academicData.gender.toLowerCase()],
+        peer_influence: peerInfluenceMap[academicData.peerInfluence.toLowerCase()],
+        extracurricular_activities: extracurricularMap[academicData.extracurricular.toLowerCase()],
+        physical_activity: parseInt(academicData.physicalActivity),
+        sleep_hours: parseInt(academicData.sleepHours)
+      };
+
+      console.log("Sending payload:", payload); // Debug log
+
+      // Make the API call
+      const response = await axios.post('http://localhost:5000/api/student/common', payload, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        toast({
+          title: "Profile Updated",
+          description: "Your profile data has been updated successfully.",
+        });
+      }
+
+    } catch (error) {
+      console.error("Profile update failed:", error);
+      toast({
+        title: "Update Failed",
+        description: error.response?.data?.message || "Failed to update profile data. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
     toast({
@@ -1332,9 +1403,9 @@ const StudentDashboard = () => {
                     <SelectValue placeholder="Select level" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="negative">Negative</SelectItem>
+                    <SelectItem value="natural">Natural</SelectItem>
+                    <SelectItem value="positive">Positive</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1346,8 +1417,8 @@ const StudentDashboard = () => {
                     <SelectValue placeholder="Select option" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="yes">Yes</SelectItem>
                     <SelectItem value="no">No</SelectItem>
+                    <SelectItem value="yes">Yes</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1368,11 +1439,11 @@ const StudentDashboard = () => {
             </div>
 
             <Button 
-              onClick={handlePredictGrade} 
+              onClick={handleUpdateProfileData} 
               className="w-full bg-purple-600 hover:bg-purple-700"
               disabled={isLoading}
             >
-              {isLoading ? 'Analyzing...' : 'Update AI Prediction'}
+              {isLoading ? 'Updating...' : 'Update profile data'}
             </Button>
 
             
