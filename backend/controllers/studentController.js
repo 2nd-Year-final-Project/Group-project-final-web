@@ -24,12 +24,14 @@ const getStudentCourses = (req, res) => {
          COALESCE(lm.assignment1, 0) + COALESCE(lm.assignment2, 0) + 
          COALESCE(lm.midterm_marks, 0)) / 5, 2
       ) as current_grade,
-      u_lecturer.full_name as lecturer_name
+      u_lecturer.full_name as lecturer_name,
+      ai.attendance
     FROM student_enrollments se
     JOIN courses c ON se.course_id = c.id
     LEFT JOIN lecturer_marks lm ON se.student_id = lm.student_id AND c.id = lm.course_id
     LEFT JOIN lecturer_courses lc ON c.id = lc.course_id
     LEFT JOIN users u_lecturer ON lc.lecturer_id = u_lecturer.id
+    LEFT JOIN admin_inputs ai ON se.student_id = ai.student_id AND c.id = ai.course_id
     WHERE se.student_id = ? AND se.status = 'active'
     ORDER BY c.course_name
   `;
@@ -86,16 +88,45 @@ const getStudentCourseDetails = (req, res) => {
 
 // Student - Submit common data
 const submitCommonData = (req, res) => {
-  const { student_id, gender, peer_influence, motivation_level, extracurricular_activities, physical_activity, sleep_hours } = req.body;
+  const { student_id, gender, peer_influence, extracurricular_activities, physical_activity, sleep_hours } = req.body;
 
-  const sql = `INSERT INTO student_common_data 
-    (student_id, gender, peer_influence, motivation_level, extracurricular_activities, physical_activity, sleep_hours)
-    VALUES (?, ?, ?, ?, ?, ?, ?)`;
+  // First check if data already exists for this student
+  const checkSql = "SELECT id FROM student_common_data WHERE student_id = ?";
+  
+  db.query(checkSql, [student_id], (checkErr, checkResults) => {
+    if (checkErr) {
+      return res.status(500).json({ message: "Database error", error: checkErr.message });
+    }
 
-  db.query(sql, [student_id, gender, peer_influence, motivation_level, extracurricular_activities, physical_activity, sleep_hours], (err) => {
-    if (err) return res.status(500).json({ message: "Database error", error: err });
+    if (checkResults.length > 0) {
+      // Update existing data
+      const updateSql = `
+        UPDATE student_common_data 
+        SET gender = ?, peer_influence = ?, extracurricular_activities = ?, physical_activity = ?, sleep_hours = ?
+        WHERE student_id = ?
+      `;
+      
+      db.query(updateSql, [gender, peer_influence, extracurricular_activities, physical_activity, sleep_hours, student_id], (updateErr) => {
+        if (updateErr) {
+          return res.status(500).json({ message: "Database error", error: updateErr.message });
+        }
+        res.json({ message: "Common student data updated successfully." });
+      });
+    } else {
+      // Insert new data (motivation_level defaults to NULL)
+      const insertSql = `
+        INSERT INTO student_common_data 
+        (student_id, gender, peer_influence, extracurricular_activities, physical_activity, sleep_hours)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `;
 
-    res.json({ message: "Common student data submitted successfully." });
+      db.query(insertSql, [student_id, gender, peer_influence, extracurricular_activities, physical_activity, sleep_hours], (insertErr) => {
+        if (insertErr) {
+          return res.status(500).json({ message: "Database error", error: insertErr.message });
+        }
+        res.json({ message: "Common student data submitted successfully." });
+      });
+    }
   });
 };
 
@@ -208,11 +239,33 @@ const getStudentName = async (req, res) => {
   }
 };
 
+// Student - Get common data
+const getCommonData = (req, res) => {
+  const { student_id } = req.params;
+
+  const sql = `SELECT gender, peer_influence, extracurricular_activities, physical_activity, sleep_hours 
+               FROM student_common_data 
+               WHERE student_id = ?`;
+
+  db.query(sql, [student_id], (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: "Database error", error: err.message });
+    }
+
+    if (results.length === 0) {
+      return res.json(null); // No data found
+    }
+
+    res.json(results[0]);
+  });
+};
+
 module.exports = {
   getStudentCourses,
   getStudentCourseDetails,
   submitCommonData,
   submitSubjectData,
   getStudentSubjectData,
-  getStudentName
+  getStudentName,
+  getCommonData
 };

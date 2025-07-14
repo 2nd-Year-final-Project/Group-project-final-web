@@ -5,7 +5,8 @@ const {
   submitCommonData, 
   submitSubjectData,
   getStudentSubjectData,
-  getStudentName 
+  getStudentName,
+  getCommonData 
 } = require("../controllers/studentController");
 
 const router = express.Router();
@@ -21,6 +22,9 @@ router.get("/subject-data/:studentId/:courseId", getStudentSubjectData);
 
 // Get student name
 router.get("/name/:username", getStudentName);
+
+// Get common data
+router.get("/common/:student_id", getCommonData);
 
 // Submit data
 router.post("/common", submitCommonData);

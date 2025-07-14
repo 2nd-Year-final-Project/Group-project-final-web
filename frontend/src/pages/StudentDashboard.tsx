@@ -79,6 +79,7 @@ const StudentDashboard = () => {
   useEffect(() => {
     if (user?.id) {
       fetchStudentCourses();
+      fetchExistingCommonData();
     }
   }, [user]);
 
@@ -97,12 +98,7 @@ const StudentDashboard = () => {
           predictedFinal: course.current_grade || 0,
           predictedGrade: getGradeFromPercentage(course.current_grade || 0),
           status: course.current_grade >= 60 ? "On Track" : "At Risk",
-          attendance: 95, // Default value - could be fetched separately
-          lectureAttendance: {
-            attended: 19,
-            total: 20,
-            percentage: 95
-          },
+          attendance: course.attendance || null, // Use actual attendance from admin input
           marks: {
             quiz1: course.quiz1 || 0,
             quiz2: course.quiz2 || 0,
@@ -156,7 +152,17 @@ const StudentDashboard = () => {
     academicYear: "3rd Year",
     profileImage: "/api/placeholder/100/100",
     overallGPA: 3.42,
-    attendance: 92,
+  };
+
+  // Calculate overall attendance from all courses
+  const calculateOverallAttendance = () => {
+    if (!modules || modules.length === 0) return null;
+    
+    const coursesWithAttendance = modules.filter(module => module.attendance !== null);
+    if (coursesWithAttendance.length === 0) return null;
+    
+    const totalAttendance = coursesWithAttendance.reduce((sum, module) => sum + module.attendance, 0);
+    return Math.round(totalAttendance / coursesWithAttendance.length);
   };
 
   // Academic data form state - update to include per-subject data
@@ -412,7 +418,7 @@ const StudentDashboard = () => {
 
       // Prepare the request payload
       const payload = {
-        student_id: 1, // You might want to get this from user context/localStorage
+        student_id: user?.id, // Use actual user ID from auth store
         gender: genderMap[academicData.gender.toLowerCase()],
         peer_influence: peerInfluenceMap[academicData.peerInfluence.toLowerCase()],
         extracurricular_activities: extracurricularMap[academicData.extracurricular.toLowerCase()],
@@ -477,6 +483,32 @@ const StudentDashboard = () => {
     }
   };
 
+  const fetchExistingCommonData = async () => {
+    try {
+      if (!user?.id) return;
+      
+      const response = await axios.get(`http://localhost:5000/api/student/common/${user.id}`);
+      
+      if (response.data) {
+        // Map the API response back to form values
+        const peerInfluenceReverseMap = { 0: "negative", 1: "natural", 2: "positive" };
+        const extracurricularReverseMap = { 0: "no", 1: "yes" };
+        const genderReverseMap = { 0: "female", 1: "male" };
+
+        setAcademicData({
+          sleepHours: response.data.sleep_hours?.toString() || "",
+          physicalActivity: response.data.physical_activity?.toString() || "",
+          extracurricular: extracurricularReverseMap[response.data.extracurricular_activities] || "",
+          peerInfluence: peerInfluenceReverseMap[response.data.peer_influence] || "",
+          gender: genderReverseMap[response.data.gender] || "",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to fetch existing common data:", error);
+      // Don't show error toast for this since it's optional
+    }
+  };
+
   useEffect(() => {
     fetchName();
   }, [username]);
@@ -504,9 +536,9 @@ const StudentDashboard = () => {
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold">
-              {studentProfile.attendance}%
+              {calculateOverallAttendance() !== null ? `${calculateOverallAttendance()}%` : 'N/A'}
             </div>
-            <div className="text-sm text-blue-200">Attendance</div>
+            <div className="text-sm text-blue-200">Overall Attendance</div>
           </div>
         </div>
       </div>
@@ -831,9 +863,17 @@ const StudentDashboard = () => {
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Lecture Attendance:</span>
-                  <span className="font-medium text-green-400">
-                    {module.lectureAttendance.attended}/{module.lectureAttendance.total} ({module.lectureAttendance.percentage}%)
+                  <span className="text-gray-400">Attendance Rate:</span>
+                  <span className={`font-medium ${
+                    module.attendance === null 
+                      ? 'text-gray-400' 
+                      : module.attendance >= 90 
+                      ? 'text-green-400' 
+                      : module.attendance >= 75 
+                      ? 'text-yellow-400' 
+                      : 'text-red-400'
+                  }`}>
+                    {module.attendance !== null ? `${module.attendance}%` : 'Not Set'}
                   </span>
                 </div>
               </div>
@@ -913,28 +953,33 @@ const StudentDashboard = () => {
                       <CardContent className="space-y-4">
                         <div className="space-y-3">
                           <div className="flex justify-between">
-                            <span className="text-gray-300">Lectures Attended:</span>
-                            <span className="text-white font-medium">
-                              {module.lectureAttendance.attended}/{module.lectureAttendance.total}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
                             <span className="text-gray-300">Attendance Rate:</span>
-                            <span className={`font-medium ${module.lectureAttendance.percentage >= 90 ? 'text-green-400' : 
-                              module.lectureAttendance.percentage >= 75 ? 'text-yellow-400' : 'text-red-400'}`}>
-                              {module.lectureAttendance.percentage}%
+                            <span className={`font-medium ${
+                              module.attendance === null 
+                                ? 'text-gray-400' 
+                                : module.attendance >= 90 
+                                ? 'text-green-400' 
+                                : module.attendance >= 75 
+                                ? 'text-yellow-400' 
+                                : 'text-red-400'
+                            }`}>
+                              {module.attendance !== null ? `${module.attendance}%` : 'Not Set'}
                             </span>
                           </div>
-                          <div className="mt-2">
-                            <Progress value={module.lectureAttendance.percentage} className="h-2" />
-                          </div>
+                          {module.attendance !== null && (
+                            <div className="mt-2">
+                              <Progress value={module.attendance} className="h-2" />
+                            </div>
+                          )}
                         </div>
                         
                         <div className="mt-4 p-3 bg-gray-600 rounded-lg">
                           <p className="text-sm text-gray-300">
-                            {module.lectureAttendance.percentage >= 90 
+                            {module.attendance === null
+                              ? "Attendance not yet recorded by admin."
+                              : module.attendance >= 90 
                               ? "Excellent attendance! Keep it up."
-                              : module.lectureAttendance.percentage >= 75 
+                              : module.attendance >= 75 
                               ? "Good attendance. Try to maintain consistency."
                               : "Poor attendance. This may affect your performance."}
                           </p>

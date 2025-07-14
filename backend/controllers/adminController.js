@@ -1,14 +1,14 @@
 const db = require("../config/db");
 
-// Admin submits attendance and motivation level
+// Admin submits attendance (legacy function - kept for compatibility)
 const submitAdminInput = (req, res) => {
-  const { student_id, subject_id, attendance, motivation_level } = req.body;
+  const { student_id, course_id, attendance } = req.body;
 
   const sql = `INSERT INTO admin_inputs 
-    (student_id, subject_id, attendance, motivation_level)
-    VALUES (?, ?, ?, ?)`;
+    (student_id, course_id, attendance)
+    VALUES (?, ?, ?)`;
 
-  db.query(sql, [student_id, subject_id, attendance, motivation_level], (err) => {
+  db.query(sql, [student_id, course_id, attendance], (err) => {
     if (err) {
       return res.status(500).json({ message: "Database error", error: err });
     }
@@ -156,8 +156,8 @@ const updateStudentAttendance = (req, res) => {
       // Insert new attendance record
       const insertSql = `
         INSERT INTO admin_inputs 
-        (student_id, course_id, attendance, motivation_level)
-        VALUES (?, ?, ?, NULL)
+        (student_id, course_id, attendance)
+        VALUES (?, ?, ?)
       `;
 
       db.query(insertSql, [student_id, course_id, attendance], (insertErr) => {
