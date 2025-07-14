@@ -3,6 +3,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import AdminSidebar from '@/components/AdminSidebar';
 import StudentDetailsModal from '@/components/StudentDetailsModal';
 import CourseManagement from '@/components/CourseManagement';
+import StudentManagement from '@/components/StudentManagement';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -245,6 +246,9 @@ const AdminDashboard: React.FC = () => {
             </CardContent>
           </Card>
         );
+
+      case 'student-management':
+        return <StudentManagement />;
 
       case 'lecturers':
         return (

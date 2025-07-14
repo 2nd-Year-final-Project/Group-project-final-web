@@ -3,13 +3,28 @@ const db = require("../config/db");
 const bcrypt = require("bcryptjs");
 const { sendApprovalEmail } = require("../utils/emailService"); // Import email sender
 const router = express.Router();
-const { submitAdminInput } = require("../controllers/adminController");
+const { 
+  submitAdminInput,
+  getAllStudentsForAdmin,
+  getStudentEnrolledCourses,
+  updateStudentMotivation,
+  updateStudentAttendance
+} = require("../controllers/adminController");
 
 // Import course management routes
 const courseRoutes = require("./courseRoutes");
 
 // Use course management routes under /admin prefix
 router.use("/", courseRoutes);
+
+// New routes for student management
+router.get("/students-management", getAllStudentsForAdmin);
+router.get("/students/:studentId/courses", getStudentEnrolledCourses);
+router.post("/students/motivation", updateStudentMotivation);
+router.post("/students/attendance", updateStudentAttendance);
+
+// Original admin input route
+router.post("/admin-input", submitAdminInput);
 
 
 // Get all pending users

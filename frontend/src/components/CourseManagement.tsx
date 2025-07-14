@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { Trash2, Edit, Plus, Users, BookOpen } from "lucide-react";
 
@@ -51,6 +52,10 @@ const CourseManagement = () => {
     selectedLecturer: '',
     selectedStudent: ''
   });
+
+  // Bulk enrollment state
+  const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
+  const [isBulkMode, setIsBulkMode] = useState(false);
 
   // Fetch data
   useEffect(() => {
@@ -250,6 +255,62 @@ const CourseManagement = () => {
       }
     } catch (error) {
       toast({ title: "Error", description: "Failed to enroll student", variant: "destructive" });
+    }
+  };
+
+  const handleBulkEnrollStudents = async () => {
+    if (!selectedCourse || selectedStudents.length === 0) {
+      toast({ title: "Error", description: "Please select at least one student", variant: "destructive" });
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/bulk-enroll-students', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          student_ids: selectedStudents.map(id => parseInt(id)),
+          course_id: selectedCourse.id
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        toast({ 
+          title: "Success", 
+          description: result.message
+        });
+        fetchCourseAssignments(selectedCourse.id);
+        fetchCourses();
+        setSelectedStudents([]);
+        setIsBulkMode(false);
+      } else {
+        const error = await response.json();
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to enroll students", variant: "destructive" });
+    }
+  };
+
+  const handleStudentSelection = (studentId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedStudents(prev => [...prev, studentId]);
+    } else {
+      setSelectedStudents(prev => prev.filter(id => id !== studentId));
+    }
+  };
+
+  const handleSelectAllStudents = (checked: boolean) => {
+    if (checked) {
+      // Filter out students who are already enrolled
+      const enrolledStudentIds = courseAssignments.students.map(s => s.id.toString());
+      const availableStudentIds = students
+        .filter(student => !enrolledStudentIds.includes(student.id.toString()))
+        .map(student => student.id.toString());
+      setSelectedStudents(availableStudentIds);
+    } else {
+      setSelectedStudents([]);
     }
   };
 
@@ -490,6 +551,55 @@ const CourseManagement = () => {
                         ))}
                       </div>
                     </div>
+                  </div>
+
+                  {/* Bulk Enrollment */}
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-lg font-semibold text-white mb-3">Bulk Enroll Students</h4>
+                      <Button 
+                        onClick={() => setIsBulkMode(prev => !prev)} 
+                        className={`px-3 py-1 text-sm rounded ${isBulkMode ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'}`}
+                      >
+                        {isBulkMode ? 'Cancel Bulk Enroll' : 'Enable Bulk Enroll'}
+                      </Button>
+                    </div>
+                    {isBulkMode && (
+                      <div className="p-4 bg-gray-700 rounded">
+                        <div className="flex items-center justify-between mb-2">
+                          <h5 className="text-sm font-medium text-gray-300">Select Students</h5>
+                          <Button 
+                            size="sm" 
+                            onClick={() => handleSelectAllStudents(selectedStudents.length !== students.length)}
+                            className="px-3 py-1 text-xs rounded bg-blue-600 hover:bg-blue-700"
+                          >
+                            {selectedStudents.length === students.length ? 'Deselect All' : 'Select All'}
+                          </Button>
+                        </div>
+                        <div className="max-h-40 overflow-y-auto">
+                          {students.map((student) => (
+                            <div key={student.id} className="flex items-center justify-between p-2 rounded bg-gray-600 mb-2">
+                              <div className="flex items-center">
+                                <Checkbox 
+                                  checked={selectedStudents.includes(student.id.toString())}
+                                  onCheckedChange={(checked) => handleStudentSelection(student.id.toString(), !!checked)}
+                                  className="mr-2"
+                                />
+                                <span className="text-white">{student.full_name}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-3">
+                          <Button 
+                            onClick={handleBulkEnrollStudents} 
+                            className="w-full bg-green-600 hover:bg-green-700"
+                          >
+                            Enroll Selected Students
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

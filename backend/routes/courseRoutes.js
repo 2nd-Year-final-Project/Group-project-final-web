@@ -10,6 +10,7 @@ const {
   assignLecturerToCourse,
   removeLecturerFromCourse,
   enrollStudentInCourse,
+  bulkEnrollStudentsInCourse,
   removeStudentFromCourse,
   getCourseAssignments
 } = require("../controllers/courseController");
@@ -30,6 +31,7 @@ router.delete("/assign-lecturer", removeLecturerFromCourse);
 
 // Student enrollment routes
 router.post("/enroll-student", enrollStudentInCourse);
+router.post("/bulk-enroll-students", bulkEnrollStudentsInCourse);
 router.delete("/enroll-student", removeStudentFromCourse);
 
 // Get course assignments and enrollments

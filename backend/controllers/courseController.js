@@ -176,6 +176,44 @@ const enrollStudentInCourse = (req, res) => {
   });
 };
 
+// Bulk enroll multiple students in course
+const bulkEnrollStudentsInCourse = (req, res) => {
+  const { student_ids, course_id } = req.body;
+
+  if (!student_ids || !Array.isArray(student_ids) || student_ids.length === 0) {
+    return res.status(400).json({ message: "Student IDs array is required and cannot be empty" });
+  }
+
+  if (!course_id) {
+    return res.status(400).json({ message: "Course ID is required" });
+  }
+
+  // Prepare bulk insert values
+  const values = student_ids.map(student_id => [student_id, course_id]);
+  const sql = "INSERT IGNORE INTO student_enrollments (student_id, course_id) VALUES ?";
+  
+  db.query(sql, [values], (err, result) => {
+    if (err) {
+      return res.status(500).json({ message: "Database error", error: err.message });
+    }
+    
+    const enrolledCount = result.affectedRows;
+    const alreadyEnrolledCount = student_ids.length - enrolledCount;
+    
+    let message = `${enrolledCount} student(s) enrolled successfully`;
+    if (alreadyEnrolledCount > 0) {
+      message += `, ${alreadyEnrolledCount} student(s) were already enrolled`;
+    }
+    
+    res.status(201).json({ 
+      message,
+      enrolled_count: enrolledCount,
+      already_enrolled_count: alreadyEnrolledCount,
+      total_processed: student_ids.length
+    });
+  });
+};
+
 // Remove student from course
 const removeStudentFromCourse = (req, res) => {
   const { student_id, course_id } = req.body;
@@ -248,6 +286,7 @@ module.exports = {
   assignLecturerToCourse,
   removeLecturerFromCourse,
   enrollStudentInCourse,
+  bulkEnrollStudentsInCourse,
   removeStudentFromCourse,
   getCourseAssignments
 };

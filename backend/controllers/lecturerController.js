@@ -115,7 +115,19 @@ const getAtRiskStudents = (req, res) => {
 const submitMarks = (req, res) => {
   const { student_id, course_id, quiz1, quiz2, assignment1, assignment2, midterm_marks } = req.body;
 
-  // First check if marks already exist for this student and subject
+  // Validate required fields
+  if (!student_id || !course_id) {
+    return res.status(400).json({ message: "Student ID and Course ID are required" });
+  }
+
+  // Convert null values to NULL for database
+  const quiz1Value = quiz1 !== null && quiz1 !== undefined && quiz1 !== '' ? parseFloat(quiz1) : null;
+  const quiz2Value = quiz2 !== null && quiz2 !== undefined && quiz2 !== '' ? parseFloat(quiz2) : null;
+  const assignment1Value = assignment1 !== null && assignment1 !== undefined && assignment1 !== '' ? parseFloat(assignment1) : null;
+  const assignment2Value = assignment2 !== null && assignment2 !== undefined && assignment2 !== '' ? parseFloat(assignment2) : null;
+  const midtermValue = midterm_marks !== null && midterm_marks !== undefined && midterm_marks !== '' ? parseFloat(midterm_marks) : null;
+
+  // First check if marks already exist for this student and course
   const checkSql = "SELECT id FROM lecturer_marks WHERE student_id = ? AND course_id = ?";
   
   db.query(checkSql, [student_id, course_id], (checkErr, checkResults) => {
@@ -131,11 +143,11 @@ const submitMarks = (req, res) => {
         WHERE student_id = ? AND course_id = ?
       `;
       
-      db.query(updateSql, [quiz1, quiz2, assignment1, assignment2, midterm_marks, student_id, course_id], (updateErr) => {
+      db.query(updateSql, [quiz1Value, quiz2Value, assignment1Value, assignment2Value, midtermValue, student_id, course_id], (updateErr) => {
         if (updateErr) {
           return res.status(500).json({ message: "Database error", error: updateErr.message });
         }
-        res.json({ message: "Lecturer marks updated successfully." });
+        res.json({ message: "Marks updated successfully." });
       });
     } else {
       // Insert new marks
@@ -145,11 +157,11 @@ const submitMarks = (req, res) => {
         VALUES (?, ?, ?, ?, ?, ?, ?)
       `;
 
-      db.query(insertSql, [student_id, course_id, quiz1, quiz2, assignment1, assignment2, midterm_marks], (insertErr) => {
+      db.query(insertSql, [student_id, course_id, quiz1Value, quiz2Value, assignment1Value, assignment2Value, midtermValue], (insertErr) => {
         if (insertErr) {
           return res.status(500).json({ message: "Database error", error: insertErr.message });
         }
-        res.json({ message: "Lecturer marks submitted successfully." });
+        res.json({ message: "Marks submitted successfully." });
       });
     }
   });

@@ -224,26 +224,49 @@ const LecturerDashboard = () => {
                 <CardContent>
                   <div className="space-y-2">
                     {studentRoster.map((student) => (
-                      <div key={student.id} className="flex items-center justify-between p-3 border border-gray-700 rounded-lg">
-                        <div>
-                          <div className="font-medium text-white">{student.full_name}</div>
-                          <div className="text-sm text-gray-400">{student.email}</div>
-                          <div className="text-sm text-gray-400">
-                            Enrolled: {new Date(student.enrollment_date).toLocaleDateString()}
+                      <div key={student.id} className="p-4 border border-gray-700 rounded-lg bg-gray-750">
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <div className="font-medium text-white">{student.full_name}</div>
+                            <div className="text-sm text-gray-400">{student.email}</div>
+                            <div className="text-sm text-gray-400">
+                              Enrolled: {new Date(student.enrollment_date).toLocaleDateString()}
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <span className="text-lg font-bold text-blue-400">{student.current_grade}%</span>
+                            <Button 
+                              size="sm" 
+                              onClick={() => handleAddMarks(student)}
+                              className="bg-blue-600 hover:bg-blue-700 text-white"
+                            >
+                              {(student.quiz1 || student.quiz2 || student.assignment1 || student.assignment2 || student.midterm) ? 'Edit Marks' : 'Add Marks'}
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-3">
-                          <span className="text-lg font-bold text-blue-400">{student.current_grade}%</span>
-                          <Button size="sm" variant="outline" className="bg-white-700 border-gray-600 text-white hover:bg-gray-700 hover:text-white">
-                            View Details
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            onClick={() => handleAddMarks(student)}
-                            className="bg-blue-600 hover:bg-blue-300 text-blue-50 hover:text-blue-700"
-                          >
-                            Add Marks
-                          </Button>
+                        
+                        {/* Marks Display */}
+                        <div className="grid grid-cols-5 gap-2 mt-3">
+                          <div className="text-center p-2 bg-gray-600 rounded">
+                            <div className="text-sm font-bold text-blue-400">{student.quiz1 || '-'}</div>
+                            <div className="text-xs text-gray-300">Quiz 1</div>
+                          </div>
+                          <div className="text-center p-2 bg-gray-600 rounded">
+                            <div className="text-sm font-bold text-blue-400">{student.quiz2 || '-'}</div>
+                            <div className="text-xs text-gray-300">Quiz 2</div>
+                          </div>
+                          <div className="text-center p-2 bg-gray-600 rounded">
+                            <div className="text-sm font-bold text-purple-400">{student.assignment1 || '-'}</div>
+                            <div className="text-xs text-gray-300">Assign 1</div>
+                          </div>
+                          <div className="text-center p-2 bg-gray-600 rounded">
+                            <div className="text-sm font-bold text-purple-400">{student.assignment2 || '-'}</div>
+                            <div className="text-xs text-gray-300">Assign 2</div>
+                          </div>
+                          <div className="text-center p-2 bg-gray-600 rounded">
+                            <div className="text-sm font-bold text-green-400">{student.midterm || '-'}</div>
+                            <div className="text-xs text-gray-300">Midterm</div>
+                          </div>
                         </div>
                       </div>
                     ))}
