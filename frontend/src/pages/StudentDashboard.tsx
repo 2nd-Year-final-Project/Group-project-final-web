@@ -158,15 +158,18 @@ const StudentDashboard = () => {
   };
 
   const getGradeFromPercentage = (percentage: number) => {
-    if (percentage >= 85) return "A";
-    if (percentage >= 80) return "A-";
-    if (percentage >= 75) return "B+";
-    if (percentage >= 70) return "B";
-    if (percentage >= 65) return "B-";
-    if (percentage >= 60) return "C+";
-    if (percentage >= 55) return "C";
-    if (percentage >= 50) return "C-";
-    return "F";
+    if (percentage >= 85) return "A+";
+    if (percentage >= 70) return "A";
+    if (percentage >= 65) return "A-";
+    if (percentage >= 60) return "B+";
+    if (percentage >= 55) return "B";
+    if (percentage >= 50) return "B-";
+    if (percentage >= 45) return "C+";
+    if (percentage >= 40) return "C";
+    if (percentage >= 35) return "C-";
+    if (percentage >= 30) return "D+";
+    if (percentage >= 25) return "D";
+    return "E";
   };
 
   // Student profile data
@@ -208,12 +211,18 @@ const StudentDashboard = () => {
 
   // Function to get prediction interpretation
   const getPredictionInterpretation = (grade: string, percentage: number) => {
-    if (percentage >= 90) return "Excellent performance! You're on track for outstanding results.";
-    if (percentage >= 80) return "Very good performance. Keep up the great work!";
-    if (percentage >= 70) return "Good performance. Consider focusing on weak areas for improvement.";
-    if (percentage >= 60) return "Satisfactory performance. Additional effort needed to improve.";
+    if (percentage >= 85) return "Excellent performance! You're on track for outstanding results.";
+    if (percentage >= 70) return "Very good performance. Keep up the great work!";
+    if (percentage >= 65) return "Good performance with room for improvement.";
+    if (percentage >= 60) return "Satisfactory performance. Consider focusing on weak areas.";
+    if (percentage >= 55) return "Average performance. Additional effort needed to improve.";
     if (percentage >= 50) return "Below average performance. Significant improvement required.";
-    return "Poor performance. Immediate action needed to avoid failure.";
+    if (percentage >= 45) return "Poor performance. Extra support and effort needed.";
+    if (percentage >= 40) return "Concerning performance. Immediate attention required.";
+    if (percentage >= 35) return "Critical performance. Urgent intervention needed.";
+    if (percentage >= 30) return "Very poor performance. Risk of failure.";
+    if (percentage >= 25) return "Failing performance. Immediate action required.";
+    return "Severe academic difficulty. Comprehensive support needed.";
   };
 
   // Update subject data handler
@@ -355,18 +364,18 @@ const StudentDashboard = () => {
 
   // Function to convert percentage to grade letter
   const getGradeLetter = (percentage: number): string => {
-    if (percentage >= 90) return "A+";
-    if (percentage >= 85) return "A";
-    if (percentage >= 80) return "A-";
-    if (percentage >= 75) return "B+";
-    if (percentage >= 70) return "B";
-    if (percentage >= 65) return "B-";
-    if (percentage >= 60) return "C+";
-    if (percentage >= 55) return "C";
-    if (percentage >= 50) return "C-";
-    if (percentage >= 45) return "D+";
-    if (percentage >= 40) return "D";
-    return "F";
+    if (percentage >= 85) return "A+";
+    if (percentage >= 70) return "A";
+    if (percentage >= 65) return "A-";
+    if (percentage >= 60) return "B+";
+    if (percentage >= 55) return "B";
+    if (percentage >= 50) return "B-";
+    if (percentage >= 45) return "C+";
+    if (percentage >= 40) return "C";
+    if (percentage >= 35) return "C-";
+    if (percentage >= 30) return "D+";
+    if (percentage >= 25) return "D";
+    return "E";
   };
 
   const getStatusColor = (status: string) => {
@@ -666,11 +675,11 @@ const StudentDashboard = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <Progress
-                      value={module.currentGrade}
+                      value={module.predictedFinal}
                       className="w-20 h-2"
                     />
                     <span className="text-white text-sm font-medium">
-                      {module.currentGrade}%
+                      {module.predictedFinal}%
                     </span>
                   </div>
                 </div>
@@ -783,7 +792,7 @@ const StudentDashboard = () => {
               <BarChart
                 data={modules.map((m) => ({
                   name: m.code,
-                  grade: m.currentGrade,
+                  grade: m.predictedFinal,
                 }))}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -886,28 +895,10 @@ const StudentDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-300">Current Grade</span>
-                    <span className="font-medium text-white">
-                      {module.currentGrade > 0 
-                        ? `${module.currentGrade}% (${getGradeLetter(module.currentGrade)})` 
-                        : "Insufficient marks available"}
-                    </span>
-                  </div>
-                  {module.currentGrade > 0 && (
-                    <Progress value={module.currentGrade} className="h-2" />
-                  )}
-                  {module.currentGrade === 0 && (
-                    <div className="text-xs text-gray-400 mt-1">
-                      Grade will be calculated once assessments are completed
-                    </div>
-                  )}
-                </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Predicted Final:</span>
                   <span className="font-medium text-purple-400">
-                    {module.currentGrade > 0 
+                    {module.predictedFinal > 0 
                       ? `${module.predictedGrade} (${module.predictedFinal}%)` 
                       : "Pending assessments"}
                   </span>
@@ -1300,8 +1291,8 @@ const StudentDashboard = () => {
                 Attention Required: {module.code}
               </AlertTitle>
               <AlertDescription className="text-red-200">
-                Your performance in {module.name} needs improvement. Current
-                grade: {module.currentGrade}%
+                Your performance in {module.name} needs improvement. Predicted
+                grade: {module.predictedFinal}%
               </AlertDescription>
             </Alert>
           ))}
