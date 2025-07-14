@@ -88,7 +88,7 @@ const StudentDashboard = () => {
     if (!user?.id) return null;
     
     try {
-      const response = await fetch(`/api/prediction/${courseId}/${user.id}`);
+      const response = await fetch(`/api/prediction/${user.id}/${courseId}`);
       if (!response.ok) return null;
       
       const data = await response.json();
