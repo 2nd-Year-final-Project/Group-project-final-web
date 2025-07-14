@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useAuthStore } from '@/store/authStore';
+import { toast } from '@/hooks/use-toast';
 import {
   Card,
   CardContent,
@@ -60,7 +62,6 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { toast } from "@/hooks/use-toast";
 
 const StudentDashboard = () => {
   const [activeSection, setActiveSection] = useState("overview");
@@ -69,7 +70,83 @@ const StudentDashboard = () => {
   const [prediction, setPrediction] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [fullName, setFullName] = useState<string>("Loading...");
+  const [modules, setModules] = useState([]);
+  const [loadingCourses, setLoadingCourses] = useState(true);
+  const user = useAuthStore((state) => state.user);
   const username = localStorage.getItem("username");
+
+  // Fetch student's enrolled courses
+  useEffect(() => {
+    if (user?.id) {
+      fetchStudentCourses();
+    }
+  }, [user]);
+
+  const fetchStudentCourses = async () => {
+    try {
+      setLoadingCourses(true);
+      const response = await fetch(`/api/student/courses/${user.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        // Transform the data to match the existing structure
+        const transformedModules = data.map(course => ({
+          id: course.id.toString(),
+          name: course.course_name,
+          code: course.course_code,
+          currentGrade: course.current_grade || 0,
+          predictedFinal: course.current_grade || 0,
+          predictedGrade: getGradeFromPercentage(course.current_grade || 0),
+          status: course.current_grade >= 60 ? "On Track" : "At Risk",
+          attendance: 95, // Default value - could be fetched separately
+          lectureAttendance: {
+            attended: 19,
+            total: 20,
+            percentage: 95
+          },
+          marks: {
+            quiz1: course.quiz1 || 0,
+            quiz2: course.quiz2 || 0,
+            assignment1: course.assignment1 || 0,
+            assignment2: course.assignment2 || 0,
+            midterm: course.midterm || 0,
+            predicted: course.current_grade || 0,
+          },
+          difficulty: course.difficulty_level || "Medium",
+          lecturer: course.lecturer_name || "TBA",
+          credits: course.credits || 3,
+          enrollmentDate: course.enrollment_date,
+          description: course.description || ""
+        }));
+        setModules(transformedModules);
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to fetch enrolled courses",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch enrolled courses",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingCourses(false);
+    }
+  };
+
+  const getGradeFromPercentage = (percentage: number) => {
+    if (percentage >= 85) return "A";
+    if (percentage >= 80) return "A-";
+    if (percentage >= 75) return "B+";
+    if (percentage >= 70) return "B";
+    if (percentage >= 65) return "B-";
+    if (percentage >= 60) return "C+";
+    if (percentage >= 55) return "C";
+    if (percentage >= 50) return "C-";
+    return "F";
+  };
 
   // Student profile data
   const studentProfile = {
@@ -156,77 +233,7 @@ const StudentDashboard = () => {
     },
   ];
 
-  const modules = [
-    {
-      id: "1",
-      name: "Computer Science Fundamentals",
-      code: "CS101",
-      currentGrade: 78,
-      predictedFinal: 82,
-      predictedGrade: "A-",
-      status: "On Track",
-      attendance: 95,
-      lectureAttendance: {
-        attended: 19,
-        total: 20,
-        percentage: 95
-      },
-      marks: {
-        quiz1: 85,
-        quiz2: 75,
-        assignment1: 80,
-        assignment2: 78,
-        midterm: 76,
-        predicted: 82,
-      },
-    },
-    {
-      id: "2",
-      name: "Data Structures & Algorithms",
-      code: "CS201",
-      currentGrade: 65,
-      predictedFinal: 68,
-      predictedGrade: "B-",
-      status: "At Risk",
-      attendance: 87,
-      lectureAttendance: {
-        attended: 17,
-        total: 20,
-        percentage: 85
-      },
-      marks: {
-        quiz1: 70,
-        quiz2: 60,
-        assignment1: 65,
-        assignment2: 68,
-        midterm: 63,
-        predicted: 68,
-      },
-    },
-    {
-      id: "3",
-      name: "Web Development",
-      code: "CS301",
-      currentGrade: 92,
-      predictedFinal: 94,
-      predictedGrade: "A+",
-      status: "Excellent",
-      attendance: 98,
-      lectureAttendance: {
-        attended: 20,
-        total: 20,
-        percentage: 100
-      },
-      marks: {
-        quiz1: 95,
-        quiz2: 88,
-        assignment1: 92,
-        assignment2: 94,
-        midterm: 91,
-        predicted: 94,
-      },
-    },
-  ];
+  // Remove hardcoded modules - now fetched from API
 
   const sidebarItems = [
     { id: "overview", label: "Dashboard Overview", icon: Home },
@@ -1487,6 +1494,28 @@ const StudentDashboard = () => {
   );
 
   const renderContent = () => {
+    if (loadingCourses) {
+      return (
+        <div className="flex justify-center items-center h-64">
+          <div className="text-white text-lg">Loading your courses...</div>
+        </div>
+      );
+    }
+
+    if (modules.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <BookOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-white mb-2">
+            No Courses Enrolled
+          </h3>
+          <p className="text-gray-400">
+            You are not enrolled in any courses yet. Please contact your administrator.
+          </p>
+        </div>
+      );
+    }
+
     switch (activeSection) {
       case "overview":
         return renderOverview();

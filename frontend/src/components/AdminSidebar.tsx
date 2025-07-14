@@ -108,16 +108,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange }) =
           })}
         </ul>
       </nav>
-      
-      <div className="absolute bottom-4 left-4 right-4">
-        <div className="bg-gray-700 rounded-lg p-3">
-          <div className="text-sm text-gray-300">System Status</div>
-          <div className="flex items-center gap-2 mt-1">
-            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-            <span className="text-xs text-gray-400">All systems operational</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

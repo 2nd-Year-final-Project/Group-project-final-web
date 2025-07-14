@@ -63,8 +63,10 @@ const loginUser = (req, res) => {
       // Successfully authenticated, send back user data (including role)
       res.json({
         success: true,
+        id: user.id,
         username: user.username,
         fullName: user.full_name,
+        email: user.email,
         role: user.role, // Role: student or lecturer
         message: "Login successful",
       });

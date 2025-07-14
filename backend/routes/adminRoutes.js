@@ -5,6 +5,12 @@ const { sendApprovalEmail } = require("../utils/emailService"); // Import email 
 const router = express.Router();
 const { submitAdminInput } = require("../controllers/adminController");
 
+// Import course management routes
+const courseRoutes = require("./courseRoutes");
+
+// Use course management routes under /admin prefix
+router.use("/", courseRoutes);
+
 
 // Get all pending users
 router.get("/pending-users", (req, res) => {

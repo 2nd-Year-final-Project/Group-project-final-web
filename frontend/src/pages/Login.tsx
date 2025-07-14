@@ -16,6 +16,10 @@ interface LoginCredentials {
 
 interface LoginResponse {
   success: boolean;
+  id?: number;
+  username?: string;
+  fullName?: string;
+  email?: string;
   role?: 'student' | 'lecturer' | 'admin';
   message?: string;
   user?: {
@@ -62,9 +66,9 @@ const Login: React.FC = () => {
         if (data.role === "student") {
           // Create user object for auth store
           const user = {
-            id: '1', // You may want to get this from the backend response
+            id: data.id.toString(), // Use actual user ID from backend
             name: data.fullName || username, // Use full name from backend
-            email: `${username}@university.edu`,
+            email: data.email || `${username}@university.edu`,
             role: data.role as const
           };
           
@@ -79,9 +83,9 @@ const Login: React.FC = () => {
         } else if (data.role === "lecturer") {
           // Create user object for auth store
           const user = {
-            id: '1', // You may want to get this from the backend response
+            id: data.id.toString(), // Use actual user ID from backend
             name: data.fullName || username, // Use full name from backend
-            email: `${username}@university.edu`,
+            email: data.email || `${username}@university.edu`,
             role: data.role as const
           };
           
@@ -96,9 +100,9 @@ const Login: React.FC = () => {
         } else if (data.role === "admin") {
           // Handle admin login if needed
           const user = {
-            id: '1',
+            id: data.id.toString(), // Use actual user ID from backend
             name: data.fullName || username,
-            email: `${username}@university.edu`,
+            email: data.email || `${username}@university.edu`,
             role: data.role as const
           };
           
