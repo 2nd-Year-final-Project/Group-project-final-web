@@ -7,11 +7,21 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useAuthStore } from '@/store/authStore';
 
 const LecturerDashboard = () => {
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isMarksModalOpen, setIsMarksModalOpen] = useState(false);
+  const user = useAuthStore((state) => state.user);
+
+  // Get current time for appropriate greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 17) return "Good afternoon";
+    return "Good evening";
+  };
 
   const courses = [
     {
@@ -65,8 +75,10 @@ const LecturerDashboard = () => {
       <div className="space-y-6">
         {/* Welcome Section */}
         <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-lg p-6 text-white">
-          <h2 className="text-2xl font-bold mb-2">Teaching Excellence Dashboard</h2>
-          <p className="text-purple-100">Monitor student progress and identify those who need additional support.</p>
+          <h2 className="text-2xl font-bold mb-2">
+            {getGreeting()}, {user?.name || 'Lecturer'}! 👋
+          </h2>
+          <p className="text-purple-100">Welcome to your Teaching Excellence Dashboard. Monitor student progress and identify those who need additional support.</p>
         </div>
 
         {/* At-Risk Students Alert */}

@@ -64,6 +64,7 @@ const loginUser = (req, res) => {
       res.json({
         success: true,
         username: user.username,
+        fullName: user.full_name,
         role: user.role, // Role: student or lecturer
         message: "Login successful",
       });

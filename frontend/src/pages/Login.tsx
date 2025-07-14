@@ -63,7 +63,7 @@ const Login: React.FC = () => {
           // Create user object for auth store
           const user = {
             id: '1', // You may want to get this from the backend response
-            name: username, // You may want to get actual name from backend
+            name: data.fullName || username, // Use full name from backend
             email: `${username}@university.edu`,
             role: data.role as const
           };
@@ -80,7 +80,7 @@ const Login: React.FC = () => {
           // Create user object for auth store
           const user = {
             id: '1', // You may want to get this from the backend response
-            name: username, // You may want to get actual name from backend
+            name: data.fullName || username, // Use full name from backend
             email: `${username}@university.edu`,
             role: data.role as const
           };
@@ -97,7 +97,7 @@ const Login: React.FC = () => {
           // Handle admin login if needed
           const user = {
             id: '1',
-            name: username,
+            name: data.fullName || username,
             email: `${username}@university.edu`,
             role: data.role as const
           };
@@ -105,7 +105,7 @@ const Login: React.FC = () => {
           setUser(user);
           toast({ 
             title: "Login successful", 
-            description: `Welcome back, Admin!` 
+            description: `Welcome back, ${user.name}!` 
           });
           
           navigate("/admin");
