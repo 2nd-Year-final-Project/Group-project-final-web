@@ -7,7 +7,6 @@ const studentRoutes = require("./routes/studentRoutes");
 const lecturerRoutes = require("./routes/lecturerRoutes");
 const predictionRoutes = require("./routes/predictionRoutes");
 const courseRoutes = require("./routes/courseRoutes");
-const alertRoutes = require("./routes/alertRoutes");
 
 dotenv.config();
 const app = express();
@@ -23,14 +22,8 @@ app.use("/api/student", studentRoutes);
 app.use("/api/lecturer", lecturerRoutes);
 app.use("/api/prediction", predictionRoutes);
 app.use("/api/courses", courseRoutes);
-app.use("/api/alerts", alertRoutes);
 
 const PORT = process.env.PORT || 5000;
-
-// Initialize alert scheduler
-const { scheduleAlertChecks } = require('./scheduler/alertScheduler');
-scheduleAlertChecks();
-
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 

@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useAuthStore } from '@/store/authStore';
 import { toast } from '@/hooks/use-toast';
-import AlertSystem from "@/components/AlertSystem";
 
 const LecturerDashboard = () => {
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
@@ -183,9 +182,8 @@ const LecturerDashboard = () => {
         </Alert>
 
         <Tabs defaultValue="courses" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-gray-800 text-white">
+          <TabsList className="grid w-full grid-cols-3 bg-gray-800 text-white">
             <TabsTrigger value="courses" className="data-[state=active]:bg-gray-700 data-[state=active]:text-blue-400">My Courses</TabsTrigger>
-            <TabsTrigger value="alerts" className="data-[state=active]:bg-gray-700 data-[state=active]:text-blue-400">Student Alerts</TabsTrigger>
             <TabsTrigger value="at-risk" className="data-[state=active]:bg-gray-700 data-[state=active]:text-blue-400">At-Risk Students</TabsTrigger>
             <TabsTrigger value="grades" className="data-[state=active]:bg-gray-700 data-[state=active]:text-blue-400">Grade Management</TabsTrigger>
           </TabsList>
@@ -276,10 +274,6 @@ const LecturerDashboard = () => {
                 </CardContent>
               </Card>
             )}
-          </TabsContent>
-
-          <TabsContent value="alerts" className="space-y-4">
-            <AlertSystem role="lecturer" />
           </TabsContent>
 
           <TabsContent value="at-risk" className="space-y-4">

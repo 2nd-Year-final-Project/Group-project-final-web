@@ -10,7 +10,6 @@ import { CheckCircle, XCircle, Eye, Download } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import AlertSystem from "@/components/AlertSystem";
 
 
 // TypeScript interfaces
@@ -330,9 +329,6 @@ const AdminDashboard: React.FC = () => {
             </CardContent>
           </Card>
         );
-
-      case 'alerts':
-        return <AlertSystem role="admin" />;
 
       default:
         return (

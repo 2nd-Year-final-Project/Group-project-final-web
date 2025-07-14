@@ -62,7 +62,6 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import AlertSystem from "@/components/AlertSystem";
 
 const StudentDashboard = () => {
   const [activeSection, setActiveSection] = useState("overview");
@@ -1749,7 +1748,7 @@ const StudentDashboard = () => {
       case "progress":
         return renderProgress();
       case "alerts":
-        return user?.id ? <AlertSystem userRole="student" userId={user.id} /> : <div>Loading...</div>;
+        return renderAlerts();
       case "resources":
         return renderResources();
       case "profile":
