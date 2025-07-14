@@ -240,7 +240,7 @@ const LecturerDashboard = () => {
                               onClick={() => handleAddMarks(student)}
                               className="bg-blue-600 hover:bg-blue-700 text-white"
                             >
-                              {(student.quiz1 || student.quiz2 || student.assignment1 || student.assignment2 || student.midterm) ? 'Edit Marks' : 'Add Marks'}
+                              {(student.quiz1 !== null || student.quiz2 !== null || student.assignment1 !== null || student.assignment2 !== null || student.midterm !== null) ? 'Edit Marks' : 'Add Marks'}
                             </Button>
                           </div>
                         </div>
@@ -248,23 +248,23 @@ const LecturerDashboard = () => {
                         {/* Marks Display */}
                         <div className="grid grid-cols-5 gap-2 mt-3">
                           <div className="text-center p-2 bg-gray-600 rounded">
-                            <div className="text-sm font-bold text-blue-400">{student.quiz1 || '-'}</div>
+                            <div className="text-sm font-bold text-blue-400">{student.quiz1 !== null ? student.quiz1 : 'Not Set'}</div>
                             <div className="text-xs text-gray-300">Quiz 1</div>
                           </div>
                           <div className="text-center p-2 bg-gray-600 rounded">
-                            <div className="text-sm font-bold text-blue-400">{student.quiz2 || '-'}</div>
+                            <div className="text-sm font-bold text-blue-400">{student.quiz2 !== null ? student.quiz2 : 'Not Set'}</div>
                             <div className="text-xs text-gray-300">Quiz 2</div>
                           </div>
                           <div className="text-center p-2 bg-gray-600 rounded">
-                            <div className="text-sm font-bold text-purple-400">{student.assignment1 || '-'}</div>
+                            <div className="text-sm font-bold text-purple-400">{student.assignment1 !== null ? student.assignment1 : 'Not Set'}</div>
                             <div className="text-xs text-gray-300">Assign 1</div>
                           </div>
                           <div className="text-center p-2 bg-gray-600 rounded">
-                            <div className="text-sm font-bold text-purple-400">{student.assignment2 || '-'}</div>
+                            <div className="text-sm font-bold text-purple-400">{student.assignment2 !== null ? student.assignment2 : 'Not Set'}</div>
                             <div className="text-xs text-gray-300">Assign 2</div>
                           </div>
                           <div className="text-center p-2 bg-gray-600 rounded">
-                            <div className="text-sm font-bold text-green-400">{student.midterm || '-'}</div>
+                            <div className="text-sm font-bold text-green-400">{student.midterm !== null ? student.midterm : 'Not Set'}</div>
                             <div className="text-xs text-gray-300">Midterm</div>
                           </div>
                         </div>

@@ -41,7 +41,7 @@ const getPrediction = async (req, res) => {
       [student_id, course_id]
     );
     const [adminData] = await db.promise().query(
-      "SELECT attendance, motivation_level FROM admin_inputs WHERE student_id = ? AND course_id = ?",
+      "SELECT attendance FROM admin_inputs WHERE student_id = ? AND course_id = ?",
       [student_id, course_id]
     );
 
@@ -50,9 +50,20 @@ const getPrediction = async (req, res) => {
       subject: courseCheck[0].difficulty_level, // Using course difficulty level
       ...commonData[0],
       ...(subjectData[0] || {}),
-      ...(marksData[0] || {}),
       ...(adminData[0] || {})
     };
+
+    // Only add marks that are not null to avoid sending 0 for ungraded assessments
+    if (marksData[0]) {
+      const marks = marksData[0];
+      if (marks.quiz1 !== null) features.quiz1 = marks.quiz1;
+      if (marks.quiz2 !== null) features.quiz2 = marks.quiz2;
+      if (marks.assignment1 !== null) features.assignment1 = marks.assignment1;
+      if (marks.assignment2 !== null) features.assignment2 = marks.assignment2;
+      if (marks.midterm_marks !== null) features.midterm_marks = marks.midterm_marks;
+    }
+
+    console.log("Features being sent to ML model:", features);
 
     // Send to Python model
     const response = await axios.post("http://localhost:5002/predict", features);

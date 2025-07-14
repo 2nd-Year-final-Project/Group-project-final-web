@@ -42,15 +42,20 @@ const getCourseStudents = (req, res) => {
       u.full_name,
       u.email,
       se.enrollment_date,
-      COALESCE(lm.quiz1, 0) as quiz1,
-      COALESCE(lm.quiz2, 0) as quiz2,
-      COALESCE(lm.assignment1, 0) as assignment1,
-      COALESCE(lm.assignment2, 0) as assignment2,
-      COALESCE(lm.midterm_marks, 0) as midterm,
+      lm.quiz1,
+      lm.quiz2,
+      lm.assignment1,
+      lm.assignment2,
+      lm.midterm_marks as midterm,
       ROUND(
         (COALESCE(lm.quiz1, 0) + COALESCE(lm.quiz2, 0) + 
          COALESCE(lm.assignment1, 0) + COALESCE(lm.assignment2, 0) + 
-         COALESCE(lm.midterm_marks, 0)) / 5, 2
+         COALESCE(lm.midterm_marks, 0)) / 
+        CASE 
+          WHEN (lm.quiz1 IS NOT NULL) + (lm.quiz2 IS NOT NULL) + (lm.assignment1 IS NOT NULL) + (lm.assignment2 IS NOT NULL) + (lm.midterm_marks IS NOT NULL) = 0 
+          THEN 1 
+          ELSE (lm.quiz1 IS NOT NULL) + (lm.quiz2 IS NOT NULL) + (lm.assignment1 IS NOT NULL) + (lm.assignment2 IS NOT NULL) + (lm.midterm_marks IS NOT NULL) 
+        END, 2
       ) as current_grade
     FROM student_enrollments se
     JOIN users u ON se.student_id = u.id

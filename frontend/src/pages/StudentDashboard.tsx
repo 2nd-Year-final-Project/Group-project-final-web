@@ -96,15 +96,15 @@ const StudentDashboard = () => {
           code: course.course_code,
           currentGrade: course.current_grade || 0,
           predictedFinal: course.current_grade || 0,
-          predictedGrade: getGradeFromPercentage(course.current_grade || 0),
-          status: course.current_grade >= 60 ? "On Track" : "At Risk",
+          predictedGrade: course.current_grade ? getGradeFromPercentage(course.current_grade) : "Not Available",
+          status: course.current_grade >= 60 ? "On Track" : course.current_grade ? "At Risk" : "Insufficient Data",
           attendance: course.attendance || null, // Use actual attendance from admin input
           marks: {
-            quiz1: course.quiz1 || 0,
-            quiz2: course.quiz2 || 0,
-            assignment1: course.assignment1 || 0,
-            assignment2: course.assignment2 || 0,
-            midterm: course.midterm || 0,
+            quiz1: course.quiz1 !== null ? course.quiz1 : null,
+            quiz2: course.quiz2 !== null ? course.quiz2 : null,
+            assignment1: course.assignment1 !== null ? course.assignment1 : null,
+            assignment2: course.assignment2 !== null ? course.assignment2 : null,
+            midterm: course.midterm !== null ? course.midterm : null,
             predicted: course.current_grade || 0,
           },
           difficulty: course.difficulty_level || "Medium",
@@ -513,6 +513,21 @@ const StudentDashboard = () => {
     fetchName();
   }, [username]);
 
+  // Helper function to calculate current grade from available marks only
+  const calculateCurrentGradeFromMarks = (marks) => {
+    const availableMarks = [];
+    if (marks.quiz1 !== null) availableMarks.push(marks.quiz1);
+    if (marks.quiz2 !== null) availableMarks.push(marks.quiz2);
+    if (marks.assignment1 !== null) availableMarks.push(marks.assignment1);
+    if (marks.assignment2 !== null) availableMarks.push(marks.assignment2);
+    if (marks.midterm !== null) availableMarks.push(marks.midterm);
+    
+    if (availableMarks.length === 0) return null;
+    
+    const total = availableMarks.reduce((sum, mark) => sum + mark, 0);
+    return Math.round((total / availableMarks.length) * 100) / 100;
+  };
+
   const renderOverview = () => (
     <div className="space-y-6">
       {/* Welcome Section */}
@@ -850,16 +865,26 @@ const StudentDashboard = () => {
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-gray-300">Current Grade</span>
                     <span className="font-medium text-white">
-                      {module.currentGrade}% (
-                      {getGradeLetter(module.currentGrade)})
+                      {module.currentGrade > 0 
+                        ? `${module.currentGrade}% (${getGradeLetter(module.currentGrade)})` 
+                        : "Insufficient marks available"}
                     </span>
                   </div>
-                  <Progress value={module.currentGrade} className="h-2" />
+                  {module.currentGrade > 0 && (
+                    <Progress value={module.currentGrade} className="h-2" />
+                  )}
+                  {module.currentGrade === 0 && (
+                    <div className="text-xs text-gray-400 mt-1">
+                      Grade will be calculated once assessments are completed
+                    </div>
+                  )}
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Predicted Final:</span>
                   <span className="font-medium text-purple-400">
-                    {module.predictedGrade} ({module.predictedFinal}%)
+                    {module.currentGrade > 0 
+                      ? `${module.predictedGrade} (${module.predictedFinal}%)` 
+                      : "Pending assessments"}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
@@ -997,35 +1022,46 @@ const StudentDashboard = () => {
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                         <div className="text-center p-3 bg-gray-600 rounded-lg">
                           <div className="text-2xl font-bold text-blue-400">
-                            {module.marks.quiz1}
+                            {module.marks.quiz1 !== null ? module.marks.quiz1 : "Not Given"}
                           </div>
                           <div className="text-sm text-gray-300">Quiz 1</div>
                         </div>
                         <div className="text-center p-3 bg-gray-600 rounded-lg">
                           <div className="text-2xl font-bold text-blue-400">
-                            {module.marks.quiz2}
+                            {module.marks.quiz2 !== null ? module.marks.quiz2 : "Not Given"}
                           </div>
                           <div className="text-sm text-gray-300">Quiz 2</div>
                         </div>
                         <div className="text-center p-3 bg-gray-600 rounded-lg">
                           <div className="text-2xl font-bold text-purple-400">
-                            {module.marks.assignment1}
+                            {module.marks.assignment1 !== null ? module.marks.assignment1 : "Not Given"}
                           </div>
                           <div className="text-sm text-gray-300">Assignment 1</div>
                         </div>
                         <div className="text-center p-3 bg-gray-600 rounded-lg">
                           <div className="text-2xl font-bold text-purple-400">
-                            {module.marks.assignment2}
+                            {module.marks.assignment2 !== null ? module.marks.assignment2 : "Not Given"}
                           </div>
                           <div className="text-sm text-gray-300">Assignment 2</div>
                         </div>
                         <div className="text-center p-3 bg-gray-600 rounded-lg">
                           <div className="text-2xl font-bold text-green-400">
-                            {module.marks.midterm}
+                            {module.marks.midterm !== null ? module.marks.midterm : "Not Given"}
                           </div>
                           <div className="text-sm text-gray-300">Midterm</div>
                         </div>
                       </div>
+                      
+                      {/* Note about missing marks */}
+                      {(module.marks.quiz1 === null || module.marks.quiz2 === null || 
+                        module.marks.assignment1 === null || module.marks.assignment2 === null || 
+                        module.marks.midterm === null) && (
+                        <div className="mt-4 p-3 bg-yellow-900/20 rounded-lg border border-yellow-600/30">
+                          <p className="text-yellow-300 text-sm">
+                            ⚠️ Some assessment marks are not yet available. AI predictions will be more accurate once all assessments are completed by your lecturer.
+                          </p>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 

@@ -62,11 +62,11 @@ const MarksEntryModal: React.FC<MarksEntryModalProps> = ({
       
       // Convert string values to numbers (or null for empty strings)
       const numericMarks = {
-        quiz1: marks.quiz1 ? parseFloat(marks.quiz1) : null,
-        quiz2: marks.quiz2 ? parseFloat(marks.quiz2) : null,
-        assignment1: marks.assignment1 ? parseFloat(marks.assignment1) : null,
-        assignment2: marks.assignment2 ? parseFloat(marks.assignment2) : null,
-        midterm_marks: marks.midterm_marks ? parseFloat(marks.midterm_marks) : null
+        quiz1: marks.quiz1 !== '' ? parseFloat(marks.quiz1) : null,
+        quiz2: marks.quiz2 !== '' ? parseFloat(marks.quiz2) : null,
+        assignment1: marks.assignment1 !== '' ? parseFloat(marks.assignment1) : null,
+        assignment2: marks.assignment2 !== '' ? parseFloat(marks.assignment2) : null,
+        midterm_marks: marks.midterm_marks !== '' ? parseFloat(marks.midterm_marks) : null
       };
       
       onSave(student.id, numericMarks);
