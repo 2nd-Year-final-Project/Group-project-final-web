@@ -72,6 +72,7 @@ const StudentDashboard = () => {
   const [fullName, setFullName] = useState<string>("Loading...");
   const [modules, setModules] = useState([]);
   const [loadingCourses, setLoadingCourses] = useState(true);
+  const [profileIncomplete, setProfileIncomplete] = useState(false);
   const user = useAuthStore((state) => state.user);
   const username = localStorage.getItem("username");
 
@@ -89,6 +90,15 @@ const StudentDashboard = () => {
     
     try {
       const response = await fetch(`/api/prediction/${user.id}/${courseId}`);
+      
+      if (response.status === 400) {
+        const errorData = await response.json();
+        if (errorData.requiresProfileUpdate) {
+          setProfileIncomplete(true);
+          return null;
+        }
+      }
+      
       if (!response.ok) return null;
       
       const data = await response.json();
@@ -470,10 +480,13 @@ const StudentDashboard = () => {
       });
 
       if (response.status === 200 || response.status === 201) {
+        setProfileIncomplete(false); // Reset profile incomplete state
         toast({
           title: "Profile Updated",
           description: "Your profile data has been updated successfully.",
         });
+        // Refresh course data to get new predictions
+        fetchStudentCourses();
       }
 
     } catch (error) {
@@ -591,6 +604,25 @@ const StudentDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Profile Incomplete Warning */}
+      {profileIncomplete && (
+        <Alert className="bg-yellow-900/20 border-yellow-600/30">
+          <AlertTriangle className="h-4 w-4 text-yellow-400" />
+          <AlertTitle className="text-yellow-300">Complete Your Profile</AlertTitle>
+          <AlertDescription className="text-yellow-200">
+            Your profile data is incomplete. Complete your profile to get accurate AI predictions for your courses.
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="ml-2 border-yellow-600 text-yellow-300 hover:bg-yellow-600 hover:text-white"
+              onClick={() => setActiveSection("profile")}
+            >
+              Update Profile
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Key Metrics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -1087,34 +1119,55 @@ const StudentDashboard = () => {
                       <CardTitle className="text-white text-lg">AI Prediction Results</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid gap-6 lg:grid-cols-2">
-                        <div className="text-center space-y-2">
-                          <div className="text-4xl font-bold text-purple-400">
-                            {module.predictedFinal}%
-                          </div>
-                          <div className="text-2xl font-semibold text-white">
-                            {module.predictedGrade}
-                          </div>
-                          <div className="text-sm text-gray-300">Predicted Final Grade</div>
-                        </div>
-                        
-                        <div className="space-y-3">
-                          <div className="p-3 bg-purple-900/20 rounded-lg">
-                            <h4 className="font-medium text-purple-300 mb-2">Interpretation:</h4>
-                            <p className="text-purple-200 text-sm">
-                              {getPredictionInterpretation(module.predictedGrade, module.predictedFinal)}
+                      {profileIncomplete ? (
+                        /* Profile Incomplete Message */
+                        <div className="text-center space-y-4 py-8">
+                          <div className="text-6xl">⚠️</div>
+                          <div className="space-y-2">
+                            <h3 className="text-xl font-semibold text-yellow-300">Profile Data Required</h3>
+                            <p className="text-gray-300 text-sm max-w-md mx-auto">
+                              Please complete your profile data to get accurate AI predictions. 
+                              Update your gender, peer influence, extracurricular activities, physical activity, and sleep hours in the Profile section.
                             </p>
                           </div>
+                          <Button 
+                            onClick={() => setActiveSection("profile")}
+                            className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                          >
+                            Complete Profile
+                          </Button>
+                        </div>
+                      ) : (
+                        /* Normal Prediction Display */
+                        <div className="grid gap-6 lg:grid-cols-2">
+                          <div className="text-center space-y-2">
+                            <div className="text-4xl font-bold text-purple-400">
+                              {module.predictedFinal}%
+                            </div>
+                            <div className="text-2xl font-semibold text-white">
+                              {module.predictedGrade}
+                            </div>
+                            <div className="text-sm text-gray-300">Predicted Final Grade</div>
+                          </div>
                           
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-400">Confidence Level:</span>
-                            <span className="text-white font-medium">
-                              {module.predictedFinal >= 80 ? "High" : 
-                               module.predictedFinal >= 60 ? "Medium" : "Low"}
-                            </span>
+                          <div className="space-y-3">
+                            <div className="p-3 bg-purple-900/20 rounded-lg">
+                              <h4 className="font-medium text-purple-300 mb-2">Interpretation:</h4>
+                              <p className="text-purple-200 text-sm">
+                                {getPredictionInterpretation(module.predictedGrade, module.predictedFinal)}
+                              </p>
+                            </div>
+                            
+                            <div className="flex justify-between text-sm">
+                              <span className="text-gray-400">Confidence Level:</span>
+                              <span className="text-white font-medium">
+                                {module.predictedFinal >= 80 ? "High" : 
+                                 module.predictedFinal >= 60 ? "Medium" : "Low"}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      )}
                     </CardContent>
                   </Card>
 

@@ -31,6 +31,25 @@ const getPrediction = async (req, res) => {
       return res.status(404).json({ message: "Common data not found for student" });
     }
 
+    // Set default motivation_level to "Medium" (2) if not set by admin
+    if (commonData[0].motivation_level === null || commonData[0].motivation_level === undefined) {
+      commonData[0].motivation_level = 2; // Default to "Medium"
+    }
+
+    // Check if all required profile fields are completed
+    const requiredFields = ['gender', 'peer_influence', 'extracurricular_activities', 'physical_activity', 'sleep_hours'];
+    const missingFields = requiredFields.filter(field => 
+      commonData[0][field] === null || commonData[0][field] === undefined
+    );
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({ 
+        message: "Please complete your profile data to get an accurate prediction",
+        missingFields: missingFields,
+        requiresProfileUpdate: true
+      });
+    }
+
     // 4. Get other course-related data
     const [subjectData] = await db.promise().query(
       "SELECT hours_studied, teacher_quality FROM student_subject_data WHERE student_id = ? AND course_id = ?",

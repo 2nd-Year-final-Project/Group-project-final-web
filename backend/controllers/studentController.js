@@ -253,7 +253,7 @@ const getStudentName = async (req, res) => {
 const getCommonData = (req, res) => {
   const { student_id } = req.params;
 
-  const sql = `SELECT gender, peer_influence, extracurricular_activities, physical_activity, sleep_hours 
+  const sql = `SELECT gender, peer_influence, motivation_level, extracurricular_activities, physical_activity, sleep_hours 
                FROM student_common_data 
                WHERE student_id = ?`;
 
@@ -266,7 +266,13 @@ const getCommonData = (req, res) => {
       return res.json(null); // No data found
     }
 
-    res.json(results[0]);
+    // Set default motivation_level to "Medium" (2) if not set by admin
+    const data = results[0];
+    if (data.motivation_level === null || data.motivation_level === undefined) {
+      data.motivation_level = 2; // Default to "Medium"
+    }
+
+    res.json(data);
   });
 };
 

@@ -36,7 +36,14 @@ const getAllStudentsForAdmin = (req, res) => {
     if (err) {
       return res.status(500).json({ message: "Database error", error: err.message });
     }
-    res.json(results);
+    
+    // Set default motivation_level to "Medium" (2) if not set by admin
+    const studentsWithDefaults = results.map(student => ({
+      ...student,
+      motivation_level: student.motivation_level !== null ? student.motivation_level : 2
+    }));
+    
+    res.json(studentsWithDefaults);
   });
 };
 
