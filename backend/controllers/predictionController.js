@@ -31,6 +31,26 @@ const getPrediction = async (req, res) => {
       return res.status(404).json({ message: "Common data not found for student" });
     }
 
+    // 3.1. Validate required profile data
+    const requiredFields = ['gender', 'peer_influence', 'extracurricular_activities', 'physical_activity', 'sleep_hours'];
+    const commonDataRecord = commonData[0];
+    console.log('Student common data:', commonDataRecord);
+    
+    const missingFields = requiredFields.filter(field => 
+      commonDataRecord[field] === null || commonDataRecord[field] === undefined
+    );
+
+    console.log('Missing fields:', missingFields);
+
+    if (missingFields.length > 0) {
+      console.log('Returning incomplete profile error');
+      return res.status(400).json({ 
+        message: "Update your AI prediction settings in your Profile settings to get the prediction",
+        missing_fields: missingFields,
+        error_type: "incomplete_profile"
+      });
+    }
+
     // 4. Get other course-related data
     const [subjectData] = await db.promise().query(
       "SELECT hours_studied, teacher_quality FROM student_subject_data WHERE student_id = ? AND course_id = ?",

@@ -89,9 +89,25 @@ const StudentDashboard = () => {
     
     try {
       const response = await fetch(`/api/prediction/${user.id}/${courseId}`);
-      if (!response.ok) return null;
+      
+      if (!response.ok) {
+        try {
+          const errorData = await response.json();
+          console.log('Prediction API Error:', errorData);
+          if (errorData.error_type === 'incomplete_profile' || 
+              errorData.message?.includes('AI prediction settings') ||
+              errorData.message?.includes('Missing required')) {
+            // Return a special value to indicate incomplete profile
+            return -1;
+          }
+        } catch (parseError) {
+          console.log('Error parsing error response:', parseError);
+        }
+        return null;
+      }
       
       const data = await response.json();
+      console.log('Prediction API Success:', data);
       return data.predicted_grade ? parseFloat(data.predicted_grade) : null;
     } catch (error) {
       console.error(`Failed to fetch prediction for course ${courseId}:`, error);
@@ -116,11 +132,12 @@ const StudentDashboard = () => {
               name: course.course_name,
               code: course.course_code,
               currentGrade: course.current_grade || 0,
-              predictedFinal: prediction !== null ? prediction : (course.current_grade || 0),
-              predictedGrade: prediction !== null ? getGradeFromPercentage(prediction) : 
-                             (course.current_grade ? getGradeFromPercentage(course.current_grade) : "Not Available"),
-              status: (prediction !== null ? prediction : (course.current_grade || 0)) >= 60 ? "On Track" : 
-                     (prediction !== null || course.current_grade) ? "At Risk" : "Insufficient Data",
+              predictedFinal: prediction === -1 ? -1 : 
+                             (prediction !== null && prediction > 0 ? prediction : -1),
+              predictedGrade: prediction === -1 ? "Profile Incomplete" : 
+                             (prediction !== null && prediction > 0 ? getGradeFromPercentage(prediction) : "Profile Incomplete"),
+              status: prediction === -1 || prediction === null || prediction === 0 ? "Profile Incomplete" :
+                     (prediction >= 60 ? "On Track" : "At Risk"),
               attendance: course.attendance || null, // Use actual attendance from admin input
               marks: {
                 quiz1: course.quiz1 !== null ? course.quiz1 : null,
@@ -128,7 +145,7 @@ const StudentDashboard = () => {
                 assignment1: course.assignment1 !== null ? course.assignment1 : null,
                 assignment2: course.assignment2 !== null ? course.assignment2 : null,
                 midterm: course.midterm !== null ? course.midterm : null,
-                predicted: prediction !== null ? prediction : (course.current_grade || 0),
+                predicted: prediction === -1 || prediction === null || prediction === 0 ? -1 : prediction,
               },
               difficulty: course.difficulty_level || "Medium",
               lecturer: course.lecturer_name || "TBA",
@@ -674,13 +691,21 @@ const StudentDashboard = () => {
                     <span className="text-gray-300 text-sm">{module.name}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Progress
-                      value={module.predictedFinal}
-                      className="w-20 h-2"
-                    />
-                    <span className="text-white text-sm font-medium">
-                      {module.predictedFinal}%
-                    </span>
+                    {module.predictedFinal <= 0 ? (
+                      <span className="text-yellow-400 text-sm font-medium">
+                        Profile Incomplete
+                      </span>
+                    ) : (
+                      <>
+                        <Progress
+                          value={module.predictedFinal}
+                          className="w-20 h-2"
+                        />
+                        <span className="text-white text-sm font-medium">
+                          {module.predictedFinal}%
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
@@ -790,7 +815,7 @@ const StudentDashboard = () => {
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart
-                data={modules.map((m) => ({
+                data={modules.filter(m => m.predictedFinal > 0).map((m) => ({
                   name: m.code,
                   grade: m.predictedFinal,
                 }))}
@@ -898,9 +923,9 @@ const StudentDashboard = () => {
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Predicted Final:</span>
                   <span className="font-medium text-purple-400">
-                    {module.predictedFinal > 0 
-                      ? `${module.predictedGrade} (${module.predictedFinal}%)` 
-                      : "Pending assessments"}
+                    {module.predictedFinal <= 0 
+                      ? "Update your AI prediction settings in Profile" 
+                      : `${module.predictedGrade} (${module.predictedFinal}%)`}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
@@ -1087,16 +1112,27 @@ const StudentDashboard = () => {
                       <CardTitle className="text-white text-lg">AI Prediction Results</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid gap-6 lg:grid-cols-2">
-                        <div className="text-center space-y-2">
-                          <div className="text-4xl font-bold text-purple-400">
-                            {module.predictedFinal}%
+                      {module.predictedFinal <= 0 ? (
+                        <div className="text-center py-8">
+                          <div className="text-lg text-yellow-400 mb-4">⚠️ Profile Incomplete</div>
+                          <div className="text-gray-300 mb-4">
+                            Complete your AI prediction settings in your Profile to get accurate predictions
                           </div>
-                          <div className="text-2xl font-semibold text-white">
-                            {module.predictedGrade}
+                          <div className="text-sm text-gray-400">
+                            Missing data: Gender, Peer Influence, Physical Activity, Sleep Hours, or Extracurricular Activities
                           </div>
-                          <div className="text-sm text-gray-300">Predicted Final Grade</div>
                         </div>
+                      ) : (
+                        <div className="grid gap-6 lg:grid-cols-2">
+                          <div className="text-center space-y-2">
+                            <div className="text-4xl font-bold text-purple-400">
+                              {module.predictedFinal}%
+                            </div>
+                            <div className="text-2xl font-semibold text-white">
+                              {module.predictedGrade}
+                            </div>
+                            <div className="text-sm text-gray-300">Predicted Final Grade</div>
+                          </div>
                         
                         <div className="space-y-3">
                           <div className="p-3 bg-purple-900/20 rounded-lg">
@@ -1114,7 +1150,8 @@ const StudentDashboard = () => {
                             </span>
                           </div>
                         </div>
-                      </div>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 
@@ -1291,8 +1328,9 @@ const StudentDashboard = () => {
                 Attention Required: {module.code}
               </AlertTitle>
               <AlertDescription className="text-red-200">
-                Your performance in {module.name} needs improvement. Predicted
-                grade: {module.predictedFinal}%
+                {module.predictedFinal === -1 
+                  ? `Complete your profile settings to get AI predictions for ${module.name}` 
+                  : `Your performance in ${module.name} needs improvement. Predicted grade: ${module.predictedFinal}%`}
               </AlertDescription>
             </Alert>
           ))}
