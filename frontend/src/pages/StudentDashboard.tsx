@@ -83,37 +83,62 @@ const StudentDashboard = () => {
     }
   }, [user]);
 
+  // Function to fetch AI prediction for a specific course
+  const fetchPrediction = async (courseId: number): Promise<number | null> => {
+    if (!user?.id) return null;
+    
+    try {
+      const response = await fetch(`/api/prediction/${courseId}/${user.id}`);
+      if (!response.ok) return null;
+      
+      const data = await response.json();
+      return data.predicted_grade ? parseFloat(data.predicted_grade) : null;
+    } catch (error) {
+      console.error(`Failed to fetch prediction for course ${courseId}:`, error);
+      return null;
+    }
+  };
+
   const fetchStudentCourses = async () => {
     try {
       setLoadingCourses(true);
       const response = await fetch(`/api/student/courses/${user.id}`);
       if (response.ok) {
         const data = await response.json();
-        // Transform the data to match the existing structure
-        const transformedModules = data.map(course => ({
-          id: course.id.toString(),
-          name: course.course_name,
-          code: course.course_code,
-          currentGrade: course.current_grade || 0,
-          predictedFinal: course.current_grade || 0,
-          predictedGrade: course.current_grade ? getGradeFromPercentage(course.current_grade) : "Not Available",
-          status: course.current_grade >= 60 ? "On Track" : course.current_grade ? "At Risk" : "Insufficient Data",
-          attendance: course.attendance || null, // Use actual attendance from admin input
-          marks: {
-            quiz1: course.quiz1 !== null ? course.quiz1 : null,
-            quiz2: course.quiz2 !== null ? course.quiz2 : null,
-            assignment1: course.assignment1 !== null ? course.assignment1 : null,
-            assignment2: course.assignment2 !== null ? course.assignment2 : null,
-            midterm: course.midterm !== null ? course.midterm : null,
-            predicted: course.current_grade || 0,
-          },
-          difficulty: course.difficulty_level || "Medium",
-          lecturer: course.lecturer_name || "TBA",
-          credits: course.credits || 3,
-          enrollmentDate: course.enrollment_date,
-          description: course.description || ""
-        }));
-        setModules(transformedModules);
+        
+        // Fetch predictions for all courses
+        const coursesWithPredictions = await Promise.all(
+          data.map(async (course) => {
+            const prediction = await fetchPrediction(course.id);
+            
+            return {
+              id: course.id.toString(),
+              name: course.course_name,
+              code: course.course_code,
+              currentGrade: course.current_grade || 0,
+              predictedFinal: prediction !== null ? prediction : (course.current_grade || 0),
+              predictedGrade: prediction !== null ? getGradeFromPercentage(prediction) : 
+                             (course.current_grade ? getGradeFromPercentage(course.current_grade) : "Not Available"),
+              status: (prediction !== null ? prediction : (course.current_grade || 0)) >= 60 ? "On Track" : 
+                     (prediction !== null || course.current_grade) ? "At Risk" : "Insufficient Data",
+              attendance: course.attendance || null, // Use actual attendance from admin input
+              marks: {
+                quiz1: course.quiz1 !== null ? course.quiz1 : null,
+                quiz2: course.quiz2 !== null ? course.quiz2 : null,
+                assignment1: course.assignment1 !== null ? course.assignment1 : null,
+                assignment2: course.assignment2 !== null ? course.assignment2 : null,
+                midterm: course.midterm !== null ? course.midterm : null,
+                predicted: prediction !== null ? prediction : (course.current_grade || 0),
+              },
+              difficulty: course.difficulty_level || "Medium",
+              lecturer: course.lecturer_name || "TBA",
+              credits: course.credits || 3,
+              enrollmentDate: course.enrollment_date,
+              description: course.description || ""
+            };
+          })
+        );
+        setModules(coursesWithPredictions);
       } else {
         toast({
           title: "Error",
