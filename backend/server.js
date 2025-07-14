@@ -7,6 +7,8 @@ const studentRoutes = require("./routes/studentRoutes");
 const lecturerRoutes = require("./routes/lecturerRoutes");
 const predictionRoutes = require("./routes/predictionRoutes");
 const courseRoutes = require("./routes/courseRoutes");
+const alertRoutes = require("./routes/alertRoutes");
+const alertScheduler = require("./scheduler/alertScheduler");
 
 dotenv.config();
 const app = express();
@@ -22,9 +24,29 @@ app.use("/api/student", studentRoutes);
 app.use("/api/lecturer", lecturerRoutes);
 app.use("/api/prediction", predictionRoutes);
 app.use("/api/courses", courseRoutes);
+app.use("/api/alerts", alertRoutes);
+
+// Start the alert scheduler
+alertScheduler.start(60); // Run every 60 minutes
+
+// Graceful shutdown
+process.on('SIGINT', () => {
+  console.log('Received SIGINT. Graceful shutdown...');
+  alertScheduler.stop();
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  console.log('Received SIGTERM. Graceful shutdown...');
+  alertScheduler.stop();
+  process.exit(0);
+});
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log('Alert system initialized and scheduler started');
+});
 
 
 

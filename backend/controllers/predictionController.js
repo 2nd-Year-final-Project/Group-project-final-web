@@ -1,5 +1,6 @@
 const db = require("../config/db");
 const axios = require("axios");
+const alertsService = require("../services/alertsService");
 
 const getPrediction = async (req, res) => {
   const { student_id, course_id } = req.params;
@@ -86,7 +87,18 @@ const getPrediction = async (req, res) => {
 
     // Send to Python model
     const response = await axios.post("http://localhost:5002/predict", features);
-    res.json(response.data);
+    const predictionData = response.data;
+    
+    // Generate alerts based on prediction results
+    try {
+      await alertsService.generatePredictionAlerts(student_id, course_id, predictionData);
+      console.log("Prediction alerts generated successfully");
+    } catch (alertError) {
+      console.error("Error generating prediction alerts:", alertError);
+      // Continue with the response even if alerts fail
+    }
+    
+    res.json(predictionData);
   } catch (err) {
     console.error("Prediction error:", err);
     res.status(500).json({ message: "Prediction failed", error: err.message });
