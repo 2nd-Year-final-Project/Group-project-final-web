@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jul 14, 2025 at 08:57 AM
+-- Generation Time: Jul 14, 2025 at 09:55 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -30,17 +30,10 @@ SET time_zone = "+00:00";
 CREATE TABLE `admin_inputs` (
   `id` int(11) NOT NULL,
   `student_id` int(11) NOT NULL,
-  `subject_id` int(11) NOT NULL,
+  `course_id` int(11) NOT NULL,
   `attendance` decimal(5,2) DEFAULT NULL,
   `motivation_level` tinyint(4) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `admin_inputs`
---
-
-INSERT INTO `admin_inputs` (`id`, `student_id`, `subject_id`, `attendance`, `motivation_level`) VALUES
-(1, 1, 3, 82.50, 1);
 
 -- --------------------------------------------------------
 
@@ -105,20 +98,13 @@ INSERT INTO `lecturer_courses` (`id`, `lecturer_id`, `course_id`, `assigned_at`)
 CREATE TABLE `lecturer_marks` (
   `id` int(11) NOT NULL,
   `student_id` int(11) NOT NULL,
-  `subject_id` int(11) NOT NULL,
+  `course_id` int(11) NOT NULL,
   `quiz1` decimal(5,2) DEFAULT NULL,
   `quiz2` decimal(5,2) DEFAULT NULL,
   `assignment1` decimal(5,2) DEFAULT NULL,
   `assignment2` decimal(5,2) DEFAULT NULL,
   `midterm_marks` decimal(5,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `lecturer_marks`
---
-
-INSERT INTO `lecturer_marks` (`id`, `student_id`, `subject_id`, `quiz1`, `quiz2`, `assignment1`, `assignment2`, `midterm_marks`) VALUES
-(1, 1, 3, 90.00, 85.00, 88.00, 92.00, 78.00);
 
 -- --------------------------------------------------------
 
@@ -196,40 +182,10 @@ INSERT INTO `student_enrollments` (`id`, `student_id`, `course_id`, `enrollment_
 CREATE TABLE `student_subject_data` (
   `id` int(11) NOT NULL,
   `student_id` int(11) NOT NULL,
-  `subject_id` int(11) NOT NULL,
+  `course_id` int(11) NOT NULL,
   `hours_studied` decimal(4,2) DEFAULT NULL,
   `teacher_quality` tinyint(4) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `student_subject_data`
---
-
-INSERT INTO `student_subject_data` (`id`, `student_id`, `subject_id`, `hours_studied`, `teacher_quality`) VALUES
-(1, 1, 3, 10.00, 1);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `subjects`
---
-
-CREATE TABLE `subjects` (
-  `id` int(11) NOT NULL,
-  `subject_name` varchar(100) NOT NULL,
-  `difficulty_level` enum('Easy','Medium','Hard') NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `subjects`
---
-
-INSERT INTO `subjects` (`id`, `subject_name`, `difficulty_level`) VALUES
-(1, 'Programming Fundamentals', 'Easy'),
-(2, 'Data Structures', 'Medium'),
-(3, 'Machine Learning', 'Hard'),
-(4, 'Computer Networks', 'Medium'),
-(5, 'Digital Image Processing', 'Hard');
 
 -- --------------------------------------------------------
 
@@ -277,8 +233,8 @@ INSERT INTO `users` (`id`, `username`, `full_name`, `email`, `password`, `role`,
 --
 ALTER TABLE `admin_inputs`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `student_id` (`student_id`,`subject_id`),
-  ADD KEY `subject_id` (`subject_id`);
+  ADD UNIQUE KEY `student_course_unique` (`student_id`,`course_id`),
+  ADD KEY `course_id` (`course_id`);
 
 --
 -- Indexes for table `courses`
@@ -300,8 +256,8 @@ ALTER TABLE `lecturer_courses`
 --
 ALTER TABLE `lecturer_marks`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `student_id` (`student_id`,`subject_id`),
-  ADD KEY `subject_id` (`subject_id`);
+  ADD UNIQUE KEY `student_course_unique` (`student_id`,`course_id`),
+  ADD KEY `course_id` (`course_id`);
 
 --
 -- Indexes for table `pending_users`
@@ -330,14 +286,8 @@ ALTER TABLE `student_enrollments`
 --
 ALTER TABLE `student_subject_data`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `student_id` (`student_id`,`subject_id`),
-  ADD KEY `subject_id` (`subject_id`);
-
---
--- Indexes for table `subjects`
---
-ALTER TABLE `subjects`
-  ADD PRIMARY KEY (`id`);
+  ADD UNIQUE KEY `student_course_unique` (`student_id`,`course_id`),
+  ADD KEY `course_id` (`course_id`);
 
 --
 -- Indexes for table `users`
@@ -355,7 +305,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `admin_inputs`
 --
 ALTER TABLE `admin_inputs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `courses`
@@ -373,7 +323,7 @@ ALTER TABLE `lecturer_courses`
 -- AUTO_INCREMENT for table `lecturer_marks`
 --
 ALTER TABLE `lecturer_marks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `pending_users`
@@ -397,13 +347,7 @@ ALTER TABLE `student_enrollments`
 -- AUTO_INCREMENT for table `student_subject_data`
 --
 ALTER TABLE `student_subject_data`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `subjects`
---
-ALTER TABLE `subjects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -419,8 +363,8 @@ ALTER TABLE `users`
 -- Constraints for table `admin_inputs`
 --
 ALTER TABLE `admin_inputs`
-  ADD CONSTRAINT `admin_inputs_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `admin_inputs_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `admin_inputs_course_fk` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `admin_inputs_student_fk` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `lecturer_courses`
@@ -433,8 +377,8 @@ ALTER TABLE `lecturer_courses`
 -- Constraints for table `lecturer_marks`
 --
 ALTER TABLE `lecturer_marks`
-  ADD CONSTRAINT `lecturer_marks_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `lecturer_marks_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `lecturer_marks_course_fk` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `lecturer_marks_student_fk` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `student_common_data`
@@ -453,8 +397,8 @@ ALTER TABLE `student_enrollments`
 -- Constraints for table `student_subject_data`
 --
 ALTER TABLE `student_subject_data`
-  ADD CONSTRAINT `student_subject_data_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `student_subject_data_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `student_subject_data_course_fk` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `student_subject_data_student_fk` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

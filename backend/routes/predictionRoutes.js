@@ -3,6 +3,6 @@ const { getPrediction } = require("../controllers/predictionController");
 
 const router = express.Router();
 
-router.get("/:student_id/:subject_id", getPrediction);
+router.get("/:student_id/:course_id", getPrediction);
 
 module.exports = router;

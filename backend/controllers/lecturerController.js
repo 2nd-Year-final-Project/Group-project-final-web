@@ -17,7 +17,7 @@ const getLecturerCourses = (req, res) => {
     FROM courses c
     JOIN lecturer_courses lc ON c.id = lc.course_id
     LEFT JOIN student_enrollments se ON c.id = se.course_id AND se.status = 'active'
-    LEFT JOIN lecturer_marks lm ON se.student_id = lm.student_id AND c.id = lm.subject_id
+    LEFT JOIN lecturer_marks lm ON se.student_id = lm.student_id AND c.id = lm.course_id
     WHERE lc.lecturer_id = ?
     GROUP BY c.id, c.course_code, c.course_name, c.description, c.credits, c.difficulty_level
     ORDER BY c.course_name
@@ -54,7 +54,7 @@ const getCourseStudents = (req, res) => {
       ) as current_grade
     FROM student_enrollments se
     JOIN users u ON se.student_id = u.id
-    LEFT JOIN lecturer_marks lm ON u.id = lm.student_id AND lm.subject_id = ?
+    LEFT JOIN lecturer_marks lm ON u.id = lm.student_id AND lm.course_id = ?
     WHERE se.course_id = ? AND se.status = 'active'
     ORDER BY u.full_name
   `;
@@ -92,7 +92,7 @@ const getAtRiskStudents = (req, res) => {
     JOIN courses c ON lc.course_id = c.id
     JOIN student_enrollments se ON c.id = se.course_id AND se.status = 'active'
     JOIN users u ON se.student_id = u.id
-    LEFT JOIN lecturer_marks lm ON u.id = lm.student_id AND c.id = lm.subject_id
+    LEFT JOIN lecturer_marks lm ON u.id = lm.student_id AND c.id = lm.course_id
     WHERE lc.lecturer_id = ?
     AND (
       ROUND((COALESCE(lm.quiz1, 0) + COALESCE(lm.quiz2, 0) + 
@@ -113,12 +113,12 @@ const getAtRiskStudents = (req, res) => {
 
 // Lecturer submits marks
 const submitMarks = (req, res) => {
-  const { student_id, subject_id, quiz1, quiz2, assignment1, assignment2, midterm_marks } = req.body;
+  const { student_id, course_id, quiz1, quiz2, assignment1, assignment2, midterm_marks } = req.body;
 
   // First check if marks already exist for this student and subject
-  const checkSql = "SELECT id FROM lecturer_marks WHERE student_id = ? AND subject_id = ?";
+  const checkSql = "SELECT id FROM lecturer_marks WHERE student_id = ? AND course_id = ?";
   
-  db.query(checkSql, [student_id, subject_id], (checkErr, checkResults) => {
+  db.query(checkSql, [student_id, course_id], (checkErr, checkResults) => {
     if (checkErr) {
       return res.status(500).json({ message: "Database error", error: checkErr.message });
     }
@@ -128,10 +128,10 @@ const submitMarks = (req, res) => {
       const updateSql = `
         UPDATE lecturer_marks 
         SET quiz1 = ?, quiz2 = ?, assignment1 = ?, assignment2 = ?, midterm_marks = ?
-        WHERE student_id = ? AND subject_id = ?
+        WHERE student_id = ? AND course_id = ?
       `;
       
-      db.query(updateSql, [quiz1, quiz2, assignment1, assignment2, midterm_marks, student_id, subject_id], (updateErr) => {
+      db.query(updateSql, [quiz1, quiz2, assignment1, assignment2, midterm_marks, student_id, course_id], (updateErr) => {
         if (updateErr) {
           return res.status(500).json({ message: "Database error", error: updateErr.message });
         }
@@ -141,11 +141,11 @@ const submitMarks = (req, res) => {
       // Insert new marks
       const insertSql = `
         INSERT INTO lecturer_marks 
-        (student_id, subject_id, quiz1, quiz2, assignment1, assignment2, midterm_marks)
+        (student_id, course_id, quiz1, quiz2, assignment1, assignment2, midterm_marks)
         VALUES (?, ?, ?, ?, ?, ?, ?)
       `;
 
-      db.query(insertSql, [student_id, subject_id, quiz1, quiz2, assignment1, assignment2, midterm_marks], (insertErr) => {
+      db.query(insertSql, [student_id, course_id, quiz1, quiz2, assignment1, assignment2, midterm_marks], (insertErr) => {
         if (insertErr) {
           return res.status(500).json({ message: "Database error", error: insertErr.message });
         }

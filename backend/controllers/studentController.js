@@ -27,7 +27,7 @@ const getStudentCourses = (req, res) => {
       u_lecturer.full_name as lecturer_name
     FROM student_enrollments se
     JOIN courses c ON se.course_id = c.id
-    LEFT JOIN lecturer_marks lm ON se.student_id = lm.student_id AND c.id = lm.subject_id
+    LEFT JOIN lecturer_marks lm ON se.student_id = lm.student_id AND c.id = lm.course_id
     LEFT JOIN lecturer_courses lc ON c.id = lc.course_id
     LEFT JOIN users u_lecturer ON lc.lecturer_id = u_lecturer.id
     WHERE se.student_id = ? AND se.status = 'active'
@@ -65,7 +65,7 @@ const getStudentCourseDetails = (req, res) => {
       u_lecturer.email as lecturer_email
     FROM student_enrollments se
     JOIN courses c ON se.course_id = c.id
-    LEFT JOIN lecturer_marks lm ON se.student_id = lm.student_id AND c.id = lm.subject_id
+    LEFT JOIN lecturer_marks lm ON se.student_id = lm.student_id AND c.id = lm.course_id
     LEFT JOIN lecturer_courses lc ON c.id = lc.course_id
     LEFT JOIN users u_lecturer ON lc.lecturer_id = u_lecturer.id
     WHERE se.student_id = ? AND se.course_id = ? AND se.status = 'active'
@@ -101,16 +101,89 @@ const submitCommonData = (req, res) => {
 
 // Student - Submit subject-specific data
 const submitSubjectData = (req, res) => {
-  const { student_id, subject_id, hours_studied, teacher_quality } = req.body;
+  const { student_id, course_id, hours_studied, teacher_quality } = req.body;
 
-  const sql = `INSERT INTO student_subject_data 
-    (student_id, subject_id, hours_studied, teacher_quality)
-    VALUES (?, ?, ?, ?)`;
+  // Convert teacher quality text to numeric value
+  const teacherQualityMap = {
+    'low': 1,
+    'medium': 2,
+    'high': 0
+  };
+  
+  const teacherQualityValue = teacherQualityMap[teacher_quality.toLowerCase()] !== undefined 
+    ? teacherQualityMap[teacher_quality.toLowerCase()] 
+    : parseInt(teacher_quality);
 
-  db.query(sql, [student_id, subject_id, hours_studied, teacher_quality], (err) => {
-    if (err) return res.status(500).json({ message: "Database error", error: err });
+  // First check if data already exists for this student and course
+  const checkSql = "SELECT id FROM student_subject_data WHERE student_id = ? AND course_id = ?";
+  
+  db.query(checkSql, [student_id, course_id], (checkErr, checkResults) => {
+    if (checkErr) {
+      return res.status(500).json({ message: "Database error", error: checkErr.message });
+    }
 
-    res.json({ message: "Subject-specific data submitted successfully." });
+    if (checkResults.length > 0) {
+      // Update existing data
+      const updateSql = `
+        UPDATE student_subject_data 
+        SET hours_studied = ?, teacher_quality = ?
+        WHERE student_id = ? AND course_id = ?
+      `;
+      
+      db.query(updateSql, [hours_studied, teacherQualityValue, student_id, course_id], (updateErr) => {
+        if (updateErr) {
+          return res.status(500).json({ message: "Database error", error: updateErr.message });
+        }
+        res.json({ message: "Subject-specific data updated successfully." });
+      });
+    } else {
+      // Insert new data
+      const insertSql = `
+        INSERT INTO student_subject_data 
+        (student_id, course_id, hours_studied, teacher_quality)
+        VALUES (?, ?, ?, ?)
+      `;
+
+      db.query(insertSql, [student_id, course_id, hours_studied, teacherQualityValue], (insertErr) => {
+        if (insertErr) {
+          return res.status(500).json({ message: "Database error", error: insertErr.message });
+        }
+        res.json({ message: "Subject-specific data submitted successfully." });
+      });
+    }
+  });
+};
+
+// Get student's subject data for a specific course
+const getStudentSubjectData = (req, res) => {
+  const { studentId, courseId } = req.params;
+
+  const sql = `
+    SELECT hours_studied, teacher_quality 
+    FROM student_subject_data 
+    WHERE student_id = ? AND course_id = ?
+  `;
+
+  db.query(sql, [studentId, courseId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: "Database error", error: err.message });
+    }
+    
+    if (results.length === 0) {
+      return res.json({ hours_studied: null, teacher_quality: null });
+    }
+    
+    // Convert numeric teacher quality back to text
+    const teacherQualityMap = {
+      0: 'low',
+      1: 'medium', 
+      2: 'high'
+    };
+    
+    const result = results[0];
+    result.teacher_quality = teacherQualityMap[result.teacher_quality] || result.teacher_quality;
+    
+    res.json(result);
   });
 };
 
@@ -140,5 +213,6 @@ module.exports = {
   getStudentCourseDetails,
   submitCommonData,
   submitSubjectData,
+  getStudentSubjectData,
   getStudentName
 };

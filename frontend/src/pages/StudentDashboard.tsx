@@ -196,6 +196,83 @@ const StudentDashboard = () => {
     }));
   };
 
+  // Fetch existing subject data for a course
+  const fetchSubjectData = async (courseId: string) => {
+    try {
+      const response = await fetch(`/api/student/subject-data/${user.id}/${courseId}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.hours_studied !== null || data.teacher_quality !== null) {
+          setSubjectData(prev => ({
+            ...prev,
+            [courseId]: {
+              hoursStudied: data.hours_studied?.toString() || "",
+              teacherQuality: data.teacher_quality || ""
+            }
+          }));
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch subject data:", error);
+    }
+  };
+
+  // Submit subject data for a course
+  const submitSubjectDataForCourse = async (courseId: string) => {
+    const courseData = subjectData[courseId];
+    if (!courseData || !courseData.hoursStudied || !courseData.teacherQuality) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in both hours studied and teacher quality.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/student/subject', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          student_id: user.id,
+          course_id: parseInt(courseId),
+          hours_studied: parseFloat(courseData.hoursStudied),
+          teacher_quality: courseData.teacherQuality
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        toast({
+          title: "Success",
+          description: result.message || "Study parameters updated successfully!",
+        });
+      } else {
+        const error = await response.json();
+        toast({
+          title: "Error",
+          description: error.message || "Failed to update parameters",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update parameters",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Load subject data when a module is selected
+  useEffect(() => {
+    if (selectedModule && user?.id) {
+      fetchSubjectData(selectedModule);
+    }
+  }, [selectedModule, user?.id]);
+
   // Performance history data for charts
   const performanceHistory = [
     { month: "Jan", quiz: 75, assignment: 80, midterm: 78 },
@@ -821,12 +898,7 @@ const StudentDashboard = () => {
                         </div>
 
                         <Button
-                          onClick={() => {
-                            toast({
-                              title: "Parameters Updated",
-                              description: `Study parameters for ${module.code} have been updated.`,
-                            });
-                          }}
+                          onClick={() => submitSubjectDataForCourse(module.id)}
                           className="w-full bg-blue-600 hover:bg-blue-700"
                         >
                           Update Parameters

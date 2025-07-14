@@ -122,7 +122,7 @@ const LecturerDashboard = () => {
         },
         body: JSON.stringify({
           student_id: studentId,
-          subject_id: selectedModule,
+          course_id: selectedModule,
           ...marks
         })
       });

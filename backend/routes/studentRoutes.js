@@ -4,6 +4,7 @@ const {
   getStudentCourseDetails,
   submitCommonData, 
   submitSubjectData,
+  getStudentSubjectData,
   getStudentName 
 } = require("../controllers/studentController");
 
@@ -14,6 +15,9 @@ router.get("/courses/:studentId", getStudentCourses);
 
 // Get detailed course information
 router.get("/courses/:studentId/:courseId", getStudentCourseDetails);
+
+// Get student subject data
+router.get("/subject-data/:studentId/:courseId", getStudentSubjectData);
 
 // Get student name
 router.get("/name/:username", getStudentName);
