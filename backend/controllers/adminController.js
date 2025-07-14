@@ -177,10 +177,67 @@ const updateStudentAttendance = (req, res) => {
   });
 };
 
+// Get all lecturers with course count for admin panel
+const getAllLecturersForAdmin = (req, res) => {
+  const sql = `
+    SELECT 
+      u.id, 
+      u.username, 
+      u.full_name, 
+      u.email,
+      COUNT(DISTINCT lc.course_id) as course_count
+    FROM users u
+    LEFT JOIN lecturer_courses lc ON u.id = lc.lecturer_id
+    WHERE u.role = 'lecturer'
+    GROUP BY u.id, u.username, u.full_name, u.email
+    ORDER BY u.full_name
+  `;
+  
+  db.query(sql, (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: "Database error", error: err.message });
+    }
+    
+    res.json(results);
+  });
+};
+
+// Get system statistics for admin dashboard
+const getSystemStats = (req, res) => {
+  const queries = [
+    "SELECT COUNT(*) as count FROM users WHERE role = 'student'",
+    "SELECT COUNT(*) as count FROM users WHERE role = 'lecturer'", 
+    "SELECT COUNT(*) as count FROM courses"
+  ];
+
+  Promise.all(queries.map(query => 
+    new Promise((resolve, reject) => {
+      db.query(query, (err, results) => {
+        if (err) reject(err);
+        else resolve(results[0].count);
+      });
+    })
+  ))
+  .then(([totalStudents, totalLecturers, activeCourses]) => {
+    res.json({
+      totalStudents,
+      totalLecturers,
+      activeCourses,
+      pendingVerifications: 0 // This will be updated by the frontend when pending users are fetched
+    });
+  })
+  .catch(err => {
+    console.error("Error fetching system stats:", err);
+    res.status(500).json({ message: "Database error", error: err.message });
+  });
+};
+
 module.exports = { 
   submitAdminInput,
   getAllStudentsForAdmin,
   getStudentEnrolledCourses,
   updateStudentMotivation,
-  updateStudentAttendance
+  updateStudentAttendance,
+  getAllLecturersForAdmin,
+  getSystemStats
 };

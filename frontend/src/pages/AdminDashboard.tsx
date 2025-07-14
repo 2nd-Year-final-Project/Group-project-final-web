@@ -22,11 +22,11 @@ interface PendingUser {
 }
 
 interface Lecturer {
-  id: string;
-  name: string;
+  id: number;
+  username: string;
+  full_name: string;
   email: string;
-  department: string;
-  courses: number;
+  course_count: number;
 }
 
 interface SystemStats {
@@ -63,20 +63,17 @@ const AdminDashboard: React.FC = () => {
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
 
   const [systemStats, setSystemStats] = useState<SystemStats>({
-    totalStudents: 1247,
-    totalLecturers: 81,
-    activeCourses: 156,
+    totalStudents: 0,
+    totalLecturers: 0,
+    activeCourses: 0,
     pendingVerifications: 0
   });
 
-  const allLecturers: Lecturer[] = [
-    { id: '1', name: 'Prof. N. G. J.Dias', email: 'ngjdias@kln.ac.lk', department: 'Computer Science', courses: 3 },
-    { id: '2', name: 'Dr. Rasika Rajapaksha', email: 'rasikar@kln.ac.lk', department: 'Computer Science', courses: 2 },
-    { id: '3', name: 'Prof. Dhammika weerasinghe', email: 'hesiri@kln.ac.lk', department: 'Computer Science', courses: 4 },
-  ];
+  const [allLecturers, setAllLecturers] = useState<Lecturer[]>([]);
 
   // Your original user verification useEffect (unchanged)
   useEffect(() => {
+    // Fetch pending users
     fetch("http://localhost:5000/api/admin/pending-users")
       .then((res) => res.json())
       .then((data) => {
@@ -88,6 +85,25 @@ const AdminDashboard: React.FC = () => {
         }));
       })
       .catch((error) => console.error("Error fetching users:", error));
+
+    // Fetch system statistics
+    fetch("http://localhost:5000/api/admin/system-stats")
+      .then((res) => res.json())
+      .then((data) => {
+        setSystemStats(prev => ({
+          ...prev,
+          ...data
+        }));
+      })
+      .catch((error) => console.error("Error fetching system stats:", error));
+
+    // Fetch lecturers
+    fetch("http://localhost:5000/api/admin/lecturers-management")
+      .then((res) => res.json())
+      .then((data) => {
+        setAllLecturers(data);
+      })
+      .catch((error) => console.error("Error fetching lecturers:", error));
   }, []);
 
   // Your original handleAction function (unchanged)
@@ -194,21 +210,27 @@ const AdminDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {allLecturers.map((lecturer) => (
-                  <div key={lecturer.id} className="flex items-center justify-between p-3 border border-gray-700 rounded-lg">
-                    <div>
-                      <div className="font-medium text-white">{lecturer.name}</div>
-                      <div className="text-sm text-gray-400">{lecturer.email}</div>
-                      <div className="text-sm text-gray-400">Department: {lecturer.department}</div>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <span className="text-lg font-bold text-purple-400">{lecturer.courses} courses</span>
-                      <Button size="sm" variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
-                        Manage
-                      </Button>
-                    </div>
+                {allLecturers.length === 0 ? (
+                  <div className="text-center py-8 text-gray-400">
+                    Loading lecturers...
                   </div>
-                ))}
+                ) : (
+                  allLecturers.map((lecturer) => (
+                    <div key={lecturer.id} className="flex items-center justify-between p-3 border border-gray-700 rounded-lg">
+                      <div>
+                        <div className="font-medium text-white">{lecturer.full_name}</div>
+                        <div className="text-sm text-gray-400">{lecturer.email}</div>
+                        <div className="text-sm text-gray-400">Username: {lecturer.username}</div>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <span className="text-lg font-bold text-purple-400">{lecturer.course_count} courses</span>
+                        <Button size="sm" variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+                          Manage
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>

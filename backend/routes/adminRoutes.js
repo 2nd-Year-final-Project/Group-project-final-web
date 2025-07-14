@@ -8,7 +8,9 @@ const {
   getAllStudentsForAdmin,
   getStudentEnrolledCourses,
   updateStudentMotivation,
-  updateStudentAttendance
+  updateStudentAttendance,
+  getAllLecturersForAdmin,
+  getSystemStats
 } = require("../controllers/adminController");
 
 // Import course management routes
@@ -17,11 +19,13 @@ const courseRoutes = require("./courseRoutes");
 // Use course management routes under /admin prefix
 router.use("/", courseRoutes);
 
-// New routes for student management
+// New routes for student and lecturer management
 router.get("/students-management", getAllStudentsForAdmin);
 router.get("/students/:studentId/courses", getStudentEnrolledCourses);
 router.post("/students/motivation", updateStudentMotivation);
 router.post("/students/attendance", updateStudentAttendance);
+router.get("/lecturers-management", getAllLecturersForAdmin);
+router.get("/system-stats", getSystemStats);
 
 // Original admin input route
 router.post("/admin-input", submitAdminInput);
