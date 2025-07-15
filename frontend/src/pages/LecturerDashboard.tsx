@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import MarksEntryModal from '@/components/MarksEntryModal';
+import AlertSystem from '@/components/AlertSystem';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -172,6 +173,9 @@ const LecturerDashboard = () => {
           </h2>
           <p className="text-purple-100">Welcome to your Teaching Excellence Dashboard. Monitor student progress and identify those who need additional support.</p>
         </div>
+
+        {/* Lecturer Alert System */}
+        <AlertSystem userId={user?.id} userType="lecturer" />
 
         {/* At-Risk Students Alert */}
         <Alert className="border-red-600 bg-red-900/20 border">

@@ -1,4 +1,5 @@
 const db = require("../config/db");
+const AlertService = require("../services/alertService");
 
 // Get lecturer's assigned courses
 const getLecturerCourses = (req, res) => {
@@ -148,10 +149,20 @@ const submitMarks = (req, res) => {
         WHERE student_id = ? AND course_id = ?
       `;
       
-      db.query(updateSql, [quiz1Value, quiz2Value, assignment1Value, assignment2Value, midtermValue, student_id, course_id], (updateErr) => {
+      db.query(updateSql, [quiz1Value, quiz2Value, assignment1Value, assignment2Value, midtermValue, student_id, course_id], async (updateErr) => {
         if (updateErr) {
           return res.status(500).json({ message: "Database error", error: updateErr.message });
         }
+        
+        // Trigger alert generation for this student after marks update
+        try {
+          await AlertService.generateStudentAlerts(student_id);
+          console.log(`🔔 Alerts generated for student ${student_id} after marks update`);
+        } catch (alertError) {
+          console.error('Error generating alerts after marks update:', alertError);
+          // Don't fail the marks update if alert generation fails
+        }
+        
         res.json({ message: "Marks updated successfully." });
       });
     } else {
@@ -162,10 +173,20 @@ const submitMarks = (req, res) => {
         VALUES (?, ?, ?, ?, ?, ?, ?)
       `;
 
-      db.query(insertSql, [student_id, course_id, quiz1Value, quiz2Value, assignment1Value, assignment2Value, midtermValue], (insertErr) => {
+      db.query(insertSql, [student_id, course_id, quiz1Value, quiz2Value, assignment1Value, assignment2Value, midtermValue], async (insertErr) => {
         if (insertErr) {
           return res.status(500).json({ message: "Database error", error: insertErr.message });
         }
+        
+        // Trigger alert generation for this student after marks submission
+        try {
+          await AlertService.generateStudentAlerts(student_id);
+          console.log(`🔔 Alerts generated for student ${student_id} after marks submission`);
+        } catch (alertError) {
+          console.error('Error generating alerts after marks submission:', alertError);
+          // Don't fail the marks submission if alert generation fails
+        }
+        
         res.json({ message: "Marks submitted successfully." });
       });
     }

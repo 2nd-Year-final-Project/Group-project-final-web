@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuthStore } from '@/store/authStore';
 import { toast } from '@/hooks/use-toast';
+import AlertSystem from '@/components/AlertSystem';
 import {
   Card,
   CardContent,
@@ -623,6 +624,9 @@ const StudentDashboard = () => {
           </AlertDescription>
         </Alert>
       )}
+
+      {/* Alert System */}
+      <AlertSystem userId={user?.id} userType="student" />
 
       {/* Key Metrics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
