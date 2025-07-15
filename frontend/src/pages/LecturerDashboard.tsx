@@ -30,6 +30,22 @@ const LecturerDashboard = () => {
     return "Good evening";
   };
 
+  // Convert percentage to grade letter (matching student dashboard logic)
+  const getGradeFromPercentage = (percentage: number) => {
+    if (percentage >= 85) return "A+";
+    if (percentage >= 70) return "A";
+    if (percentage >= 65) return "A-";
+    if (percentage >= 60) return "B+";
+    if (percentage >= 55) return "B";
+    if (percentage >= 50) return "B-";
+    if (percentage >= 45) return "C+";
+    if (percentage >= 40) return "C";
+    if (percentage >= 35) return "C-";
+    if (percentage >= 30) return "D+";
+    if (percentage >= 25) return "D";
+    return "E";
+  };
+
   // Fetch lecturer's courses
   useEffect(() => {
     if (user?.id) {
@@ -111,7 +127,8 @@ const LecturerDashboard = () => {
           variant: "destructive"
         });
       }
-    } catch (error) {
+    } catch (fetchError) {
+      console.error('Error fetching course students:', fetchError);
       toast({
         title: "Error",
         description: "Failed to fetch course students",
@@ -155,7 +172,8 @@ const LecturerDashboard = () => {
           variant: "destructive"
         });
       }
-    } catch (error) {
+    } catch (saveError) {
+      console.error('Error saving marks:', saveError);
       toast({
         title: "Error",
         description: "Failed to save marks",
@@ -236,22 +254,66 @@ const LecturerDashboard = () => {
                   <CardTitle className="text-white">
                     Student Roster - {courses.find(c => c.id.toString() === selectedModule)?.course_name}
                   </CardTitle>
-                  <CardDescription className="text-gray-300">Manage students and their grades</CardDescription>
+                  <CardDescription className="text-gray-300">
+                    Manage students and their grades. AI predictions are shown when available for students.
+                  </CardDescription>
+                  {/* Prediction Summary */}
+                  {studentRoster.length > 0 && (
+                    <div className="mt-3 p-3 bg-purple-900/20 rounded-lg border border-purple-600/30">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-purple-300">
+                          AI Predictions Available: {studentRoster.filter(s => s.has_prediction).length} of {studentRoster.length} students
+                        </span>
+                        <span className="text-purple-400">
+                          {Math.round((studentRoster.filter(s => s.has_prediction).length / studentRoster.length) * 100)}% coverage
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
                     {studentRoster.map((student) => (
                       <div key={student.id} className="p-4 border border-gray-700 rounded-lg bg-gray-750">
                         <div className="flex items-center justify-between mb-3">
-                          <div>
+                          <div className="flex-1">
                             <div className="font-medium text-white">{student.full_name}</div>
                             <div className="text-sm text-gray-400">{student.email}</div>
                             <div className="text-sm text-gray-400">
                               Enrolled: {new Date(student.enrollment_date).toLocaleDateString()}
                             </div>
                           </div>
-                          <div className="flex items-center space-x-3">
-                            <span className="text-lg font-bold text-blue-400">{student.current_grade}%</span>
+                          <div className="flex items-center space-x-4">
+                            {/* Current Grade */}
+                            <div className="text-center">
+                              <div className="text-lg font-bold text-blue-400">{student.current_grade}%</div>
+                              <div className="text-xs text-gray-300">Current</div>
+                            </div>
+                            
+                            {/* Predicted Grade */}
+                            {student.has_prediction && student.predicted_grade !== null ? (
+                              <div className="text-center">
+                                <div className={`text-lg font-bold ${
+                                  student.predicted_grade >= 60 ? 'text-green-400' : 'text-red-400'
+                                }`}>
+                                  {student.predicted_grade.toFixed(1)}%
+                                </div>
+                                <div className="text-xs text-gray-300">Predicted</div>
+                                <div className={`text-xs font-medium ${
+                                  student.predicted_grade >= 60 ? 'text-green-300' : 'text-red-300'
+                                }`}>
+                                  {getGradeFromPercentage(student.predicted_grade)}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-center">
+                                <div className="text-lg text-gray-500">--</div>
+                                <div className="text-xs text-gray-400">Predicted</div>
+                                <div className="text-xs text-gray-400">N/A</div>
+                              </div>
+                            )}
+                            
+                            {/* Action Button */}
                             <Button 
                               size="sm" 
                               onClick={() => handleAddMarks(student)}

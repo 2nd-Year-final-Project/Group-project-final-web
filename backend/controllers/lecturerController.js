@@ -1,5 +1,6 @@
 const db = require("../config/db");
 const AlertService = require("../services/alertService");
+const axios = require("axios");
 
 // Get lecturer's assigned courses
 const getLecturerCourses = (req, res) => {
@@ -32,8 +33,8 @@ const getLecturerCourses = (req, res) => {
   });
 };
 
-// Get students enrolled in a specific course
-const getCourseStudents = (req, res) => {
+// Get students enrolled in a specific course with predictions
+const getCourseStudents = async (req, res) => {
   const { courseId } = req.params;
 
   const sql = `
@@ -65,12 +66,46 @@ const getCourseStudents = (req, res) => {
     ORDER BY u.full_name
   `;
 
-  db.query(sql, [courseId, courseId], (err, results) => {
-    if (err) {
-      return res.status(500).json({ message: "Database error", error: err.message });
-    }
-    res.json(results);
-  });
+  try {
+    const results = await new Promise((resolve, reject) => {
+      db.query(sql, [courseId, courseId], (err, results) => {
+        if (err) reject(err);
+        else resolve(results);
+      });
+    });
+
+    // Fetch predictions for each student
+    const studentsWithPredictions = await Promise.all(
+      results.map(async (student) => {
+        try {
+          // Try to fetch prediction for this student and course
+          const response = await axios.get(`http://localhost:5000/api/prediction/${student.id}/${courseId}`);
+          
+          const predictedGrade = response.data && response.data.predicted_grade ? 
+            parseFloat(response.data.predicted_grade) : null;
+          
+          return {
+            ...student,
+            predicted_grade: predictedGrade,
+            has_prediction: predictedGrade !== null
+          };
+        } catch (predictionError) {
+          // If prediction fails, return student data without prediction
+          console.log(`No prediction available for student ${student.id} in course ${courseId}:`, predictionError.message);
+          return {
+            ...student,
+            predicted_grade: null,
+            has_prediction: false
+          };
+        }
+      })
+    );
+
+    res.json(studentsWithPredictions);
+  } catch (error) {
+    console.error('Error fetching course students:', error);
+    res.status(500).json({ message: "Database error", error: error.message });
+  }
 };
 
 // Get at-risk students for a lecturer
