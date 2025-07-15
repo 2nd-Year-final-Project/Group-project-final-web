@@ -847,65 +847,6 @@ const StudentDashboard = () => {
       {/* Alert System */}
       <AlertSystem userId={user?.id} userType="student" />
 
-      {/* Key Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-gray-800 border-gray-700">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-600 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-400">Predicted GPA</p>
-                <p className="text-2xl font-bold text-white">3.6</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gray-800 border-gray-700">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-600 rounded-lg">
-                <Target className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-400">Goals Achieved</p>
-                <p className="text-2xl font-bold text-white">7/10</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gray-800 border-gray-700">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-600 rounded-lg">
-                <Award className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-400">Performance</p>
-                <p className="text-2xl font-bold text-white">Good</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gray-800 border-gray-700">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-orange-600 rounded-lg">
-                <Clock className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-400">Study Hours</p>
-                <p className="text-2xl font-bold text-white">35h</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Quick Progress Overview */}
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="bg-gray-800 border-gray-700">
@@ -993,6 +934,77 @@ const StudentDashboard = () => {
             <SelectItem value="all">All Time</SelectItem>
           </SelectContent>
         </Select>
+      </div>
+
+      {/* Subject Progress and Quick Tips */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card className="bg-gray-800 border-gray-700">
+          <CardHeader>
+            <CardTitle className="text-white">Subject Progress</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {modules.map((module) => (
+                <div
+                  key={module.id}
+                  className="flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <Badge
+                      className={getStatusColor(module.status)}
+                      variant="secondary"
+                    >
+                      {module.code}
+                    </Badge>
+                    <span className="text-gray-300 text-sm">{module.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Progress
+                      value={module.predictedFinal}
+                      className="w-20 h-2"
+                    />
+                    <span className="text-white text-sm font-medium">
+                      {module.predictedFinal}%
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-800 border-gray-700">
+          <CardHeader>
+            <CardTitle className="text-white">Quick Tips</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {generateQuickTips().map((tip, index) => {
+                const Icon = getIconComponent(tip.icon);
+                const colorClasses = getColorClasses(tip.color);
+                
+                return (
+                  <div key={index} className={`flex items-start gap-3 p-3 rounded-lg border ${colorClasses.bg} ${colorClasses.border}`}>
+                    <Icon className={`w-5 h-5 mt-0.5 ${colorClasses.iconColor}`} />
+                    <div>
+                      <p className={`font-medium ${colorClasses.titleColor}`}>
+                        {tip.title}
+                      </p>
+                      <p className={`text-sm ${colorClasses.textColor}`}>
+                        {tip.message}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+              {generateQuickTips().length === 0 && (
+                <div className="text-center py-4">
+                  <p className="text-gray-400">Great work! No specific tips needed at the moment.</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
