@@ -27,20 +27,19 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Brain,
   TrendingUp,
-  User,
   Moon,
   Sun,
   LogOut,
   BarChart3,
   BookOpen,
   AlertTriangle,
-  HelpCircle,
   Settings,
   Home,
   Target,
   Award,
   Clock,
   CheckCircle,
+  FileText,
 } from "lucide-react";
 import {
   LineChart,
@@ -52,9 +51,6 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  PieChart,
-  Pie,
-  Cell,
 } from "recharts";
 
 const StudentDashboard = () => {
@@ -183,7 +179,6 @@ const StudentDashboard = () => {
     studentId: "CS2021001",
     academicYear: "3rd Year",
     profileImage: "/api/placeholder/100/100",
-    overallGPA: 3.42,
   };
 
   // Calculate overall attendance from all courses
@@ -539,6 +534,180 @@ const StudentDashboard = () => {
     return Math.round((total / availableMarks.length) * 100) / 100;
   };
 
+  // Function to generate meaningful tips based on student's real data
+  const generateQuickTips = () => {
+    const tips = [];
+    
+    if (modules.length === 0) {
+      return [{
+        type: "info",
+        icon: "Brain",
+        title: "Get Started",
+        message: "Enroll in courses to see personalized performance tips and recommendations.",
+        color: "blue"
+      }];
+    }
+
+    // Find courses that need attention (predicted grade < 65%)
+    const strugglingCourses = modules.filter(m => m.predictedFinal < 65 && m.predictedFinal > 0);
+    
+    // Find courses performing well (predicted grade >= 80%)
+    const excellentCourses = modules.filter(m => m.predictedFinal >= 80);
+    
+    // Find courses with low attendance (< 75%)
+    const lowAttendanceCourses = modules.filter(m => m.attendance && m.attendance < 75);
+    
+    // Find courses with missing marks
+    const coursesWithMissingMarks = modules.filter(m => {
+      const marks = m.marks;
+      return marks.quiz1 === null || marks.quiz2 === null || 
+             marks.assignment1 === null || marks.assignment2 === null || 
+             marks.midterm === null;
+    });
+
+    // Generate tips based on struggling courses
+    if (strugglingCourses.length > 0) {
+      const worstCourse = strugglingCourses.reduce((prev, current) => 
+        prev.predictedFinal < current.predictedFinal ? prev : current
+      );
+      
+      tips.push({
+        type: "warning",
+        icon: "AlertTriangle",
+        title: `Focus on ${worstCourse.code}`,
+        message: `Your predicted grade in ${worstCourse.name} is ${worstCourse.predictedFinal}%. Consider attending office hours and increasing study time.`,
+        color: "yellow"
+      });
+    }
+
+    // Generate tips for excellent performance
+    if (excellentCourses.length > 0) {
+      const bestCourse = excellentCourses.reduce((prev, current) => 
+        prev.predictedFinal > current.predictedFinal ? prev : current
+      );
+      
+      tips.push({
+        type: "success",
+        icon: "CheckCircle",
+        title: `Excellent Work in ${bestCourse.code}!`,
+        message: `You're performing exceptionally well in ${bestCourse.name} (${bestCourse.predictedFinal}%). Consider helping classmates or exploring advanced topics.`,
+        color: "green"
+      });
+    }
+
+    // Generate tips for attendance issues
+    if (lowAttendanceCourses.length > 0) {
+      const lowestAttendance = lowAttendanceCourses.reduce((prev, current) => 
+        prev.attendance < current.attendance ? prev : current
+      );
+      
+      tips.push({
+        type: "warning",
+        icon: "Clock",
+        title: `Improve Attendance in ${lowestAttendance.code}`,
+        message: `Your attendance in ${lowestAttendance.name} is ${lowestAttendance.attendance}%. Regular attendance significantly impacts academic performance.`,
+        color: "orange"
+      });
+    }
+
+    // Generate tips for missing assessments
+    if (coursesWithMissingMarks.length > 0) {
+      const courseWithMostMissing = coursesWithMissingMarks[0];
+      const missingAssessments = [];
+      
+      if (courseWithMostMissing.marks.quiz1 === null) missingAssessments.push("Quiz 1");
+      if (courseWithMostMissing.marks.quiz2 === null) missingAssessments.push("Quiz 2");
+      if (courseWithMostMissing.marks.assignment1 === null) missingAssessments.push("Assignment 1");
+      if (courseWithMostMissing.marks.assignment2 === null) missingAssessments.push("Assignment 2");
+      if (courseWithMostMissing.marks.midterm === null) missingAssessments.push("Midterm");
+
+      tips.push({
+        type: "info",
+        icon: "FileText",
+        title: `Pending Assessments in ${courseWithMostMissing.code}`,
+        message: `${missingAssessments.join(", ")} not yet graded in ${courseWithMostMissing.name}. Contact your lecturer for updates.`,
+        color: "blue"
+      });
+    }
+
+    // Generate general performance tip
+    const overallAverage = modules.length > 0 ? 
+      modules.reduce((sum, m) => sum + m.predictedFinal, 0) / modules.length : 0;
+    
+    if (overallAverage > 0 && overallAverage < 70 && tips.length < 2) {
+      tips.push({
+        type: "info",
+        icon: "TrendingUp",
+        title: "Boost Your Overall Performance",
+        message: `Your overall predicted average is ${overallAverage.toFixed(1)}%. Consider creating a structured study schedule and utilizing available academic resources.`,
+        color: "blue"
+      });
+    }
+
+    // If no specific tips, provide encouragement
+    if (tips.length === 0) {
+      tips.push({
+        type: "success",
+        icon: "Target",
+        title: "Keep Up the Great Work!",
+        message: "You're performing well across all your courses. Maintain your current study habits and stay consistent.",
+        color: "green"
+      });
+    }
+
+    // Limit to maximum 2 tips to avoid clutter
+    return tips.slice(0, 2);
+  };
+
+  // Function to get icon component by name
+  const getIconComponent = (iconName: string) => {
+    const iconMap = {
+      Brain: Brain,
+      AlertTriangle: AlertTriangle,
+      CheckCircle: CheckCircle,
+      Clock: Clock,
+      FileText: FileText,
+      TrendingUp: TrendingUp,
+      Target: Target,
+    };
+    return iconMap[iconName] || Brain;
+  };
+
+  // Function to get color classes by type
+  const getColorClasses = (color: string) => {
+    const colorMap = {
+      blue: {
+        bg: "bg-blue-900/20",
+        border: "border-blue-600/30",
+        iconColor: "text-blue-400",
+        titleColor: "text-blue-300",
+        textColor: "text-blue-200"
+      },
+      green: {
+        bg: "bg-green-900/20",
+        border: "border-green-600/30",
+        iconColor: "text-green-400",
+        titleColor: "text-green-300",
+        textColor: "text-green-200"
+      },
+      yellow: {
+        bg: "bg-yellow-900/20",
+        border: "border-yellow-600/30",
+        iconColor: "text-yellow-400",
+        titleColor: "text-yellow-300",
+        textColor: "text-yellow-200"
+      },
+      orange: {
+        bg: "bg-orange-900/20",
+        border: "border-orange-600/30",
+        iconColor: "text-orange-400",
+        titleColor: "text-orange-300",
+        textColor: "text-orange-200"
+      }
+    };
+    return colorMap[color] || colorMap.blue;
+  };
+
   const renderOverview = () => (
     <div className="space-y-6">
       {/* Welcome Section */}
@@ -554,12 +723,6 @@ const StudentDashboard = () => {
           "
         </p>
         <div className="flex items-center gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold">
-              {studentProfile.overallGPA}
-            </div>
-            <div className="text-sm text-blue-200">Overall GPA</div>
-          </div>
           <div className="text-center">
             <div className="text-2xl font-bold">
               {calculateOverallAttendance() !== null ? `${calculateOverallAttendance()}%` : 'N/A'}
@@ -693,27 +856,29 @@ const StudentDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="flex items-start gap-3 p-3 bg-blue-900/20 rounded-lg border border-blue-600/30">
-                <Brain className="w-5 h-5 text-blue-400 mt-0.5" />
-                <div>
-                  <p className="text-blue-300 font-medium">
-                    Focus on Data Structures
-                  </p>
-                  <p className="text-blue-200 text-sm">
-                    Your performance in CS201 needs attention. Consider
-                    additional practice sessions.
-                  </p>
+              {generateQuickTips().map((tip, index) => {
+                const Icon = getIconComponent(tip.type);
+                const colorClasses = getColorClasses(tip.type);
+                
+                return (
+                  <div key={index} className={`flex items-start gap-3 p-3 rounded-lg border ${colorClasses.background} ${colorClasses.border}`}>
+                    <Icon className={`w-5 h-5 mt-0.5 ${colorClasses.icon}`} />
+                    <div>
+                      <p className={`font-medium ${colorClasses.title}`}>
+                        {tip.title}
+                      </p>
+                      <p className={`text-sm ${colorClasses.text}`}>
+                        {tip.description}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+              {generateQuickTips().length === 0 && (
+                <div className="text-center py-4">
+                  <p className="text-gray-400">Great work! No specific tips needed at the moment.</p>
                 </div>
-              </div>
-              <div className="flex items-start gap-3 p-3 bg-green-900/20 rounded-lg border border-green-600/30">
-                <CheckCircle className="w-5 h-5 text-green-400 mt-0.5" />
-                <div>
-                  <p className="text-green-300 font-medium">Great Progress!</p>
-                  <p className="text-green-200 text-sm">
-                    Keep up the excellent work in Web Development.
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -1276,10 +1441,6 @@ const StudentDashboard = () => {
               <div className="flex justify-between">
                 <span className="text-gray-400">Department:</span>
                 <span className="text-white">Computer Science</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Overall GPA:</span>
-                <span className="text-white">{studentProfile.overallGPA}</span>
               </div>
             </div>
           </CardContent>
