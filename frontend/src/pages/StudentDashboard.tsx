@@ -1576,8 +1576,8 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 flex">
-      {/* Sidebar */}
-      <div className="w-64 bg-gray-800 border-r border-gray-700 flex flex-col">
+      {/* Sidebar - Fixed Position */}
+      <div className="w-64 bg-gray-800 border-r border-gray-700 flex flex-col fixed left-0 top-0 h-screen z-10">
         {/* Logo */}
         <div className="p-6 border-b border-gray-700">
           <div className="flex items-center gap-2">
@@ -1587,7 +1587,7 @@ const StudentDashboard = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4">
+        <nav className="flex-1 p-4 overflow-y-auto">
           <div className="space-y-2">
             {sidebarItems.map((item) => {
               const Icon = item.icon;
@@ -1609,9 +1609,9 @@ const StudentDashboard = () => {
           </div>
         </nav>
 
-        {/* Profile & Logout */}
+        {/* Profile */}
         <div className="p-4 border-t border-gray-700">
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full border-2 border-gray-600 bg-blue-600 flex items-center justify-center">
               <span className="text-sm font-bold text-white">
                 {getProfileInitial()}
@@ -1626,36 +1626,13 @@ const StudentDashboard = () => {
               </p>
             </div>
           </div>
-
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleTheme}
-              className="flex-1 text-gray-300 hover:bg-gray-700 hover:text-white"
-            >
-              {isDarkMode ? (
-                <Sun className="w-4 h-4" />
-              ) : (
-                <Moon className="w-4 h-4" />
-              )}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              className="flex-1 text-gray-300 hover:bg-gray-700 hover:text-white"
-            >
-              <LogOut className="w-4 h-4" />
-            </Button>
-          </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Top Bar */}
-        <header className="bg-gray-800 border-b border-gray-700 p-4">
+      <div className="flex-1 flex flex-col ml-64">
+        {/* Top Bar - Fixed Position */}
+        <header className="bg-gray-800 border-b border-gray-700 p-4 fixed top-0 right-0 left-64 z-10">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-white">
@@ -1668,13 +1645,22 @@ const StudentDashboard = () => {
             </div>
 
             <div className="flex items-center gap-4">
-              {/* Removed notification bell */}
+              {/* Logout Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
+              </Button>
             </div>
           </div>
         </header>
 
-        {/* Content Area */}
-        <main className="flex-1 p-6 overflow-auto">{renderContent()}</main>
+        {/* Content Area - Add top padding to account for fixed header */}
+        <main className="flex-1 p-6 overflow-auto mt-20">{renderContent()}</main>
       </div>
     </div>
   );
