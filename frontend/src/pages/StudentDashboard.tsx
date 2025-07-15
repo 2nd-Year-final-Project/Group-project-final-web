@@ -34,7 +34,6 @@ import {
   LogOut,
   BarChart3,
   BookOpen,
-  Calendar,
   AlertTriangle,
   HelpCircle,
   Settings,
@@ -362,7 +361,6 @@ const StudentDashboard = () => {
     { id: "overview", label: "Dashboard Overview", icon: Home },
     { id: "analytics", label: "Performance Analytics", icon: BarChart3 },
     { id: "subjects", label: "Subject-wise Insights", icon: BookOpen },
-    { id: "progress", label: "Progress Tracker", icon: Calendar },
     { id: "alerts", label: "Alerts & Recommendations", icon: AlertTriangle },
     { id: "profile", label: "Profile Settings", icon: Settings },
   ];
@@ -1213,118 +1211,6 @@ const StudentDashboard = () => {
     </div>
   );
 
-  const renderProgress = () => (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-white">Progress Tracker</h2>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="bg-gray-800 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white">Weekly Study Goals</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                { subject: "CS101", target: 10, completed: 8, unit: "hours" },
-                { subject: "CS201", target: 12, completed: 6, unit: "hours" },
-                { subject: "CS301", target: 8, completed: 8, unit: "hours" },
-              ].map((goal, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-300">{goal.subject}</span>
-                    <span className="text-white">
-                      {goal.completed}/{goal.target} {goal.unit}
-                    </span>
-                  </div>
-                  <Progress
-                    value={(goal.completed / goal.target) * 100}
-                    className="h-2"
-                  />
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gray-800 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white">Achievement Timeline</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                {
-                  date: "2024-05-01",
-                  event: "Achieved A+ in Web Development Quiz",
-                  type: "success",
-                },
-                {
-                  date: "2024-04-28",
-                  event: "Completed Data Structures Assignment",
-                  type: "info",
-                },
-                {
-                  date: "2024-04-25",
-                  event: "Improved CS201 grade by 10%",
-                  type: "success",
-                },
-                {
-                  date: "2024-04-20",
-                  event: "Started additional study sessions",
-                  type: "info",
-                },
-              ].map((item, index) => (
-                <div key={index} className="flex items-start gap-3">
-                  <div
-                    className={`w-2 h-2 rounded-full mt-2 ${
-                      item.type === "success" ? "bg-green-400" : "bg-blue-400"
-                    }`}
-                  />
-                  <div>
-                    <p className="text-white text-sm">{item.event}</p>
-                    <p className="text-gray-400 text-xs">{item.date}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="bg-gray-800 border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-white">
-            Compare with Past Performance
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={performanceHistory}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis dataKey="month" stroke="#9CA3AF" />
-              <YAxis stroke="#9CA3AF" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#374151",
-                  border: "none",
-                  borderRadius: "8px",
-                  color: "#ffffff",
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="quiz"
-                stroke="#60A5FA"
-                strokeWidth={3}
-                name="This Year"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
   const renderAlerts = () => (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-white">
@@ -1584,8 +1470,6 @@ const StudentDashboard = () => {
         return renderAnalytics();
       case "subjects":
         return renderSubjects();
-      case "progress":
-        return renderProgress();
       case "alerts":
         return renderAlerts();
       case "profile":
