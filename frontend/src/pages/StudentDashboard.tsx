@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import { useAuthStore } from '@/store/authStore';
 import { toast } from '@/hooks/use-toast';
@@ -69,6 +70,8 @@ const StudentDashboard = () => {
     enrollmentDate: ""
   });
   const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
+  const navigate = useNavigate();
   const username = localStorage.getItem("username");
 
   // Fetch student's enrolled courses
@@ -524,10 +527,22 @@ const StudentDashboard = () => {
   };
 
   const handleLogout = () => {
+    // Clear auth store
+    logout();
+    
+    // Clear localStorage data
+    localStorage.removeItem("username");
+    localStorage.removeItem("token");
+    localStorage.removeItem("auth-storage");
+    
+    // Show success message
     toast({
       title: "Logged Out",
       description: "You have been successfully logged out.",
     });
+    
+    // Navigate to login page
+    navigate("/login");
   };
 
   const fetchName = async () => {
