@@ -25,7 +25,6 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-  Bell,
   Brain,
   TrendingUp,
   User,
@@ -325,34 +324,6 @@ const StudentDashboard = () => {
     { month: "Mar", quiz: 85, assignment: 88, midterm: 87 },
     { month: "Apr", quiz: 82, assignment: 90, midterm: 85 },
     { month: "May", quiz: 88, assignment: 92, midterm: 89 },
-  ];
-
-  // Notifications
-  const notifications = [
-    {
-      id: 1,
-      message: "Assignment 3 deadline approaching for CS301",
-      type: "warning",
-      time: "2 hours ago",
-    },
-    {
-      id: 2,
-      message: "Your predicted grade for CS201 has improved to C+",
-      type: "success",
-      time: "1 day ago",
-    },
-    {
-      id: 3,
-      message: "Midterm results are now available",
-      type: "info",
-      time: "3 days ago",
-    },
-    {
-      id: 4,
-      message: "Study group session scheduled for tomorrow",
-      type: "info",
-      time: "1 day ago",
-    },
   ];
 
   // Remove hardcoded modules - now fetched from API
@@ -1404,39 +1375,6 @@ const StudentDashboard = () => {
           </CardContent>
         </Card>
       </div>
-
-      {/* Notifications */}
-      <Card className="bg-gray-800 border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-white">All Notifications</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {notifications.map((notification) => (
-              <div
-                key={notification.id}
-                className="flex items-center justify-between p-3 bg-gray-700 rounded-lg"
-              >
-                <div className="flex items-center space-x-3">
-                  <div
-                    className={`w-2 h-2 rounded-full ${
-                      notification.type === "warning"
-                        ? "bg-yellow-400"
-                        : notification.type === "success"
-                        ? "bg-green-400"
-                        : "bg-blue-400"
-                    }`}
-                  ></div>
-                  <span className="text-gray-200">{notification.message}</span>
-                </div>
-                <span className="text-gray-400 text-sm">
-                  {notification.time}
-                </span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 
@@ -1573,17 +1511,7 @@ const StudentDashboard = () => {
             </div>
 
             <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-gray-300 hover:bg-gray-700"
-              >
-                <Bell className="w-5 h-5" />
-                {notifications.filter((n) => n.type === "warning").length >
-                  0 && (
-                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs"></span>
-                )}
-              </Button>
+              {/* Removed notification bell */}
             </div>
           </div>
         </header>
