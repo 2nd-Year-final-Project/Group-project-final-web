@@ -60,8 +60,17 @@ router.post("/approve/:id", async (req, res) => {
     const randomNumber = Math.floor(1000 + Math.random() * 9000);
     const username = `${firstName}${randomNumber}`;
 
-    // Use fixed password for easy testing
-    const plainPassword = "123456";
+    // Generate random password
+    const generateRandomPassword = () => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+      let password = '';
+      for (let i = 0; i < 6; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return password;
+    };
+
+    const plainPassword = generateRandomPassword();
 
     // Hash the password before storing
     const hashedPassword = await bcrypt.hash(plainPassword, 10);
