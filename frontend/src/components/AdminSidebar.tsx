@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, GraduationCap, BookOpen, Settings, BarChart3, UserCheck, Shield, Database, TrendingUp } from 'lucide-react';
+import { GraduationCap, BookOpen, BarChart3, UserCheck, Shield, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AdminSidebarProps {
@@ -14,7 +14,6 @@ const sidebarItems = [
   { id: 'lecturers', label: 'Lecturer Management', icon: UserCheck },
   { id: 'courses', label: 'Course Management', icon: BookOpen },
   { id: 'verifications', label: 'User Verifications', icon: Shield },
-  { id: 'settings', label: 'System Settings', icon: Settings },
 ];
 
 ///////////////////////////////////////////////////////////////////////
@@ -49,24 +48,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange }) =
       label: 'Verifications',
       icon: UserCheck,
       description: 'Pending verifications'
-    },
-    {
-      id: 'permissions',
-      label: 'Permissions',
-      icon: Shield,
-      description: 'User permissions'
-    },
-    {
-      id: 'database',
-      label: 'Database',
-      icon: Database,
-      description: 'Data management'
-    },
-    {
-      id: 'system',
-      label: 'System Settings',
-      icon: Settings,
-      description: 'System configuration'
     }
   ];
 

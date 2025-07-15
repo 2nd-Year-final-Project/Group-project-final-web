@@ -380,8 +380,7 @@ const CourseManagement = () => {
                 <CardContent>
                   <div className="space-y-2 text-sm text-gray-300">
                     <p>{course.description}</p>
-                    <div className="flex justify-between">
-                      <span>Credits: {course.credits}</span>
+                    <div className="flex justify-end">
                       <span className="flex items-center gap-2">
                         <Users className="w-4 h-4" />
                         {course.student_count} students
