@@ -6,7 +6,10 @@ class AlertsService {
   // Generate alerts based on prediction results
   async generatePredictionAlerts(studentId, courseId, predictionData) {
     try {
-      const { predicted_grade, predicted_marks, confidence } = predictionData;
+      const { predicted_grade, interpretation, stage_used, subject } = predictionData;
+      
+      // Convert predicted_grade to number for comparison
+      const predictedMarks = parseFloat(predicted_grade);
       
       // Get student and course info
       const [studentInfo] = await db.promise().query(
@@ -23,35 +26,84 @@ class AlertsService {
       const student = studentInfo[0];
       const course = courseInfo[0];
       
-      // Determine alert type and severity based on predicted marks
+      // Determine alert type and severity based on predicted marks and interpretation
       let alertType, severity, title, message;
       
-      if (predicted_marks < 40) {
-        alertType = 'at_risk';
-        severity = 'critical';
-        title = `🚨 Critical Alert: You're at risk of failing ${course.course_name}`;
-        message = `Your predicted grade is ${predicted_grade} (${predicted_marks}%). Immediate action is required to improve your performance. Please contact your lecturer or academic advisor for support.`;
-      } else if (predicted_marks < 55) {
-        alertType = 'at_risk';
-        severity = 'high';
-        title = `⚠️ Performance Alert: Poor performance predicted in ${course.course_name}`;
-        message = `Your predicted grade is ${predicted_grade} (${predicted_marks}%). You need to improve your study habits and seek help to achieve better results.`;
-      } else if (predicted_marks < 70) {
-        alertType = 'average';
-        severity = 'medium';
-        title = `📊 Performance Update: Average performance in ${course.course_name}`;
-        message = `Your predicted grade is ${predicted_grade} (${predicted_marks}%). With some additional effort, you can achieve better results. Consider reviewing study materials and attending extra sessions.`;
-      } else if (predicted_marks < 85) {
-        alertType = 'good';
-        severity = 'low';
-        title = `✅ Good Progress: Strong performance in ${course.course_name}`;
-        message = `Your predicted grade is ${predicted_grade} (${predicted_marks}%). You're doing well! Keep up the good work and maintain your current study routine.`;
-      } else {
-        alertType = 'excellent';
-        severity = 'low';
-        title = `🌟 Excellent Work: Outstanding performance in ${course.course_name}`;
-        message = `Your predicted grade is ${predicted_grade} (${predicted_marks}%). Exceptional work! You're excelling in this course. Consider helping your peers or taking on additional challenges.`;
+      // Use the ML model's interpretation as the primary indicator
+      switch (interpretation.toLowerCase()) {
+        case 'poor':
+        case 'fail':
+          alertType = 'at_risk';
+          severity = 'critical';
+          title = `🚨 Critical Alert: You're at risk of failing ${course.course_name}`;
+          message = `Your predicted grade is ${predicted_grade}% (${interpretation}). This indicates you're at high risk of failing this course. Immediate action is required to improve your performance. Please contact your lecturer or academic advisor for urgent support.`;
+          break;
+          
+        case 'below average':
+        case 'low':
+          alertType = 'at_risk';
+          severity = 'high';
+          title = `⚠️ Performance Alert: Below average performance predicted in ${course.course_name}`;
+          message = `Your predicted grade is ${predicted_grade}% (${interpretation}). You're performing below the expected level and need to improve your study habits. Consider seeking help from your lecturer or attending study groups.`;
+          break;
+          
+        case 'average':
+        case 'moderate':
+          alertType = 'average';
+          severity = 'medium';
+          title = `📊 Performance Update: Average performance in ${course.course_name}`;
+          message = `Your predicted grade is ${predicted_grade}% (${interpretation}). You're performing at an average level. With some additional effort and focused study, you can achieve better results.`;
+          break;
+          
+        case 'good':
+        case 'above average':
+          alertType = 'good';
+          severity = 'low';
+          title = `✅ Good Progress: Strong performance in ${course.course_name}`;
+          message = `Your predicted grade is ${predicted_grade}% (${interpretation}). You're doing well in this course! Keep up the good work and maintain your current study routine to ensure continued success.`;
+          break;
+          
+        case 'excellent':
+        case 'outstanding':
+          alertType = 'excellent';
+          severity = 'low';
+          title = `🌟 Excellent Work: Outstanding performance in ${course.course_name}`;
+          message = `Your predicted grade is ${predicted_grade}% (${interpretation}). Exceptional work! You're excelling in this course. Consider helping your peers or taking on additional challenges to further enhance your learning.`;
+          break;
+          
+        default:
+          // Fallback to numeric thresholds if interpretation is unclear
+          if (predictedMarks < 40) {
+            alertType = 'at_risk';
+            severity = 'critical';
+            title = `🚨 Critical Alert: You're at risk of failing ${course.course_name}`;
+            message = `Your predicted grade is ${predicted_grade}%. Immediate action is required to improve your performance.`;
+          } else if (predictedMarks < 55) {
+            alertType = 'at_risk';
+            severity = 'high';
+            title = `⚠️ Performance Alert: Poor performance predicted in ${course.course_name}`;
+            message = `Your predicted grade is ${predicted_grade}%. You need to improve your study habits and seek help.`;
+          } else if (predictedMarks < 70) {
+            alertType = 'average';
+            severity = 'medium';
+            title = `📊 Performance Update: Average performance in ${course.course_name}`;
+            message = `Your predicted grade is ${predicted_grade}%. With additional effort, you can achieve better results.`;
+          } else if (predictedMarks < 85) {
+            alertType = 'good';
+            severity = 'low';
+            title = `✅ Good Progress: Strong performance in ${course.course_name}`;
+            message = `Your predicted grade is ${predicted_grade}%. You're doing well! Keep up the good work.`;
+          } else {
+            alertType = 'excellent';
+            severity = 'low';
+            title = `🌟 Excellent Work: Outstanding performance in ${course.course_name}`;
+            message = `Your predicted grade is ${predicted_grade}%. Exceptional work! You're excelling in this course.`;
+          }
       }
+      
+      // Add stage and model information to the message
+      const additionalInfo = `\n\nPrediction Details:\n• Model used: ${subject} difficulty level\n• Prediction stage: ${stage_used}\n• Analysis: ${interpretation}`;
+      message += additionalInfo;
       
       // Create alert in database
       await this.createAlert({
@@ -62,25 +114,27 @@ class AlertsService {
         title,
         message,
         predictedGrade: predicted_grade,
-        predictedMarks: predicted_marks
+        predictedMarks: predictedMarks
       });
       
       // Generate lecturer alert for at-risk students
-      if (predicted_marks < 55) {
+      if (alertType === 'at_risk' || severity === 'critical' || severity === 'high') {
         await this.generateLecturerAlert(studentId, courseId, {
-          alertType: 'student_at_risk',
-          severity: predicted_marks < 40 ? 'critical' : 'high',
-          title: `Student at Risk: ${student.full_name} in ${course.course_name}`,
-          message: `${student.full_name} has a predicted grade of ${predicted_grade} (${predicted_marks}%) in ${course.course_name}. Intervention may be required.`,
+          alertType: severity === 'critical' ? 'student_at_risk' : 'student_improvement_needed',
+          severity: severity,
+          title: `Student ${severity === 'critical' ? 'At Risk' : 'Needs Improvement'}: ${student.full_name} in ${course.course_name}`,
+          message: `${student.full_name} has a predicted grade of ${predicted_grade}% (${interpretation}) in ${course.course_name}. The ML model indicates ${interpretation.toLowerCase()} performance using ${stage_used} stage prediction. ${severity === 'critical' ? 'Immediate intervention is required.' : 'Consider providing additional support.'}`,
           studentName: student.full_name,
           courseName: course.course_name,
           predictedGrade: predicted_grade,
-          predictedMarks: predicted_marks,
-          actionRequired: true
+          predictedMarks: predictedMarks,
+          actionRequired: severity === 'critical' || severity === 'high'
         });
       }
       
-      return { success: true, alertType, severity };
+      console.log(`Generated ${alertType} alert (${severity}) for student ${studentId} in course ${courseId} - Predicted: ${predicted_grade}% (${interpretation})`);
+      
+      return { success: true, alertType, severity, predictedGrade: predicted_grade, interpretation };
       
     } catch (error) {
       console.error("Error generating prediction alerts:", error);
@@ -104,11 +158,22 @@ class AlertsService {
       
       let alertType, severity, title, message;
       
+      // Check if this alert already exists to avoid duplicates
+      const [existingAlert] = await db.promise().query(
+        "SELECT id FROM alerts WHERE student_id = ? AND course_id = ? AND alert_type = 'poor_quiz' AND message LIKE ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 DAY)",
+        [studentId, courseId, `%Quiz ${quizNumber}%`]
+      );
+      
+      if (existingAlert.length > 0) {
+        console.log(`Quiz ${quizNumber} alert already exists for student ${studentId} in course ${courseId}`);
+        return;
+      }
+      
       if (marks < 40) {
         alertType = 'poor_quiz';
         severity = 'critical';
         title = `🚨 Quiz Alert: Poor performance in Quiz ${quizNumber}`;
-        message = `You scored ${marks}% in Quiz ${quizNumber} for ${course[0].course_name}. This is below the passing threshold. Please review the material and consider seeking help.`;
+        message = `You scored ${marks}% in Quiz ${quizNumber} for ${course[0].course_name}. This is below the passing threshold. Please review the material and consider seeking help from your lecturer or study groups.`;
       } else if (marks < 55) {
         alertType = 'poor_quiz';
         severity = 'high';
@@ -131,6 +196,8 @@ class AlertsService {
           message,
           predictedMarks: marks
         });
+        
+        console.log(`Generated quiz alert for student ${studentId}: ${marks}% in Quiz ${quizNumber}`);
       }
       
     } catch (error) {
@@ -152,23 +219,34 @@ class AlertsService {
       
       if (!student.length || !course.length) return;
       
+      // Check if this alert already exists to avoid duplicates
+      const [existingAlert] = await db.promise().query(
+        "SELECT id FROM alerts WHERE student_id = ? AND course_id = ? AND alert_type = 'poor_assignment' AND message LIKE ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 DAY)",
+        [studentId, courseId, `%Assignment ${assignmentNumber}%`]
+      );
+      
+      if (existingAlert.length > 0) {
+        console.log(`Assignment ${assignmentNumber} alert already exists for student ${studentId} in course ${courseId}`);
+        return;
+      }
+      
       let alertType, severity, title, message;
       
       if (marks < 40) {
         alertType = 'poor_assignment';
         severity = 'critical';
         title = `🚨 Assignment Alert: Poor performance in Assignment ${assignmentNumber}`;
-        message = `You scored ${marks}% in Assignment ${assignmentNumber} for ${course[0].course_name}. This requires immediate attention. Please meet with your lecturer to discuss improvement strategies.`;
+        message = `You scored ${marks}% in Assignment ${assignmentNumber} for ${course[0].course_name}. This requires immediate attention. Please meet with your lecturer to discuss improvement strategies and review the assignment requirements.`;
       } else if (marks < 55) {
         alertType = 'poor_assignment';
         severity = 'high';
         title = `⚠️ Assignment Alert: Below average performance in Assignment ${assignmentNumber}`;
-        message = `You scored ${marks}% in Assignment ${assignmentNumber} for ${course[0].course_name}. Consider seeking feedback and improving your approach for future assignments.`;
+        message = `You scored ${marks}% in Assignment ${assignmentNumber} for ${course[0].course_name}. Consider seeking feedback from your lecturer and improving your approach for future assignments.`;
       } else if (marks >= 85) {
         alertType = 'excellent';
         severity = 'low';
         title = `🌟 Assignment Success: Outstanding work on Assignment ${assignmentNumber}`;
-        message = `Excellent work! You scored ${marks}% in Assignment ${assignmentNumber} for ${course[0].course_name}. Your dedication is paying off!`;
+        message = `Excellent work! You scored ${marks}% in Assignment ${assignmentNumber} for ${course[0].course_name}. Your dedication and hard work are paying off!`;
       }
       
       if (alertType) {
@@ -181,6 +259,8 @@ class AlertsService {
           message,
           predictedMarks: marks
         });
+        
+        console.log(`Generated assignment alert for student ${studentId}: ${marks}% in Assignment ${assignmentNumber}`);
       }
       
     } catch (error) {
@@ -202,28 +282,39 @@ class AlertsService {
       
       if (!student.length || !course.length) return;
       
+      // Check if this alert already exists to avoid duplicates
+      const [existingAlert] = await db.promise().query(
+        "SELECT id FROM alerts WHERE student_id = ? AND course_id = ? AND alert_type = 'poor_midterm' AND created_at > DATE_SUB(NOW(), INTERVAL 1 DAY)",
+        [studentId, courseId]
+      );
+      
+      if (existingAlert.length > 0) {
+        console.log(`Midterm alert already exists for student ${studentId} in course ${courseId}`);
+        return;
+      }
+      
       let alertType, severity, title, message;
       
       if (marks < 40) {
         alertType = 'poor_midterm';
         severity = 'critical';
         title = `🚨 Midterm Alert: Critical performance needs immediate attention`;
-        message = `You scored ${marks}% in the midterm exam for ${course[0].course_name}. This is a critical situation. Please schedule an urgent meeting with your lecturer and academic advisor.`;
+        message = `You scored ${marks}% in the midterm exam for ${course[0].course_name}. This is a critical situation that requires immediate action. Please schedule an urgent meeting with your lecturer and academic advisor to develop a recovery plan for the final exam.`;
       } else if (marks < 55) {
         alertType = 'poor_midterm';
         severity = 'high';
         title = `⚠️ Midterm Alert: Poor performance requires action`;
-        message = `You scored ${marks}% in the midterm exam for ${course[0].course_name}. You need to significantly improve your preparation for the final exam. Seek help immediately.`;
+        message = `You scored ${marks}% in the midterm exam for ${course[0].course_name}. You need to significantly improve your preparation for the final exam. Seek help from your lecturer and consider joining study groups.`;
       } else if (marks < 70) {
         alertType = 'average';
         severity = 'medium';
         title = `📊 Midterm Update: Average performance with room for improvement`;
-        message = `You scored ${marks}% in the midterm exam for ${course[0].course_name}. With focused effort, you can improve your final grade. Consider additional study sessions.`;
+        message = `You scored ${marks}% in the midterm exam for ${course[0].course_name}. With focused effort and better preparation, you can improve your final grade. Consider additional study sessions and review materials.`;
       } else if (marks >= 85) {
         alertType = 'excellent';
         severity = 'low';
         title = `🏆 Midterm Excellence: Outstanding midterm performance`;
-        message = `Congratulations! You scored ${marks}% in the midterm exam for ${course[0].course_name}. Excellent work! Maintain this level of preparation for the final exam.`;
+        message = `Congratulations! You scored ${marks}% in the midterm exam for ${course[0].course_name}. Excellent work! Maintain this level of preparation and focus for the final exam.`;
       }
       
       if (alertType) {
@@ -236,6 +327,8 @@ class AlertsService {
           message,
           predictedMarks: marks
         });
+        
+        console.log(`Generated midterm alert for student ${studentId}: ${marks}% in ${course[0].course_name}`);
       }
       
     } catch (error) {
@@ -257,28 +350,39 @@ class AlertsService {
       
       if (!student.length || !course.length) return;
       
+      // Check if this alert already exists to avoid duplicates
+      const [existingAlert] = await db.promise().query(
+        "SELECT id FROM alerts WHERE student_id = ? AND course_id = ? AND alert_type = 'low_attendance' AND created_at > DATE_SUB(NOW(), INTERVAL 1 DAY)",
+        [studentId, courseId]
+      );
+      
+      if (existingAlert.length > 0) {
+        console.log(`Attendance alert already exists for student ${studentId} in course ${courseId}`);
+        return;
+      }
+      
       let alertType, severity, title, message;
       
       if (attendancePercentage < 50) {
         alertType = 'low_attendance';
         severity = 'critical';
-        title = `🚨 Attendance Crisis: Critical attendance warning`;
-        message = `Your attendance in ${course[0].course_name} is only ${attendancePercentage}%. This is critically low and may affect your eligibility to sit for exams. Contact the course coordinator immediately.`;
+        title = `🚨 Critical Attendance Alert: Immediate attention required`;
+        message = `Your attendance in ${course[0].course_name} is critically low at ${attendancePercentage}%. This may result in being barred from the final exam. Contact your lecturer immediately to discuss your situation and develop an action plan.`;
       } else if (attendancePercentage < 65) {
         alertType = 'low_attendance';
         severity = 'high';
-        title = `⚠️ Attendance Warning: Poor attendance requires attention`;
-        message = `Your attendance in ${course[0].course_name} is ${attendancePercentage}%. You need to improve your attendance to avoid academic penalties.`;
+        title = `⚠️ Attendance Warning: Your attendance is below minimum requirement`;
+        message = `Your attendance in ${course[0].course_name} is ${attendancePercentage}%, which is below the minimum requirement. You risk being barred from the final exam. Please improve your attendance immediately.`;
       } else if (attendancePercentage < 75) {
-        alertType = 'low_attendance';
+        alertType = 'moderate_attendance';
         severity = 'medium';
-        title = `📋 Attendance Notice: Below recommended attendance`;
-        message = `Your attendance in ${course[0].course_name} is ${attendancePercentage}%. Try to attend more classes to improve your understanding and performance.`;
+        title = `� Attendance Notice: Improvement needed`;
+        message = `Your attendance in ${course[0].course_name} is ${attendancePercentage}%. While above the minimum, better attendance will help you understand the material better and perform better in exams.`;
       } else if (attendancePercentage >= 95) {
-        alertType = 'excellent';
+        alertType = 'excellent_attendance';
         severity = 'low';
-        title = `🎯 Perfect Attendance: Excellent commitment`;
-        message = `Outstanding! Your attendance in ${course[0].course_name} is ${attendancePercentage}%. Your commitment to attending classes is commendable!`;
+        title = `� Excellent Attendance: Keep up the great work!`;
+        message = `Outstanding! You have ${attendancePercentage}% attendance in ${course[0].course_name}. Your consistent presence in class is contributing to your academic success.`;
       }
       
       if (alertType) {
@@ -288,8 +392,12 @@ class AlertsService {
           alertType,
           severity,
           title,
-          message
+          message,
+          predictedMarks: null,
+          metadata: JSON.stringify({ attendancePercentage })
         });
+        
+        console.log(`Generated attendance alert for student ${studentId}: ${attendancePercentage}% in ${course[0].course_name}`);
         
         // Generate lecturer alert for poor attendance
         if (attendancePercentage < 75) {
@@ -608,6 +716,16 @@ class AlertsService {
       
     } catch (error) {
       console.error("Error processing student alerts:", error);
+    }
+  }
+  
+  // Trigger prediction alerts when prediction is made
+  async triggerPredictionAlerts(studentId, courseId) {
+    try {
+      console.log(`Triggering prediction alerts for student ${studentId} in course ${courseId}`);
+      await this.generatePredictionAlerts(studentId, courseId);
+    } catch (error) {
+      console.error("Error triggering prediction alerts:", error);
     }
   }
 }

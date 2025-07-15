@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jul 14, 2025 at 09:55 AM
+-- Generation Time: Jul 14, 2025 at 05:51 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -31,9 +31,23 @@ CREATE TABLE `admin_inputs` (
   `id` int(11) NOT NULL,
   `student_id` int(11) NOT NULL,
   `course_id` int(11) NOT NULL,
-  `attendance` decimal(5,2) DEFAULT NULL,
-  `motivation_level` tinyint(4) DEFAULT NULL
+  `attendance` decimal(5,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `admin_inputs`
+--
+
+INSERT INTO `admin_inputs` (`id`, `student_id`, `course_id`, `attendance`) VALUES
+(1, 1, 3, 54.60),
+(2, 1, 1, 78.90),
+(3, 4, 2, 43.20),
+(4, 4, 4, 90.40),
+(5, 3, 3, 89.00),
+(6, 3, 2, 78.00),
+(7, 2, 2, NULL),
+(8, 9, 2, 82.00),
+(9, 11, 4, 87.00);
 
 -- --------------------------------------------------------
 
@@ -59,7 +73,7 @@ CREATE TABLE `courses` (
 INSERT INTO `courses` (`id`, `course_code`, `course_name`, `description`, `credits`, `difficulty_level`, `created_at`, `updated_at`) VALUES
 (1, 'CSCI22062', 'Introduction to Cyber Security', 'Fundamentals of cybersecurity, threat analysis, and security measures', 3, 'Medium', '2025-07-14 05:56:13', '2025-07-14 05:56:13'),
 (2, 'CSCI22022', 'Data Structures & Algorithms', 'Advanced data structures and algorithmic problem solving', 4, 'Hard', '2025-07-14 05:56:13', '2025-07-14 05:56:13'),
-(3, 'CSCI22052', 'Introduction to Web Development', 'Frontend and backend web development technologies', 3, 'Easy', '2025-07-14 05:56:13', '2025-07-14 05:56:13'),
+(3, 'CSCI22052', 'Introduction to Web Development', 'Frontend and backend web development technologies', 3, 'Medium', '2025-07-14 05:56:13', '2025-07-14 12:54:10'),
 (4, 'CSCI22032', 'Database Management Systems', 'Design and implementation of database systems', 3, 'Medium', '2025-07-14 05:56:13', '2025-07-14 05:56:13'),
 (5, 'CSCI22042', 'Software Engineering', 'Software development lifecycle and engineering practices', 4, 'Medium', '2025-07-14 05:56:13', '2025-07-14 05:56:13'),
 (6, 'TEST101', 'Test Course', 'A test course', 3, 'Easy', '2025-07-14 06:12:55', '2025-07-14 06:12:55'),
@@ -87,7 +101,9 @@ INSERT INTO `lecturer_courses` (`id`, `lecturer_id`, `course_id`, `assigned_at`)
 (1, 12, 1, '2025-07-14 06:20:51'),
 (2, 13, 3, '2025-07-14 06:21:20'),
 (3, 14, 4, '2025-07-14 06:40:36'),
-(4, 13, 5, '2025-07-14 06:41:19');
+(4, 13, 5, '2025-07-14 06:41:19'),
+(5, 14, 2, '2025-07-14 08:57:54'),
+(6, 12, 5, '2025-07-14 13:57:38');
 
 -- --------------------------------------------------------
 
@@ -105,6 +121,15 @@ CREATE TABLE `lecturer_marks` (
   `assignment2` decimal(5,2) DEFAULT NULL,
   `midterm_marks` decimal(5,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `lecturer_marks`
+--
+
+INSERT INTO `lecturer_marks` (`id`, `student_id`, `course_id`, `quiz1`, `quiz2`, `assignment1`, `assignment2`, `midterm_marks`) VALUES
+(1, 3, 3, 34.00, 54.00, 91.00, 89.00, 78.00),
+(2, 3, 2, NULL, NULL, 92.00, 83.00, 73.00),
+(3, 2, 2, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -144,7 +169,12 @@ CREATE TABLE `student_common_data` (
 --
 
 INSERT INTO `student_common_data` (`id`, `student_id`, `gender`, `peer_influence`, `motivation_level`, `extracurricular_activities`, `physical_activity`, `sleep_hours`) VALUES
-(1, 1, 1, 1, 1, 0, 3, 6.5);
+(1, 1, 1, 1, 1, 0, 3, 6.5),
+(6, 4, 1, 0, 1, 1, 3, 10.0),
+(7, 10, 0, 0, 1, 1, 3, 7.0),
+(8, 3, 1, 1, NULL, 0, 4, 7.0),
+(9, 2, 1, 1, NULL, 1, 3, 7.0),
+(10, 11, 0, 0, NULL, 0, 2, 4.0);
 
 -- --------------------------------------------------------
 
@@ -171,7 +201,12 @@ INSERT INTO `student_enrollments` (`id`, `student_id`, `course_id`, `enrollment_
 (4, 3, 3, '2025-07-14 06:21:43', 'active'),
 (5, 4, 4, '2025-07-14 06:40:48', 'active'),
 (6, 5, 4, '2025-07-14 06:41:00', 'active'),
-(7, 9, 2, '2025-07-14 06:44:54', 'active');
+(7, 9, 2, '2025-07-14 06:44:54', 'active'),
+(8, 2, 2, '2025-07-14 08:57:36', 'active'),
+(9, 3, 2, '2025-07-14 08:57:36', 'active'),
+(10, 4, 2, '2025-07-14 08:57:44', 'active'),
+(11, 10, 5, '2025-07-14 13:57:45', 'active'),
+(12, 11, 4, '2025-07-14 14:00:43', 'active');
 
 -- --------------------------------------------------------
 
@@ -186,6 +221,16 @@ CREATE TABLE `student_subject_data` (
   `hours_studied` decimal(4,2) DEFAULT NULL,
   `teacher_quality` tinyint(4) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `student_subject_data`
+--
+
+INSERT INTO `student_subject_data` (`id`, `student_id`, `course_id`, `hours_studied`, `teacher_quality`) VALUES
+(1, 3, 3, 3.00, 1),
+(2, 3, 2, 12.00, 0),
+(3, 2, 2, 5.00, 2),
+(4, 11, 4, 2.00, 2);
 
 -- --------------------------------------------------------
 
@@ -305,7 +350,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `admin_inputs`
 --
 ALTER TABLE `admin_inputs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `courses`
@@ -317,13 +362,13 @@ ALTER TABLE `courses`
 -- AUTO_INCREMENT for table `lecturer_courses`
 --
 ALTER TABLE `lecturer_courses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `lecturer_marks`
 --
 ALTER TABLE `lecturer_marks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `pending_users`
@@ -335,19 +380,19 @@ ALTER TABLE `pending_users`
 -- AUTO_INCREMENT for table `student_common_data`
 --
 ALTER TABLE `student_common_data`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `student_enrollments`
 --
 ALTER TABLE `student_enrollments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `student_subject_data`
 --
 ALTER TABLE `student_subject_data`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `users`

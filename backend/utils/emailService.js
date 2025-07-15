@@ -26,7 +26,7 @@ function sendApprovalEmail(email, name, username, password) {
 }
 
 function sendAlertEmail(email, name, title, message, severity) {
-  const transporter = nodemailer.createTransporter({
+  const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
       user: "akilafernando196@gmail.com",
