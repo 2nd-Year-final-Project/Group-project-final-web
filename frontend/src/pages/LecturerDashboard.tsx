@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Progress } from "@/components/ui/progress";
 import { useAuthStore } from '@/store/authStore';
 import { toast } from '@/hooks/use-toast';
 import { AlertTriangle, TrendingDown, Users, Calendar } from 'lucide-react';
@@ -322,15 +321,6 @@ const LecturerDashboard = () => {
                         <div className="flex-1">
                           <CardTitle className="flex items-center gap-3 text-white mb-2">
                             <span>{student.full_name}</span>
-                            <Badge 
-                              className={`${
-                                student.predicted_grade < 40 ? 'bg-red-700 text-red-100' :
-                                student.predicted_grade < 50 ? 'bg-orange-600 text-orange-100' :
-                                'bg-yellow-600 text-yellow-100'
-                              }`}
-                            >
-                              Predicted: {student.predicted_grade}%
-                            </Badge>
                           </CardTitle>
                           <CardDescription className="text-gray-300 flex items-center gap-2">
                             <span>Course: {student.course_name} ({student.course_code})</span>
@@ -344,25 +334,8 @@ const LecturerDashboard = () => {
                     
                     <CardContent>
                       <div className="space-y-4">
-                        {/* Progress Bar */}
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-300">Current Performance</span>
-                            <span className="text-white font-medium">{student.current_grade || student.predicted_grade}%</span>
-                          </div>
-                          <Progress 
-                            value={student.current_grade || student.predicted_grade} 
-                            className="h-2"
-                          />
-                        </div>
-
                         {/* Student Details Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                          <div className="space-y-1">
-                            <div className="text-gray-400">Email</div>
-                            <div className="text-white font-medium">{student.email}</div>
-                          </div>
-                          
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                           {student.attendance && (
                             <div className="space-y-1">
                               <div className="text-gray-400">Attendance</div>
