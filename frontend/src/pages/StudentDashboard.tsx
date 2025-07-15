@@ -42,8 +42,6 @@ import {
   FileText,
 } from "lucide-react";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -63,6 +61,13 @@ const StudentDashboard = () => {
   const [modules, setModules] = useState([]);
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [profileIncomplete, setProfileIncomplete] = useState(false);
+  const [studentProfileData, setStudentProfileData] = useState({
+    email: "",
+    studentId: "",
+    academicYear: "",
+    department: "",
+    enrollmentDate: ""
+  });
   const user = useAuthStore((state) => state.user);
   const username = localStorage.getItem("username");
 
@@ -71,6 +76,7 @@ const StudentDashboard = () => {
     if (user?.id) {
       fetchStudentCourses();
       fetchExistingCommonData();
+      fetchStudentProfile();
     }
   }, [user]);
 
@@ -172,13 +178,18 @@ const StudentDashboard = () => {
     return "E";
   };
 
-  // Student profile data
+  // Student profile data - now using real data
   const studentProfile = {
     name: fullName,
-    email: "akilaf@university.edu",
-    studentId: "CS2021001",
-    academicYear: "3rd Year",
-    profileImage: "/api/placeholder/100/100",
+    email: studentProfileData.email,
+    studentId: studentProfileData.studentId,
+    enrollmentDate: studentProfileData.enrollmentDate,
+  };
+
+  // Get first letter of name for profile icon
+  const getProfileInitial = () => {
+    if (!fullName || fullName === "Loading...") return "S";
+    return fullName.charAt(0).toUpperCase();
   };
 
   // Calculate overall attendance from all courses
@@ -556,6 +567,44 @@ const StudentDashboard = () => {
     } catch (error) {
       console.error("Failed to fetch existing common data:", error);
       // Don't show error toast for this since it's optional
+    }
+  };
+
+  // Fetch real student profile data
+  const fetchStudentProfile = async () => {
+    try {
+      if (!user?.id) return;
+      
+      const response = await fetch(`/api/student/profile/${user.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        setStudentProfileData({
+          email: data.email || user.email || "",
+          studentId: data.student_id || user.id?.toString() || "",
+          academicYear: data.academic_year || "3rd Year",
+          department: data.department || "Computer Science",
+          enrollmentDate: data.enrollment_date || ""
+        });
+      } else {
+        // Fallback to basic user data if profile endpoint doesn't exist
+        setStudentProfileData({
+          email: user.email || "",
+          studentId: user.id?.toString() || "",
+          academicYear: "3rd Year",
+          department: "Computer Science", 
+          enrollmentDate: ""
+        });
+      }
+    } catch (error) {
+      console.error("Failed to fetch student profile:", error);
+      // Fallback to basic user data
+      setStudentProfileData({
+        email: user.email || "",
+        studentId: user.id?.toString() || "",
+        academicYear: "3rd Year",
+        department: "Computer Science",
+        enrollmentDate: ""
+      });
     }
   };
 
@@ -1425,31 +1474,29 @@ const StudentDashboard = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center space-x-4">
-              <img
-                src={studentProfile.profileImage}
-                alt="Profile"
-                className="w-20 h-20 rounded-full border-4 border-gray-600"
-              />
+              <div className="w-20 h-20 rounded-full border-4 border-gray-600 bg-blue-600 flex items-center justify-center">
+                <span className="text-2xl font-bold text-white">
+                  {getProfileInitial()}
+                </span>
+              </div>
               <div className="space-y-1">
                 <h3 className="text-xl font-semibold text-white">
                   {fullName}
                 </h3>
-                <p className="text-gray-300">{studentProfile.email}</p>
-                <p className="text-gray-400">{studentProfile.studentId}</p>
+                <p className="text-gray-300">{studentProfile.email || "No email available"}</p>
+                <p className="text-gray-400">{studentProfile.studentId || "No ID available"}</p>
               </div>
             </div>
 
             <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Academic Year:</span>
-                <span className="text-white">
-                  {studentProfile.academicYear}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Department:</span>
-                <span className="text-white">Computer Science</span>
-              </div>
+              {studentProfile.enrollmentDate && (
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Enrollment Date:</span>
+                  <span className="text-white">
+                    {new Date(studentProfile.enrollmentDate).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -1624,11 +1671,11 @@ const StudentDashboard = () => {
         {/* Profile & Logout */}
         <div className="p-4 border-t border-gray-700">
           <div className="flex items-center gap-3 mb-4">
-            <img
-              src={studentProfile.profileImage}
-              alt="Profile"
-              className="w-10 h-10 rounded-full border-2 border-gray-600"
-            />
+            <div className="w-10 h-10 rounded-full border-2 border-gray-600 bg-blue-600 flex items-center justify-center">
+              <span className="text-sm font-bold text-white">
+                {getProfileInitial()}
+              </span>
+            </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white truncate">
                 {studentProfile.name}
