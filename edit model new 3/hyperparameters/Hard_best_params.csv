@@ -1,0 +1,8 @@
+,copy_X,fit_intercept,n_jobs,positive,min_samples_split,min_samples_leaf,max_depth,n_estimators,learning_rate,weights,p,n_neighbors,hidden_layer_sizes,alpha,activation,subsample,colsample_bytree
+Linear Regression,True,True,,False,,,,,,,,,,,,,
+Decision Tree,,,,,10.0,4.0,10.0,,,,,,,,,,
+Random Forest,,,,,5.0,1.0,30.0,200.0,,,,,,,,,
+Gradient Boosting,,,,,,,5.0,100.0,0.1,,,,,,,,
+XGBoost,,,,,,,3.0,200.0,0.1,,,,,,,0.8,1.0
+K-Neighbors,,,,,,,,,,distance,2.0,9.0,,,,,
+Neural Network,,,,,,,,,,,,,"(100, 50)",0.01,relu,,
