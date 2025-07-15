@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Signup from './pages/RegistrationForm';
 import StudentDashboard from './pages/StudentDashboard';
@@ -8,28 +8,22 @@ import AdminDashboard from './pages/AdminDashboard';
 import Unauthorized from './pages/Unauthorized';
 import { useAuthStore } from './store/authStore';
 
-const App = () => {
+// Protected Route component
+const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode, allowedRoles: string[] }) => {
   const { user } = useAuthStore();
-
-  // Modified Protected Route component
-  const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode, allowedRoles: string[] }) => {
-    // For development/testing - allow access to routes without authentication
-    // Comment this out or modify for production
+  
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  if (allowedRoles.includes(user.role)) {
     return <>{children}</>;
-    
-    // Uncomment this for actual authentication
-    /*
-    if (!user) {
-      return <Navigate to="/login" replace />;
-    }
-    
-    if (allowedRoles.includes(user.role)) {
-      return <>{children}</>;
-    } else {
-      return <Unauthorized />;
-    }
-    */
-  };
+  } else {
+    return <Unauthorized />;
+  }
+};
+
+const App = () => {
 
   return (
     <Router>
@@ -38,15 +32,39 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         
-        {/* Direct dashboard routes */}
-        <Route path="/student" element={<StudentDashboard />} />
-        <Route path="/lecturer" element={<LecturerDashboard />} />
-        <Route path="/admin" element={<AdminDashboard />} />
+        {/* Protected dashboard routes */}
+        <Route path="/student" element={
+          <ProtectedRoute allowedRoles={['student']}>
+            <StudentDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/lecturer" element={
+          <ProtectedRoute allowedRoles={['lecturer']}>
+            <LecturerDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin" element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
         
         {/* Nested routes for each dashboard */}
-        <Route path="/student/*" element={<StudentDashboard />} />
-        <Route path="/lecturer/*" element={<LecturerDashboard />} />
-        <Route path="/admin/*" element={<AdminDashboard />} />
+        <Route path="/student/*" element={
+          <ProtectedRoute allowedRoles={['student']}>
+            <StudentDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/lecturer/*" element={
+          <ProtectedRoute allowedRoles={['lecturer']}>
+            <LecturerDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/*" element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
         
         {/* Redirect root to login */}
         <Route path="/" element={<Navigate to="/login" replace />} />

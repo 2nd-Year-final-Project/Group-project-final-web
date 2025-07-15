@@ -33,15 +33,29 @@ const registerUser = (req, res) => {
   });
 };
 
-// User Login Controller (Add this function)
+// User Login Controller
 const loginUser = (req, res) => {
     const { username, password } = req.body;
   
     if (!username || !password) {
       return res.status(400).json({ message: "Please provide both username and password." });
     }
+
+    // Handle admin login with hardcoded credentials
+    // ADMIN CREDENTIALS: username = "admin", password = "admin123"
+    if (username === "admin" && password === "admin123") {
+      return res.json({
+        success: true,
+        id: 999, // Special admin ID
+        username: "admin",
+        fullName: "System Administrator",
+        email: "admin@edutrack.system",
+        role: "admin",
+        message: "Admin login successful",
+      });
+    }
   
-    // Query the database to find the user by username
+    // Query the database to find regular users (students/lecturers) by username
     db.query("SELECT * FROM users WHERE username = ?", [username], async (err, results) => {
       if (err) {
         return res.status(500).json({ message: "Database error", error: err });
