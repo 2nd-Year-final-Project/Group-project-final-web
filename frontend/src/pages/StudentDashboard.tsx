@@ -844,99 +844,7 @@ const StudentDashboard = () => {
         </Alert>
       )}
 
-      {/* Alert System */}
-      <AlertSystem userId={user?.id} userType="student" />
-
-      {/* Quick Progress Overview */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="bg-gray-800 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white">Subject Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {modules.map((module) => (
-                <div
-                  key={module.id}
-                  className="flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-3">
-                    <Badge
-                      className={getStatusColor(module.status)}
-                      variant="secondary"
-                    >
-                      {module.code}
-                    </Badge>
-                    <span className="text-gray-300 text-sm">{module.name}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Progress
-                      value={module.predictedFinal}
-                      className="w-20 h-2"
-                    />
-                    <span className="text-white text-sm font-medium">
-                      {module.predictedFinal}%
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gray-800 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white">Quick Tips</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {generateQuickTips().map((tip, index) => {
-                const Icon = getIconComponent(tip.type);
-                const colorClasses = getColorClasses(tip.type);
-                
-                return (
-                  <div key={index} className={`flex items-start gap-3 p-3 rounded-lg border ${colorClasses.background} ${colorClasses.border}`}>
-                    <Icon className={`w-5 h-5 mt-0.5 ${colorClasses.icon}`} />
-                    <div>
-                      <p className={`font-medium ${colorClasses.title}`}>
-                        {tip.title}
-                      </p>
-                      <p className={`text-sm ${colorClasses.text}`}>
-                        {tip.description}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-              {generateQuickTips().length === 0 && (
-                <div className="text-center py-4">
-                  <p className="text-gray-400">Great work! No specific tips needed at the moment.</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-
-  const renderAnalytics = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-white">Performance Analytics</h2>
-        <Select defaultValue="semester">
-          <SelectTrigger className="w-40 bg-gray-800 border-gray-700 text-white">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="semester">This Semester</SelectItem>
-            <SelectItem value="year">This Year</SelectItem>
-            <SelectItem value="all">All Time</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Subject Progress and Quick Tips */}
+      {/* Subject Progress and Quick Tips - Moved above Performance Alerts */}
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="bg-gray-800 border-gray-700">
           <CardHeader>
@@ -1005,6 +913,27 @@ const StudentDashboard = () => {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Alert System */}
+      <AlertSystem userId={user?.id} userType="student" />
+    </div>
+  );
+
+  const renderAnalytics = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-white">Performance Analytics</h2>
+        <Select defaultValue="semester">
+          <SelectTrigger className="w-40 bg-gray-800 border-gray-700 text-white">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="semester">This Semester</SelectItem>
+            <SelectItem value="year">This Year</SelectItem>
+            <SelectItem value="all">All Time</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
