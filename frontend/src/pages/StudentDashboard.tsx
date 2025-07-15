@@ -32,8 +32,6 @@ import {
   Moon,
   Sun,
   LogOut,
-  Upload,
-  Download,
   BarChart3,
   BookOpen,
   Calendar,
@@ -44,9 +42,6 @@ import {
   Target,
   Award,
   Clock,
-  Users,
-  FileText,
-  ChevronRight,
   CheckCircle,
 } from "lucide-react";
 import {
@@ -369,7 +364,6 @@ const StudentDashboard = () => {
     { id: "subjects", label: "Subject-wise Insights", icon: BookOpen },
     { id: "progress", label: "Progress Tracker", icon: Calendar },
     { id: "alerts", label: "Alerts & Recommendations", icon: AlertTriangle },
-    { id: "resources", label: "Resources & Support", icon: HelpCircle },
     { id: "profile", label: "Profile Settings", icon: Settings },
   ];
 
@@ -1355,50 +1349,6 @@ const StudentDashboard = () => {
           ))}
       </div>
 
-      {/* Study Plan Generator */}
-      <Card className="bg-gray-800 border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-white">AI-Generated Study Plan</CardTitle>
-          <CardDescription className="text-gray-300">
-            Personalized recommendations based on your performance
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {[
-              {
-                subject: "CS201 - Data Structures",
-                hours: "3 hours/week",
-                focus: "Practice coding problems, review tree algorithms",
-              },
-              {
-                subject: "CS101 - Fundamentals",
-                hours: "2 hours/week",
-                focus: "Maintain current level, review before exams",
-              },
-              {
-                subject: "CS301 - Web Development",
-                hours: "1.5 hours/week",
-                focus: "Continue excellent work, explore advanced topics",
-              },
-            ].map((plan, index) => (
-              <div key={index} className="p-4 bg-gray-700 rounded-lg">
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-medium text-white">{plan.subject}</h4>
-                  <Badge
-                    variant="outline"
-                    className="text-blue-400 border-blue-400"
-                  >
-                    {plan.hours}
-                  </Badge>
-                </div>
-                <p className="text-gray-300 text-sm">{plan.focus}</p>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Performance Alerts */}
       <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
@@ -1428,121 +1378,6 @@ const StudentDashboard = () => {
                 </p>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const renderResources = () => (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-white">Resources & Support</h2>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="bg-gray-800 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white">Recommended Resources</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                {
-                  title: "Data Structures Visualization",
-                  type: "Interactive Tool",
-                  url: "#",
-                },
-                {
-                  title: "Algorithm Practice Problems",
-                  type: "Practice Set",
-                  url: "#",
-                },
-                {
-                  title: "Web Development Bootcamp",
-                  type: "Video Course",
-                  url: "#",
-                },
-                {
-                  title: "Computer Science Fundamentals",
-                  type: "Study Guide",
-                  url: "#",
-                },
-              ].map((resource, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors cursor-pointer"
-                >
-                  <div>
-                    <p className="text-white font-medium">{resource.title}</p>
-                    <p className="text-gray-400 text-sm">{resource.type}</p>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gray-800 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white">Get Help</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700">
-                <Users className="w-4 h-4 mr-2" />
-                Join Study Group
-              </Button>
-              <Button className="w-full justify-start bg-purple-600 hover:bg-purple-700">
-                <User className="w-4 h-4 mr-2" />
-                Contact Tutor
-              </Button>
-              <Button className="w-full justify-start bg-green-600 hover:bg-green-700">
-                <HelpCircle className="w-4 h-4 mr-2" />
-                Academic Support
-              </Button>
-              <Button className="w-full justify-start bg-orange-600 hover:bg-orange-700">
-                <Brain className="w-4 h-4 mr-2" />
-                AI Study Assistant
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="bg-gray-800 border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-white">Document Library</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-4">
-            <Button
-              variant="outline"
-              className="border-gray-600 text-gray-300 hover:bg-gray-700"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Download Transcript
-            </Button>
-            <Button
-              variant="outline"
-              className="border-gray-600 text-gray-300 hover:bg-gray-700"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Performance Report
-            </Button>
-            <Button
-              variant="outline"
-              className="border-gray-600 text-gray-300 hover:bg-gray-700"
-            >
-              <Upload className="w-4 h-4 mr-2" />
-              Upload Document
-            </Button>
-            <Button
-              variant="outline"
-              className="border-gray-600 text-gray-300 hover:bg-gray-700"
-            >
-              <FileText className="w-4 h-4 mr-2" />
-              View Syllabus
-            </Button>
           </div>
         </CardContent>
       </Card>
@@ -1753,8 +1588,6 @@ const StudentDashboard = () => {
         return renderProgress();
       case "alerts":
         return renderAlerts();
-      case "resources":
-        return renderResources();
       case "profile":
         return renderProfile();
       default:
