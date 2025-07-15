@@ -340,6 +340,31 @@ const StudentDashboard = () => {
     }));
   };
 
+  // Generate assessment performance data showing actual marks vs attendance
+  const generateAssessmentPerformanceData = () => {
+    return modules.map(module => {
+      // Calculate average of available assessments
+      const assessments = [
+        module.marks.quiz1,
+        module.marks.quiz2,
+        module.marks.assignment1,
+        module.marks.assignment2,
+        module.marks.midterm
+      ].filter(mark => mark !== null && mark !== undefined);
+      
+      const averageAssessment = assessments.length > 0 
+        ? assessments.reduce((sum, mark) => sum + mark, 0) / assessments.length 
+        : 0;
+
+      return {
+        course: module.code,
+        assessmentAverage: Math.round(averageAssessment),
+        attendance: module.attendance || 0,
+        predicted: module.predictedFinal || 0,
+      };
+    });
+  };
+
   // Remove hardcoded modules - now fetched from API
 
   const sidebarItems = [
@@ -980,17 +1005,17 @@ const StudentDashboard = () => {
         </Card>
       </div>
 
-      {/* Current vs Predicted Grades Comparison */}
+      {/* Assessment Performance vs Predicted Grades */}
       <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
-          <CardTitle className="text-white">Current vs Predicted Performance</CardTitle>
+          <CardTitle className="text-white">Assessment Performance Analysis</CardTitle>
           <CardDescription className="text-gray-300">
-            Compare your current grades with AI predictions
+            Average assessment scores vs attendance vs predicted final grades
           </CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={generateGradeComparisonData()} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+            <BarChart data={generateAssessmentPerformanceData()} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis dataKey="course" stroke="#9CA3AF" />
               <YAxis stroke="#9CA3AF" />
@@ -1002,7 +1027,8 @@ const StudentDashboard = () => {
                   color: "#ffffff",
                 }}
               />
-              <Bar dataKey="current" fill="#60A5FA" name="Current Grade" />
+              <Bar dataKey="assessmentAverage" fill="#60A5FA" name="Assessment Average" />
+              <Bar dataKey="attendance" fill="#10B981" name="Attendance %" />
               <Bar dataKey="predicted" fill="#F59E0B" name="Predicted Final" />
             </BarChart>
           </ResponsiveContainer>
