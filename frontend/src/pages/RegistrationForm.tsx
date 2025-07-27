@@ -146,15 +146,21 @@ function RegistrationForm() {
                   Upload University ID Card
                 </Label>
                 <div className="relative">
-                  <Input
+                  <input
                     type="file"
                     name="idCard"
                     accept="image/*"
                     onChange={handleFileChange}
                     required
-                    className="bg-gray-700 border-gray-600 text-white file:bg-blue-600 file:text-white file:border-0 file:px-4 file:py-2 file:rounded-md file:mr-4 hover:file:bg-blue-700 cursor-pointer"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    id="idCard"
                   />
-                  <Upload className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  <div className="flex items-center justify-between bg-gray-700 border border-gray-600 rounded-md px-3 py-2 h-10 text-white hover:border-blue-500 transition-colors">
+                    <span className="text-gray-300 text-sm">
+                      {formData.idCard ? formData.idCard.name : "Choose file..."}
+                    </span>
+                    <Upload className="w-4 h-4 text-gray-400" />
+                  </div>
                 </div>
                 
                 {preview && (
