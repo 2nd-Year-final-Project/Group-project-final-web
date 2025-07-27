@@ -368,12 +368,6 @@ const CourseManagement = () => {
                 <CardHeader>
                   <CardTitle className="flex justify-between items-start text-white">
                     <span>{course.course_code}</span>
-                    <Badge className={`${
-                      course.difficulty_level === 'Easy' ? 'bg-green-600' :
-                      course.difficulty_level === 'Medium' ? 'bg-yellow-600' : 'bg-red-600'
-                    }`}>
-                      {course.difficulty_level}
-                    </Badge>
                   </CardTitle>
                   <CardDescription className="text-gray-300">{course.course_name}</CardDescription>
                 </CardHeader>
