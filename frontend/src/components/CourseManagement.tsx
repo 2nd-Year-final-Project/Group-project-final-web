@@ -368,6 +368,9 @@ const CourseManagement = () => {
                 <CardHeader>
                   <CardTitle className="flex justify-between items-start text-white">
                     <span>{course.course_code}</span>
+                    <Badge className="bg-blue-600 text-white">
+                      {course.credits} Credits
+                    </Badge>
                   </CardTitle>
                   <CardDescription className="text-gray-300">{course.course_name}</CardDescription>
                 </CardHeader>
@@ -645,7 +648,7 @@ const CourseManagement = () => {
                 placeholder="Course description..."
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div>
                 <Label htmlFor="credits" className="text-white">Credits</Label>
                 <Input
@@ -655,22 +658,6 @@ const CourseManagement = () => {
                   onChange={(e) => setCourseForm(prev => ({ ...prev, credits: parseInt(e.target.value) }))}
                   className="bg-gray-700 border-gray-600 text-white"
                 />
-              </div>
-              <div>
-                <Label htmlFor="difficulty" className="text-white">Difficulty Level</Label>
-                <Select 
-                  value={courseForm.difficulty_level} 
-                  onValueChange={(value: 'Easy' | 'Medium' | 'Hard') => setCourseForm(prev => ({ ...prev, difficulty_level: value }))}
-                >
-                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-700 border-gray-600">
-                    <SelectItem value="Easy">Easy</SelectItem>
-                    <SelectItem value="Medium">Medium</SelectItem>
-                    <SelectItem value="Hard">Hard</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
             </div>
             <div className="flex gap-2">
@@ -722,7 +709,7 @@ const CourseManagement = () => {
                 className="bg-gray-700 border-gray-600 text-white"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div>
                 <Label htmlFor="edit_credits" className="text-white">Credits</Label>
                 <Input
@@ -732,22 +719,6 @@ const CourseManagement = () => {
                   onChange={(e) => setCourseForm(prev => ({ ...prev, credits: parseInt(e.target.value) }))}
                   className="bg-gray-700 border-gray-600 text-white"
                 />
-              </div>
-              <div>
-                <Label htmlFor="edit_difficulty" className="text-white">Difficulty Level</Label>
-                <Select 
-                  value={courseForm.difficulty_level} 
-                  onValueChange={(value: 'Easy' | 'Medium' | 'Hard') => setCourseForm(prev => ({ ...prev, difficulty_level: value }))}
-                >
-                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-700 border-gray-600">
-                    <SelectItem value="Easy">Easy</SelectItem>
-                    <SelectItem value="Medium">Medium</SelectItem>
-                    <SelectItem value="Hard">Hard</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
             </div>
             <div className="flex gap-2">
