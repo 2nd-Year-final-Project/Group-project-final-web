@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Upload, User, Mail, UserCheck, Image } from 'lucide-react';
 
 function RegistrationForm() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -55,6 +57,11 @@ function RegistrationForm() {
           idCard: null,
         });
         setPreview(null);
+        
+        // Navigate to login page after successful registration
+        setTimeout(() => {
+          navigate('/login');
+        }, 1000); // Small delay to allow user to see the success message
       } else {
         alert('Error: ' + result.message);
       }
@@ -93,7 +100,7 @@ function RegistrationForm() {
                   onChange={handleChange}
                   required
                   className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="e.g. Akila Fernando"
+                  placeholder=""
                 />
               </div>
 
@@ -101,7 +108,7 @@ function RegistrationForm() {
               <div className="space-y-2">
                 <Label className="text-gray-200 flex items-center gap-2">
                   <Mail className="w-4 h-4" />
-                  University Email
+                  Email Address
                 </Label>
                 <Input
                   type="email"
@@ -110,7 +117,7 @@ function RegistrationForm() {
                   onChange={handleChange}
                   required
                   className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="e.g. akila@student.kln.ac.lk"
+                  placeholder="student@gmail.com"
                 />
               </div>
 
@@ -121,18 +128,18 @@ function RegistrationForm() {
                   Role
                 </Label>
                 <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
-                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white min-h-[3rem] py-2 flex items-center justify-between [&>span]:flex [&>span]:items-center [&>span]:h-full">
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-700 border-gray-600">
-                    <SelectItem value="student" className="text-white hover:bg-gray-600">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-blue-400 border-blue-400">Student</Badge>
+                    <SelectItem value="student" className="text-white hover:bg-gray-600 min-h-[3rem] py-2 [&>span]:flex [&>span]:items-center [&>span]:h-full">
+                      <div className="flex items-center gap-2 py-1">
+                        <Badge variant="outline" className="text-blue-400 border-blue-400 px-3 py-1.5 text-sm leading-none">Student</Badge>
                       </div>
                     </SelectItem>
-                    <SelectItem value="lecturer" className="text-white hover:bg-gray-600">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-purple-400 border-purple-400">Lecturer</Badge>
+                    <SelectItem value="lecturer" className="text-white hover:bg-gray-600 min-h-[3rem] py-2 [&>span]:flex [&>span]:items-center [&>span]:h-full">
+                      <div className="flex items-center gap-2 py-1">
+                        <Badge variant="outline" className="text-purple-400 border-purple-400 px-3 py-1.5 text-sm leading-none">Lecturer</Badge>
                       </div>
                     </SelectItem>
                   </SelectContent>
@@ -198,8 +205,7 @@ function RegistrationForm() {
                 <div className="flex items-start gap-2">
                   <GraduationCap className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
                   <div className="text-xs text-blue-200">
-                    <span className="font-medium">Note:</span> Your registration will be reviewed by administrators. 
-                    You'll receive access once approved.
+                    <span className="font-medium">Note:</span> Your registration will be reviewed by administrators. You will receive the credentials via email once approved.
                   </div>
                 </div>
               </div>
