@@ -152,15 +152,21 @@ function RegistrationForm() {
                     accept="image/*"
                     onChange={handleFileChange}
                     required
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    className="sr-only"
                     id="idCard"
                   />
-                  <div className="flex items-center justify-between bg-gray-700 border border-gray-600 rounded-md px-3 py-2 h-10 text-white hover:border-blue-500 transition-colors">
-                    <span className="text-gray-300 text-sm">
+                  <label
+                    htmlFor="idCard"
+                    className="flex items-center justify-between w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2.5 h-10 text-white hover:border-blue-500 focus:border-blue-500 transition-colors cursor-pointer"
+                  >
+                    <span className="text-gray-300 text-sm flex items-center gap-2">
+                      <Upload className="w-4 h-4 text-blue-400" />
                       {formData.idCard ? formData.idCard.name : "Choose file..."}
                     </span>
-                    <Upload className="w-4 h-4 text-gray-400" />
-                  </div>
+                    <span className="text-xs text-gray-400 bg-gray-600 px-2 py-1 rounded">
+                      Browse
+                    </span>
+                  </label>
                 </div>
                 
                 {preview && (
