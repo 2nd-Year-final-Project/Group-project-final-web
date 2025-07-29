@@ -1310,14 +1310,6 @@ const StudentDashboard = () => {
                                 {getPredictionInterpretation(module.predictedGrade, module.predictedFinal)}
                               </p>
                             </div>
-                            
-                            <div className="flex justify-between text-sm">
-                              <span className="text-gray-400">Confidence Level:</span>
-                              <span className="text-white font-medium">
-                                {module.predictedFinal >= 80 ? "High" : 
-                                 module.predictedFinal >= 60 ? "Medium" : "Low"}
-                              </span>
-                            </div>
                           </div>
                         </div>
                       )}
