@@ -368,7 +368,7 @@ const CourseManagement = () => {
             Courses
           </TabsTrigger>
           <TabsTrigger value="assignments" className="data-[state=active]:bg-gray-700 data-[state=active]:text-blue-400">
-            Course Assignments
+            Course Management
           </TabsTrigger>
         </TabsList>
 
@@ -408,7 +408,7 @@ const CourseManagement = () => {
                           className="border-blue-600 text-blue-400 hover:bg-blue-700 w-full"
                         >
                           <UserPlus className="w-4 h-4 mr-1" />
-                          Assignments
+                          Manage
                         </Button>
                       </div>
                       {/* Second row - Edit and Delete */}
