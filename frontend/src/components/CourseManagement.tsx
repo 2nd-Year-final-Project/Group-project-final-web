@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { Trash2, Edit, Plus, Users, BookOpen } from "lucide-react";
+import { Trash2, Edit, Plus, Users, BookOpen, UserPlus } from "lucide-react";
 
 interface Course {
   id: number;
@@ -31,6 +31,7 @@ interface User {
 }
 
 const CourseManagement = () => {
+  const [activeTab, setActiveTab] = useState('courses');
   const [courses, setCourses] = useState<Course[]>([]);
   const [lecturers, setLecturers] = useState<User[]>([]);
   const [students, setStudents] = useState<User[]>([]);
@@ -341,6 +342,12 @@ const CourseManagement = () => {
     fetchCourseAssignments(course.id);
   };
 
+  const goToAssignments = (course: Course) => {
+    setSelectedCourse(course);
+    fetchCourseAssignments(course.id);
+    setActiveTab('assignments');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -351,7 +358,7 @@ const CourseManagement = () => {
         </Button>
       </div>
 
-      <Tabs defaultValue="courses" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2 bg-gray-800">
           <TabsTrigger value="courses" className="data-[state=active]:bg-gray-700 data-[state=active]:text-blue-400">
             Courses
@@ -384,12 +391,12 @@ const CourseManagement = () => {
                       </span>
                     </div>
                   </div>
-                  <div className="flex gap-2 mt-4">
+                  <div className="flex flex-wrap gap-1 mt-4">
                     <Button 
                       size="sm" 
                       variant="outline" 
                       onClick={() => viewCourseDetails(course)}
-                      className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                      className="border-gray-600 text-gray-300 hover:bg-gray-700 flex-1 min-w-0"
                     >
                       <BookOpen className="w-4 h-4 mr-1" />
                       View
@@ -397,8 +404,17 @@ const CourseManagement = () => {
                     <Button 
                       size="sm" 
                       variant="outline" 
+                      onClick={() => goToAssignments(course)}
+                      className="border-blue-600 text-blue-400 hover:bg-blue-700 flex-1 min-w-0"
+                    >
+                      <UserPlus className="w-4 h-4 mr-1" />
+                      Assignments
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
                       onClick={() => editCourse(course)}
-                      className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                      className="border-gray-600 text-gray-300 hover:bg-gray-700 flex-1 min-w-0"
                     >
                       <Edit className="w-4 h-4 mr-1" />
                       Edit
