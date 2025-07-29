@@ -1465,8 +1465,8 @@ const StudentDashboard = () => {
             <div className="grid grid-cols-2 gap-4">
               
 
-              <div className="space-y-2">
-                <Label htmlFor="sleepHours" className="text-gray-200">Sleep Hours (per day)</Label>
+              <div className="space-y-2 flex flex-col">
+                <Label htmlFor="sleepHours" className="text-gray-200 h-12 flex items-start">Sleep Hours (per day)</Label>
                 <Input
                   id="sleepHours"
                   type="number"
@@ -1479,8 +1479,8 @@ const StudentDashboard = () => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="physicalActivity" className="text-gray-200">Physical Activity (hours per week)</Label>
+              <div className="space-y-2 flex flex-col">
+                <Label htmlFor="physicalActivity" className="text-gray-200 h-12 flex items-start">Physical Activity (hours per week)</Label>
                 <Input
                   id="physicalActivity"
                   type="number"
