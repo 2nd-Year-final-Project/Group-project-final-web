@@ -50,8 +50,7 @@ const CourseManagement = () => {
   });
 
   const [assignmentForm, setAssignmentForm] = useState({
-    selectedLecturer: '',
-    selectedStudent: ''
+    selectedLecturer: ''
   });
 
   // Bulk enrollment state
@@ -238,33 +237,6 @@ const CourseManagement = () => {
       }
     } catch (error) {
       toast({ title: "Error", description: "Failed to assign lecturer", variant: "destructive" });
-    }
-  };
-
-  const handleEnrollStudent = async () => {
-    if (!selectedCourse || !assignmentForm.selectedStudent) return;
-
-    try {
-      const response = await fetch('/api/admin/enroll-student', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          student_id: assignmentForm.selectedStudent,
-          course_id: selectedCourse.id
-        })
-      });
-
-      if (response.ok) {
-        toast({ title: "Success", description: "Student enrolled successfully" });
-        fetchCourseAssignments(selectedCourse.id);
-        fetchCourses();
-        setAssignmentForm(prev => ({ ...prev, selectedStudent: '' }));
-      } else {
-        const error = await response.json();
-        toast({ title: "Error", description: error.message, variant: "destructive" });
-      }
-    } catch (error) {
-      toast({ title: "Error", description: "Failed to enroll student", variant: "destructive" });
     }
   };
 
@@ -512,62 +484,42 @@ const CourseManagement = () => {
 
                   {/* Student Enrollment */}
                   <div>
-                    <h4 className="text-lg font-semibold text-white mb-3">Enroll Student</h4>
-                    <div className="flex gap-2">
-                      <Select 
-                        value={assignmentForm.selectedStudent} 
-                        onValueChange={(value) => setAssignmentForm(prev => ({ ...prev, selectedStudent: value }))}
-                      >
-                        <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                          <SelectValue placeholder="Select student" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-gray-700 border-gray-600">
-                          {students.map((student) => (
-                            <SelectItem key={student.id} value={student.id.toString()}>
-                              {student.full_name} ({student.username})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button onClick={handleEnrollStudent} className="bg-green-600 hover:bg-green-700">
-                        Enroll
-                      </Button>
+                    <div className="mb-3">
+                      <h4 className="text-lg font-semibold text-white">Student Enrollment</h4>
+                      <h5 className="text-sm font-medium text-gray-300 mt-2">Enrolled Students ({courseAssignments.students.length}):</h5>
                     </div>
-                    <div className="mt-3">
-                      <h5 className="text-sm font-medium text-gray-300 mb-2">Enrolled Students ({courseAssignments.students.length}):</h5>
-                      <div className="max-h-40 overflow-y-auto space-y-1">
-                        {courseAssignments.students.map((student) => (
-                          <div key={student.id} className="flex items-center justify-between bg-gray-700 p-2 rounded">
-                            <span className="text-white">{student.full_name}</span>
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="border-red-600 text-red-400 hover:bg-red-700"
-                              onClick={async () => {
-                                try {
-                                  const response = await fetch('/api/admin/enroll-student', {
-                                    method: 'DELETE',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({
-                                      student_id: student.id,
-                                      course_id: selectedCourse.id
-                                    })
-                                  });
-                                  if (response.ok) {
-                                    fetchCourseAssignments(selectedCourse.id);
-                                    fetchCourses();
-                                    toast({ title: "Success", description: "Student removed successfully" });
-                                  }
-                                } catch (error) {
-                                  toast({ title: "Error", description: "Failed to remove student", variant: "destructive" });
+                    <div className="max-h-40 overflow-y-auto space-y-1 mb-4">
+                      {courseAssignments.students.map((student) => (
+                        <div key={student.id} className="flex items-center justify-between bg-gray-700 p-2 rounded">
+                          <span className="text-white">{student.full_name}</span>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="border-red-600 text-red-400 hover:bg-red-700"
+                            onClick={async () => {
+                              try {
+                                const response = await fetch('/api/admin/enroll-student', {
+                                  method: 'DELETE',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({
+                                    student_id: student.id,
+                                    course_id: selectedCourse.id
+                                  })
+                                });
+                                if (response.ok) {
+                                  fetchCourseAssignments(selectedCourse.id);
+                                  fetchCourses();
+                                  toast({ title: "Success", description: "Student removed successfully" });
                                 }
-                              }}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
+                              } catch (error) {
+                                toast({ title: "Error", description: "Failed to remove student", variant: "destructive" });
+                              }
+                            }}
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
