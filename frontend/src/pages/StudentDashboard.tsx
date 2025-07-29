@@ -195,6 +195,14 @@ const StudentDashboard = () => {
     return fullName.charAt(0).toUpperCase();
   };
 
+  // Format student ID to CS/2021/{ID} format with zero padding
+  const formatStudentId = (id: string | number) => {
+    if (!id) return "N/A";
+    const idString = id.toString();
+    const paddedId = idString.padStart(3, '0');
+    return `CS/2021/${paddedId}`;
+  };
+
   // Calculate overall attendance from all courses
   const calculateOverallAttendance = () => {
     if (!modules || modules.length === 0) return null;
@@ -1444,7 +1452,7 @@ const StudentDashboard = () => {
                   {studentProfile.email || "No email available"}
                 </p>
                 <Badge variant="secondary" className="bg-blue-600 text-white">
-                  ID: {studentProfile.studentId || "N/A"}
+                  {formatStudentId(studentProfile.studentId)}
                 </Badge>
               </div>
             </div>
@@ -1699,7 +1707,7 @@ const StudentDashboard = () => {
                 {studentProfile.name}
               </p>
               <p className="text-xs text-gray-400 truncate">
-                {studentProfile.studentId}
+                {formatStudentId(studentProfile.studentId)}
               </p>
             </div>
           </div>
