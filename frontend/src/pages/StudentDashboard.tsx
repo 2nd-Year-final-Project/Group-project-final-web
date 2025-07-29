@@ -1428,9 +1428,9 @@ const StudentDashboard = () => {
           <CardHeader>
             <CardTitle className="text-white">Profile Information</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <div className="flex items-center space-x-4">
-              <div className="w-20 h-20 rounded-full border-4 border-gray-600 bg-blue-600 flex items-center justify-center">
+              <div className="w-20 h-20 rounded-full border-4 border-blue-500 bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
                 <span className="text-2xl font-bold text-white">
                   {getProfileInitial()}
                 </span>
@@ -1439,20 +1439,78 @@ const StudentDashboard = () => {
                 <h3 className="text-xl font-semibold text-white">
                   {fullName}
                 </h3>
-                <p className="text-gray-300">{studentProfile.email || "No email available"}</p>
-                <p className="text-gray-400">{studentProfile.studentId || "No ID available"}</p>
+                <p className="text-gray-300 flex items-center">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  {studentProfile.email || "No email available"}
+                </p>
+                <Badge variant="secondary" className="bg-blue-600 text-white">
+                  ID: {studentProfile.studentId || "N/A"}
+                </Badge>
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="flex items-center space-x-2">
+                    <BookOpen className="w-4 h-4 text-blue-400" />
+                    <span className="text-gray-400 text-sm">Academic Year</span>
+                  </div>
+                  <p className="text-white font-medium mt-1">
+                    {studentProfileData.academicYear || "3rd Year"}
+                  </p>
+                </div>
+                
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="flex items-center space-x-2">
+                    <Award className="w-4 h-4 text-purple-400" />
+                    <span className="text-gray-400 text-sm">Department</span>
+                  </div>
+                  <p className="text-white font-medium mt-1">
+                    {studentProfileData.department || "Computer Science"}
+                  </p>
+                </div>
+              </div>
+
               {studentProfile.enrollmentDate && (
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Enrollment Date:</span>
-                  <span className="text-white">
-                    {new Date(studentProfile.enrollmentDate).toLocaleDateString()}
-                  </span>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="flex items-center space-x-2">
+                    <Clock className="w-4 h-4 text-green-400" />
+                    <span className="text-gray-400 text-sm">Enrollment Date</span>
+                  </div>
+                  <p className="text-white font-medium mt-1">
+                    {new Date(studentProfile.enrollmentDate).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </p>
                 </div>
               )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="flex items-center space-x-2">
+                    <BookOpen className="w-4 h-4 text-orange-400" />
+                    <span className="text-gray-400 text-sm">Enrolled Courses</span>
+                  </div>
+                  <p className="text-white font-medium mt-1">
+                    {modules.length} {modules.length === 1 ? 'Course' : 'Courses'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp className="w-4 h-4 text-emerald-400" />
+                    <span className="text-gray-400 text-sm">Overall Attendance</span>
+                  </div>
+                  <p className="text-white font-medium mt-1">
+                    {calculateOverallAttendance() !== null 
+                      ? `${calculateOverallAttendance()?.toFixed(1)}%` 
+                      : 'N/A'}
+                  </p>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
