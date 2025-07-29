@@ -130,13 +130,22 @@ const CourseManagement = () => {
       return;
     }
     
-    console.log("🔄 Adding course with data:", courseForm);
+    // Assign a random difficulty level
+    const difficultyLevels: ('Easy' | 'Medium' | 'Hard')[] = ['Easy', 'Medium', 'Hard'];
+    const randomDifficulty = difficultyLevels[Math.floor(Math.random() * difficultyLevels.length)];
+    
+    const courseData = {
+      ...courseForm,
+      difficulty_level: randomDifficulty
+    };
+    
+    console.log("🔄 Adding course with data:", courseData);
     
     try {
       const response = await fetch('/api/admin/courses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(courseForm)
+        body: JSON.stringify(courseData)
       });
 
       console.log("📡 Response status:", response.status);
@@ -144,7 +153,7 @@ const CourseManagement = () => {
       if (response.ok) {
         const result = await response.json();
         console.log("✅ Course added successfully:", result);
-        toast({ title: "Success", description: "Course added successfully" });
+        toast({ title: "Success", description: `Course added successfully with ${randomDifficulty} difficulty level` });
         await fetchCourses(); // Wait for courses to be fetched
         setIsAddingCourse(false);
         resetCourseForm();
