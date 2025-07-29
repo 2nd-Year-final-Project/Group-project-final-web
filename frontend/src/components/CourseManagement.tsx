@@ -526,12 +526,12 @@ const CourseManagement = () => {
                   {/* Bulk Enrollment */}
                   <div>
                     <div className="flex items-center justify-between">
-                      <h4 className="text-lg font-semibold text-white mb-3">Bulk Enroll Students</h4>
+                      
                       <Button 
                         onClick={() => setIsBulkMode(prev => !prev)} 
                         className={`px-3 py-1 text-sm rounded ${isBulkMode ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'}`}
                       >
-                        {isBulkMode ? 'Cancel Bulk Enroll' : 'Enable Bulk Enroll'}
+                        {isBulkMode ? 'Cancel' : 'Enroll Students'}
                       </Button>
                     </div>
                     {isBulkMode && (
