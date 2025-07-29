@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { Trash2, Edit, Plus, Users, BookOpen, UserPlus } from "lucide-react";
+import { Trash2, Edit, Plus, Users, UserPlus } from "lucide-react";
 
 interface Course {
   id: number;
@@ -337,11 +337,6 @@ const CourseManagement = () => {
     setIsEditingCourse(true);
   };
 
-  const viewCourseDetails = (course: Course) => {
-    setSelectedCourse(course);
-    fetchCourseAssignments(course.id);
-  };
-
   const goToAssignments = (course: Course) => {
     setSelectedCourse(course);
     fetchCourseAssignments(course.id);
@@ -391,42 +386,40 @@ const CourseManagement = () => {
                       </span>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-1 mt-4">
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      onClick={() => viewCourseDetails(course)}
-                      className="border-gray-600 text-gray-300 hover:bg-gray-700 flex-1 min-w-0"
-                    >
-                      <BookOpen className="w-4 h-4 mr-1" />
-                      View
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      onClick={() => goToAssignments(course)}
-                      className="border-blue-600 text-blue-400 hover:bg-blue-700 flex-1 min-w-0"
-                    >
-                      <UserPlus className="w-4 h-4 mr-1" />
-                      Assignments
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      onClick={() => editCourse(course)}
-                      className="border-gray-600 text-gray-300 hover:bg-gray-700 flex-1 min-w-0"
-                    >
-                      <Edit className="w-4 h-4 mr-1" />
-                      Edit
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      onClick={() => handleDeleteCourse(course.id)}
-                      className="border-red-600 text-red-400 hover:bg-red-700"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                  <div className="space-y-2 mt-4">
+                    {/* First row - Assignments */}
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => goToAssignments(course)}
+                        className="border-blue-600 text-blue-400 hover:bg-blue-700 w-full"
+                      >
+                        <UserPlus className="w-4 h-4 mr-1" />
+                        Assignments
+                      </Button>
+                    </div>
+                    {/* Second row - Edit and Delete */}
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => editCourse(course)}
+                        className="border-gray-600 text-gray-300 hover:bg-gray-700 flex-1"
+                      >
+                        <Edit className="w-4 h-4 mr-1" />
+                        Edit
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => handleDeleteCourse(course.id)}
+                        className="border-red-600 text-red-400 hover:bg-red-700 flex-1"
+                      >
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        Delete
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
