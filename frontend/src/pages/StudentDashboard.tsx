@@ -596,8 +596,8 @@ const StudentDashboard = () => {
         setStudentProfileData({
           email: data.email || user.email || "",
           studentId: data.student_id || user.id?.toString() || "",
-          academicYear: data.academic_year || "3rd Year",
-          department: data.department || "Computer Science",
+          academicYear: data.academic_year || "",
+          department: data.department || "",
           enrollmentDate: data.enrollment_date || ""
         });
       } else {
@@ -605,8 +605,8 @@ const StudentDashboard = () => {
         setStudentProfileData({
           email: user.email || "",
           studentId: user.id?.toString() || "",
-          academicYear: "3rd Year",
-          department: "Computer Science", 
+          academicYear: "",
+          department: "", 
           enrollmentDate: ""
         });
       }
@@ -616,8 +616,8 @@ const StudentDashboard = () => {
       setStudentProfileData({
         email: user.email || "",
         studentId: user.id?.toString() || "",
-        academicYear: "3rd Year",
-        department: "Computer Science",
+        academicYear: "",
+        department: "",
         enrollmentDate: ""
       });
     }
@@ -1451,25 +1451,29 @@ const StudentDashboard = () => {
 
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-700 rounded-lg p-3">
-                  <div className="flex items-center space-x-2">
-                    <BookOpen className="w-4 h-4 text-blue-400" />
-                    <span className="text-gray-400 text-sm">Academic Year</span>
+                {studentProfileData.academicYear && (
+                  <div className="bg-gray-700 rounded-lg p-3">
+                    <div className="flex items-center space-x-2">
+                      <BookOpen className="w-4 h-4 text-blue-400" />
+                      <span className="text-gray-400 text-sm">Academic Year</span>
+                    </div>
+                    <p className="text-white font-medium mt-1">
+                      {studentProfileData.academicYear}
+                    </p>
                   </div>
-                  <p className="text-white font-medium mt-1">
-                    {studentProfileData.academicYear || "3rd Year"}
-                  </p>
-                </div>
+                )}
                 
-                <div className="bg-gray-700 rounded-lg p-3">
-                  <div className="flex items-center space-x-2">
-                    <Award className="w-4 h-4 text-purple-400" />
-                    <span className="text-gray-400 text-sm">Department</span>
+                {studentProfileData.department && (
+                  <div className="bg-gray-700 rounded-lg p-3">
+                    <div className="flex items-center space-x-2">
+                      <Award className="w-4 h-4 text-purple-400" />
+                      <span className="text-gray-400 text-sm">Department</span>
+                    </div>
+                    <p className="text-white font-medium mt-1">
+                      {studentProfileData.department}
+                    </p>
                   </div>
-                  <p className="text-white font-medium mt-1">
-                    {studentProfileData.department || "Computer Science"}
-                  </p>
-                </div>
+                )}
               </div>
 
               {studentProfile.enrollmentDate && (
