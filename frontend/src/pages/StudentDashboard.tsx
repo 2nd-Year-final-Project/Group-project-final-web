@@ -1493,13 +1493,13 @@ const StudentDashboard = () => {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 relative z-10">
                 <Label className="text-gray-200">Peer Influence</Label>
                 <Select value={academicData.peerInfluence} onValueChange={(value) => setAcademicData(prev => ({ ...prev, peerInfluence: value }))}>
                   <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
                     <SelectValue placeholder="Select level" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-50 bg-gray-700 border-gray-600">
                     <SelectItem value="negative">Negative</SelectItem>
                     <SelectItem value="natural">Natural</SelectItem>
                     <SelectItem value="positive">Positive</SelectItem>
@@ -1507,13 +1507,13 @@ const StudentDashboard = () => {
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 relative z-10">
                 <Label className="text-gray-200">Extracurricular Participation</Label>
                 <Select value={academicData.extracurricular} onValueChange={(value) => setAcademicData(prev => ({ ...prev, extracurricular: value }))}>
                   <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
                     <SelectValue placeholder="Select option" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-50 bg-gray-700 border-gray-600">
                     <SelectItem value="no">No</SelectItem>
                     <SelectItem value="yes">Yes</SelectItem>
                   </SelectContent>
