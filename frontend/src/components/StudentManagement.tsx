@@ -281,9 +281,7 @@ const StudentManagement = () => {
             <DialogTitle className="text-white">
               Manage Student: {selectedStudent?.full_name}
             </DialogTitle>
-            <DialogDescription className="text-gray-300">
-              Update motivation level and course-wise attendance for {selectedStudent?.email}
-            </DialogDescription>
+            
           </DialogHeader>
           
           <div className="space-y-6">
@@ -302,10 +300,10 @@ const StudentManagement = () => {
                     <SelectTrigger className="bg-gray-600 border-gray-500 text-white">
                       <SelectValue placeholder="Select motivation level" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="high">High</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="low">Low</SelectItem>
+                    <SelectContent className="bg-gray-600 border-gray-500 z-50">
+                      <SelectItem value="high" className="text-white hover:bg-gray-500 focus:bg-gray-500">High</SelectItem>
+                      <SelectItem value="medium" className="text-white hover:bg-gray-500 focus:bg-gray-500">Medium</SelectItem>
+                      <SelectItem value="low" className="text-white hover:bg-gray-500 focus:bg-gray-500">Low</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
