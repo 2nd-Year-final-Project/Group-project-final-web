@@ -366,7 +366,7 @@ const CourseManagement = () => {
         <TabsContent value="courses" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {courses.map((course) => (
-              <Card key={course.id} className="bg-gray-800 border-gray-700">
+              <Card key={course.id} className="bg-gray-800 border-gray-700 flex flex-col h-full">
                 <CardHeader>
                   <CardTitle className="flex justify-between items-start text-white">
                     <span>{course.course_code}</span>
@@ -376,49 +376,53 @@ const CourseManagement = () => {
                   </CardTitle>
                   <CardDescription className="text-gray-300">{course.course_name}</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm text-gray-300">
-                    <p>{course.description}</p>
+                <CardContent className="flex flex-col flex-grow">
+                  <div className="flex-grow">
+                    <div className="space-y-2 text-sm text-gray-300">
+                      <p>{course.description}</p>
+                    </div>
+                  </div>
+                  <div className="mt-auto space-y-3">
                     <div className="flex justify-end">
-                      <span className="flex items-center gap-2">
+                      <span className="flex items-center gap-2 text-sm text-gray-300">
                         <Users className="w-4 h-4" />
                         {course.student_count} students
                       </span>
                     </div>
-                  </div>
-                  <div className="space-y-2 mt-4">
-                    {/* First row - Assignments */}
-                    <div className="flex gap-2">
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={() => goToAssignments(course)}
-                        className="border-blue-600 text-blue-400 hover:bg-blue-700 w-full"
-                      >
-                        <UserPlus className="w-4 h-4 mr-1" />
-                        Assignments
-                      </Button>
-                    </div>
-                    {/* Second row - Edit and Delete */}
-                    <div className="flex gap-2">
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={() => editCourse(course)}
-                        className="border-gray-600 text-gray-300 hover:bg-gray-700 flex-1"
-                      >
-                        <Edit className="w-4 h-4 mr-1" />
-                        Edit
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={() => handleDeleteCourse(course.id)}
-                        className="border-red-600 text-red-400 hover:bg-red-700 flex-1"
-                      >
-                        <Trash2 className="w-4 h-4 mr-1" />
-                        Delete
-                      </Button>
+                    <div className="space-y-2">
+                      {/* First row - Assignments */}
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => goToAssignments(course)}
+                          className="border-blue-600 text-blue-400 hover:bg-blue-700 w-full"
+                        >
+                          <UserPlus className="w-4 h-4 mr-1" />
+                          Assignments
+                        </Button>
+                      </div>
+                      {/* Second row - Edit and Delete */}
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => editCourse(course)}
+                          className="border-gray-600 text-gray-300 hover:bg-gray-700 flex-1"
+                        >
+                          <Edit className="w-4 h-4 mr-1" />
+                          Edit
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => handleDeleteCourse(course.id)}
+                          className="border-red-600 text-red-400 hover:bg-red-700 flex-1"
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Delete
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
