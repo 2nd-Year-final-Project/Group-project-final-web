@@ -302,6 +302,8 @@ const StudentDashboard = () => {
     }
 
     try {
+      // Show loading blink
+      setLoadingCourses(true);
       const response = await fetch('/api/student/subject', {
         method: 'POST',
         headers: {
@@ -321,6 +323,8 @@ const StudentDashboard = () => {
           title: "Success",
           description: result.message || "Study parameters updated successfully!",
         });
+        // Refresh course/module data to reflect changes and trigger UI update
+        await fetchStudentCourses();
       } else {
         const error = await response.json();
         toast({
@@ -335,6 +339,8 @@ const StudentDashboard = () => {
         description: "Failed to update parameters",
         variant: "destructive"
       });
+    } finally {
+      setLoadingCourses(false);
     }
   };
 
