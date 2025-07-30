@@ -882,7 +882,7 @@ const StudentDashboard = () => {
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <Badge
-                      className={getStatusColor(module.status)}
+                      className={`${getStatusColor(module.status)} whitespace-nowrap min-w-[6.5rem] justify-center`}
                       variant="secondary"
                     >
                       {module.code}
@@ -1142,7 +1142,7 @@ const StudentDashboard = () => {
                           />
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-2 relative z-20">
                           <Label className="text-gray-200">Teacher Quality</Label>
                           <Select
                             value={subjectData[module.id]?.teacherQuality || ""}
@@ -1151,7 +1151,7 @@ const StudentDashboard = () => {
                             <SelectTrigger className="bg-gray-600 border-gray-500 text-white">
                               <SelectValue placeholder="Select quality" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="z-50 bg-gray-600 border-gray-500">
                               <SelectItem value="low">Low</SelectItem>
                               <SelectItem value="medium">Medium</SelectItem>
                               <SelectItem value="high">High</SelectItem>
