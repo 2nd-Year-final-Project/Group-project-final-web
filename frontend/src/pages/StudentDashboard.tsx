@@ -878,26 +878,22 @@ const StudentDashboard = () => {
               {modules.map((module) => (
                 <div
                   key={module.id}
-                  className="flex items-center justify-between"
+                  className="flex items-center justify-between gap-3 p-2 bg-gray-700/40 rounded-lg"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     <Badge
                       className={getStatusColor(module.status)}
                       variant="secondary"
                     >
                       {module.code}
                     </Badge>
-                    <span className="text-gray-300 text-sm">{module.name}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Progress
-                      value={module.predictedFinal}
-                      className="w-20 h-2"
-                    />
-                    <span className="text-white text-sm font-medium">
-                      {module.predictedFinal}%
+                    <span className="text-gray-300 text-sm break-words leading-snug">
+                      {module.name}
                     </span>
                   </div>
+                  <span className="text-white text-sm font-medium text-right min-w-[4.5rem]">
+                    {module.predictedFinal}%
+                  </span>
                 </div>
               ))}
             </div>
