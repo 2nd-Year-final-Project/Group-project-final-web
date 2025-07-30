@@ -284,31 +284,23 @@ const LecturerDashboard = () => {
                             </div>
                           </div>
                           <div className="flex items-center space-x-4">
-                            {/* Current Grade */}
-                            <div className="text-center">
-                              <div className="text-lg font-bold text-blue-400">{student.current_grade}%</div>
-                              <div className="text-xs text-gray-300">Current</div>
-                            </div>
-                            
-                            {/* Predicted Grade */}
+                            {/* Predicted Grade Only */}
                             {student.has_prediction && student.predicted_grade !== null ? (
                               <div className="text-center">
-                                <div className={`text-lg font-bold ${
+                                <div className={`text-2xl font-extrabold ${
                                   student.predicted_grade >= 60 ? 'text-green-400' : 'text-red-400'
                                 }`}>
-                                  {student.predicted_grade.toFixed(1)}%
-                                </div>
-                                <div className="text-xs text-gray-300">Predicted</div>
-                                <div className={`text-xs font-medium ${
-                                  student.predicted_grade >= 60 ? 'text-green-300' : 'text-red-300'
-                                }`}>
                                   {getGradeFromPercentage(student.predicted_grade)}
+                                </div>
+                                <div className={`text-xs font-medium ${
+                                  student.predicted_grade >= 60 ? 'text-green-200' : 'text-red-200'
+                                }`}>
+                                  {student.predicted_grade.toFixed(1)}%
                                 </div>
                               </div>
                             ) : (
                               <div className="text-center">
-                                <div className="text-lg text-gray-500">--</div>
-                                <div className="text-xs text-gray-400">Predicted</div>
+                                <div className="text-2xl text-gray-500 font-extrabold">--</div>
                                 <div className="text-xs text-gray-400">N/A</div>
                               </div>
                             )}
