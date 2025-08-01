@@ -116,12 +116,14 @@ const getAtRiskStudents = async (req, res) => {
   try {
     const { lecturerId } = req.params;
 
-    const alerts = await RealTimeAlertService.getAtRiskStudents(lecturerId);
+    const result = await RealTimeAlertService.getAtRiskStudents(lecturerId);
     
     res.json({
       success: true,
-      atRiskStudents: alerts,
-      total: alerts.length
+      totalAtRisk: result.totalAtRisk,
+      courseGroups: result.courseGroups,
+      atRiskStudents: result.allAlerts, // For backward compatibility
+      total: result.totalAtRisk
     });
   } catch (error) {
     console.error('Error fetching at-risk students:', error);

@@ -2,22 +2,19 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import MarksEntryModal from '@/components/MarksEntryModal';
-import AlertSystem from '@/components/AlertSystem';
+import LecturerDashboardAlerts from '@/components/LecturerDashboardAlerts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useAuthStore } from '@/store/authStore';
 import { toast } from '@/hooks/use-toast';
-import { AlertTriangle, TrendingDown, Users, Calendar } from 'lucide-react';
 
 const LecturerDashboard = () => {
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isMarksModalOpen, setIsMarksModalOpen] = useState(false);
   const [courses, setCourses] = useState([]);
-  const [atRiskStudents, setAtRiskStudents] = useState([]);
   const [studentRoster, setStudentRoster] = useState([]);
   const [loading, setLoading] = useState(true);
   const user = useAuthStore((state) => state.user);
@@ -50,7 +47,6 @@ const LecturerDashboard = () => {
   useEffect(() => {
     if (user?.id) {
       fetchLecturerCourses();
-      fetchAtRiskStudents();
     }
   }, [user]);
 
@@ -89,28 +85,6 @@ const LecturerDashboard = () => {
       });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchAtRiskStudents = async () => {
-    try {
-      const response = await fetch(`/api/lecturer/at-risk/${user.id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setAtRiskStudents(data);
-      } else {
-        // Handle case where API returns error or no data
-        console.log('No at-risk students found or API error');
-        setAtRiskStudents([]);
-      }
-    } catch (error) {
-      console.error('Error fetching at-risk students:', error);
-      setAtRiskStudents([]);
-      toast({
-        title: "Warning",
-        description: "Unable to load at-risk students data. Please try again later.",
-        variant: "destructive"
-      });
     }
   };
 
@@ -203,24 +177,12 @@ const LecturerDashboard = () => {
           <p className="text-purple-100">Welcome to your Teaching Excellence Dashboard. Monitor student progress and identify those who need additional support.</p>
         </div>
 
-        {/* Lecturer Alert System */}
-        <AlertSystem userId={user?.id} userType="lecturer" />
-
-        {/* At-Risk Students Alert */}
-        {atRiskStudents.length > 0 && (
-          <Alert className="border-red-600 bg-red-900/20 border">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle className="text-red-300">Students At Risk</AlertTitle>
-            <AlertDescription className="text-red-200">
-              {atRiskStudents.length} student{atRiskStudents.length > 1 ? 's are' : ' is'} predicted to be at risk of failing. Review their details in the "At-Risk Students" tab.
-            </AlertDescription>
-          </Alert>
-        )}
+        {/* Real-Time At-Risk Student Alerts */}
+        <LecturerDashboardAlerts lecturerId={user?.id} />
 
         <Tabs defaultValue="courses" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-gray-800 text-white">
+          <TabsList className="grid w-full grid-cols-1 bg-gray-800 text-white">
             <TabsTrigger value="courses" className="data-[state=active]:bg-gray-700 data-[state=active]:text-blue-400">My Courses</TabsTrigger>
-            <TabsTrigger value="at-risk" className="data-[state=active]:bg-gray-700 data-[state=active]:text-blue-400">At-Risk Students</TabsTrigger>
           </TabsList>
 
           <TabsContent value="courses" className="space-y-4">
@@ -344,97 +306,6 @@ const LecturerDashboard = () => {
                   </div>
                 </CardContent>
               </Card>
-            )}
-          </TabsContent>
-
-          <TabsContent value="at-risk" className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-red-400" />
-                <h3 className="text-lg font-semibold text-white">At-Risk Students</h3>
-                <Badge className="bg-red-600 text-white">{atRiskStudents.length}</Badge>
-              </div>
-            </div>
-
-            {atRiskStudents.length === 0 ? (
-              <Card className="bg-gray-800 border-gray-700">
-                <CardContent className="flex flex-col items-center justify-center py-12">
-                  <Users className="h-16 w-16 text-gray-500 mb-4" />
-                  <h3 className="text-lg font-medium text-white mb-2">No At-Risk Students</h3>
-                  <p className="text-gray-400 text-center">
-                    Great news! All your students are performing well. No students are currently at risk of failing.
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {atRiskStudents.map((student) => (
-                  <Card key={student.id} className="border-red-600/30 bg-gray-800 border-l-4 border-l-red-500">
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <CardTitle className="flex items-center gap-3 text-white mb-2">
-                            <span>{student.full_name}</span>
-                          </CardTitle>
-                          <CardDescription className="text-gray-300 flex items-center gap-2">
-                            <span>Course: {student.course_name} ({student.course_code})</span>
-                          </CardDescription>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <TrendingDown className="h-5 w-5 text-red-400" />
-                        </div>
-                      </div>
-                    </CardHeader>
-                    
-                    <CardContent>
-                      <div className="space-y-4">
-                        {/* Student Details Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                          {student.attendance && (
-                            <div className="space-y-1">
-                              <div className="text-gray-400">Attendance</div>
-                              <div className={`font-medium ${
-                                student.attendance >= 75 ? 'text-green-400' : 
-                                student.attendance >= 60 ? 'text-yellow-400' : 'text-red-400'
-                              }`}>
-                                {student.attendance}%
-                              </div>
-                            </div>
-                          )}
-                          
-                          {student.enrollment_date && (
-                            <div className="space-y-1">
-                              <div className="text-gray-400">Enrolled</div>
-                              <div className="text-white font-medium flex items-center gap-1">
-                                <Calendar className="h-3 w-3" />
-                                {new Date(student.enrollment_date).toLocaleDateString()}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Risk Factors */}
-                        {student.risk_factors && (
-                          <div className="space-y-2">
-                            <div className="text-sm font-medium text-gray-200">Risk Factors:</div>
-                            <div className="flex flex-wrap gap-2">
-                              {student.risk_factors.split(',').map((factor, index) => (
-                                <Badge 
-                                  key={index}
-                                  variant="outline" 
-                                  className="text-red-400 border-red-600/50 bg-red-900/20"
-                                >
-                                  {factor.trim()}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
             )}
           </TabsContent>
 

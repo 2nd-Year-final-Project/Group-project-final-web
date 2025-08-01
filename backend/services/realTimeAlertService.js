@@ -74,7 +74,7 @@ class RealTimeAlertService {
   static generateLecturerMessage(studentName, courseName, predictedPercentage, predictedGrade) {
     const performanceText = `${studentName} in ${courseName}`;
     
-    if (predictedPercentage >= 50) {
+    if (predictedPercentage >= 60) {
       return {
         type: 'warning',
         severity: 'medium',
@@ -146,7 +146,7 @@ class RealTimeAlertService {
   static async generateLecturerAlert(studentId, courseId, predictedPercentage) {
     try {
       // Only alert lecturers for at-risk students (below 50%)
-      if (predictedPercentage >= 50) {
+      if (predictedPercentage >= 80) {
         return null;
       }
 
@@ -279,7 +279,7 @@ class RealTimeAlertService {
     }
   }
 
-  // Get at-risk students for lecturer dashboard
+  // Get at-risk students for lecturer dashboard, grouped by course
   static async getAtRiskStudents(lecturerId) {
     try {
       const [alerts] = await db.promise().query(
@@ -288,11 +288,33 @@ class RealTimeAlertService {
          JOIN courses c ON a.course_id = c.id
          JOIN users u ON a.student_id = u.id
          WHERE a.recipient_id = ? AND a.recipient_type = 'lecturer' AND a.is_dismissed = FALSE
-         ORDER BY a.predicted_percentage ASC, a.created_at DESC`,
+         ORDER BY c.course_name, a.predicted_percentage ASC, a.created_at DESC`,
         [lecturerId]
       );
 
-      return alerts;
+      // Group alerts by course
+      const groupedByCourse = {};
+      alerts.forEach(alert => {
+        const courseKey = `${alert.course_code} - ${alert.course_name}`;
+        if (!groupedByCourse[courseKey]) {
+          groupedByCourse[courseKey] = {
+            course_id: alert.course_id,
+            course_name: alert.course_name,
+            course_code: alert.course_code,
+            students: []
+          };
+        }
+        groupedByCourse[courseKey].students.push(alert);
+      });
+
+      // Convert to array format
+      const courseGroups = Object.values(groupedByCourse);
+      
+      return { 
+        totalAtRisk: alerts.length,
+        courseGroups: courseGroups,
+        allAlerts: alerts // Keep for backward compatibility
+      };
     } catch (error) {
       console.error('Error fetching at-risk students:', error);
       throw error;
