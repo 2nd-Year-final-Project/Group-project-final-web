@@ -1,4 +1,4 @@
-const AlertService = require('../services/alertService');
+const RealTimeAlertService = require('../services/realTimeAlertService');
 
 // Get alerts for the authenticated user
 const getUserAlerts = async (req, res) => {
@@ -6,7 +6,7 @@ const getUserAlerts = async (req, res) => {
     const { userId } = req.params;
     const { userType = 'student', limit = 50 } = req.query;
 
-    const alerts = await AlertService.getAlertsForUser(userId, userType, parseInt(limit));
+    const alerts = await RealTimeAlertService.getCurrentAlerts(userId, userType, parseInt(limit));
     
     res.json({
       success: true,
@@ -29,7 +29,7 @@ const getUnreadAlertCount = async (req, res) => {
     const { userId } = req.params;
     const { userType = 'student' } = req.query;
 
-    const count = await AlertService.getUnreadAlertCount(userId, userType);
+    const count = await RealTimeAlertService.getUnreadAlertCount(userId, userType);
     
     res.json({
       success: true,
@@ -51,7 +51,7 @@ const markAlertAsRead = async (req, res) => {
     const { alertId } = req.params;
     const { userId } = req.body;
 
-    await AlertService.markAlertAsRead(alertId, userId);
+    await RealTimeAlertService.markAlertAsRead(alertId, userId);
     
     res.json({
       success: true,
@@ -73,7 +73,7 @@ const dismissAlert = async (req, res) => {
     const { alertId } = req.params;
     const { userId } = req.body;
 
-    await AlertService.dismissAlert(alertId, userId);
+    await RealTimeAlertService.dismissAlert(alertId, userId);
     
     res.json({
       success: true,
@@ -89,33 +89,77 @@ const dismissAlert = async (req, res) => {
   }
 };
 
-// Manually trigger alert generation for testing (admin only)
-const generateTestAlerts = async (req, res) => {
+// Get student dashboard alerts (one per course)
+const getStudentDashboardAlerts = async (req, res) => {
   try {
-    const { studentId, courseId, predictedPercentage } = req.body;
+    const { studentId } = req.params;
 
-    if (!studentId || !courseId || predictedPercentage === undefined) {
-      return res.status(400).json({
-        success: false,
-        message: 'Missing required parameters: studentId, courseId, predictedPercentage'
-      });
-    }
-
-    const alerts = await AlertService.generateAlertsFromPrediction(studentId, courseId, predictedPercentage);
+    const alerts = await RealTimeAlertService.getStudentDashboardAlerts(studentId);
     
     res.json({
       success: true,
-      message: 'Test alerts generated successfully',
-      alertsGenerated: alerts
+      alerts,
+      total: alerts.length
     });
   } catch (error) {
-    console.error('Error generating test alerts:', error);
+    console.error('Error fetching student dashboard alerts:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to generate test alerts',
+      message: 'Failed to fetch dashboard alerts',
       error: error.message
     });
   }
+};
+
+// Get at-risk students for lecturer
+const getAtRiskStudents = async (req, res) => {
+  try {
+    const { lecturerId } = req.params;
+
+    const alerts = await RealTimeAlertService.getAtRiskStudents(lecturerId);
+    
+    res.json({
+      success: true,
+      atRiskStudents: alerts,
+      total: alerts.length
+    });
+  } catch (error) {
+    console.error('Error fetching at-risk students:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch at-risk students',
+      error: error.message
+    });
+  }
+};
+
+// Clear all alerts (admin function)
+const clearAllAlerts = async (req, res) => {
+  try {
+    await RealTimeAlertService.clearAllAlerts();
+    
+    res.json({
+      success: true,
+      message: 'All alerts cleared successfully'
+    });
+  } catch (error) {
+    console.error('Error clearing all alerts:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to clear alerts',
+      error: error.message
+    });
+  }
+};
+
+module.exports = {
+  getUserAlerts,
+  getUnreadAlertCount,
+  markAlertAsRead,
+  dismissAlert,
+  getStudentDashboardAlerts,
+  getAtRiskStudents,
+  clearAllAlerts
 };
 
 // Batch generate alerts for all students in a course

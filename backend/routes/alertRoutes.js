@@ -4,9 +4,9 @@ const {
   getUnreadAlertCount, 
   markAlertAsRead, 
   dismissAlert, 
-  generateTestAlerts,
-  generateCourseAlerts,
-  generateStudentAlerts
+  getStudentDashboardAlerts,
+  getAtRiskStudents,
+  clearAllAlerts
 } = require('../controllers/alertController');
 
 const router = express.Router();
@@ -17,19 +17,19 @@ router.get('/user/:userId', getUserAlerts);
 // Get unread alert count for a user
 router.get('/user/:userId/unread-count', getUnreadAlertCount);
 
+// Get student dashboard alerts (one per course)
+router.get('/student/:studentId/dashboard', getStudentDashboardAlerts);
+
+// Get at-risk students for lecturer
+router.get('/lecturer/:lecturerId/at-risk', getAtRiskStudents);
+
 // Mark alert as read
 router.patch('/:alertId/read', markAlertAsRead);
 
 // Dismiss alert
 router.patch('/:alertId/dismiss', dismissAlert);
 
-// Generate test alerts (for testing purposes)
-router.post('/generate-test', generateTestAlerts);
-
-// Batch generate alerts for all students in a course
-router.post('/generate-course/:courseId', generateCourseAlerts);
-
-// Batch generate alerts for a student across all courses
-router.post('/generate-student/:studentId', generateStudentAlerts);
+// Clear all alerts (admin function)
+router.delete('/clear-all', clearAllAlerts);
 
 module.exports = router;

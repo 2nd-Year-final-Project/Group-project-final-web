@@ -1,6 +1,6 @@
 const db = require("../config/db");
 const axios = require("axios");
-const AlertService = require("../services/alertService");
+const RealTimeAlertService = require("../services/realTimeAlertService");
 
 const getPrediction = async (req, res) => {
   const { student_id, course_id } = req.params;
@@ -92,10 +92,10 @@ const getPrediction = async (req, res) => {
     if (response.data && response.data.predicted_grade) {
       try {
         const predictedPercentage = parseFloat(response.data.predicted_grade);
-        const alerts = await AlertService.generateAlertsFromPrediction(student_id, course_id, predictedPercentage);
-        console.log(`Generated ${alerts.length} alerts for student ${student_id}, course ${course_id}`);
+        const alerts = await RealTimeAlertService.generateRealTimeAlerts(student_id, course_id, predictedPercentage);
+        console.log(`Generated ${alerts.length} real-time alerts for student ${student_id}, course ${course_id}`);
       } catch (alertError) {
-        console.error('Error generating alerts:', alertError);
+        console.error('Error generating real-time alerts:', alertError);
         // Don't fail the prediction request if alert generation fails
       }
     }

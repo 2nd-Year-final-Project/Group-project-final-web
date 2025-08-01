@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import { useAuthStore } from '@/store/authStore';
 import { toast } from '@/hooks/use-toast';
-import AlertSystem from '@/components/AlertSystem';
+import StudentDashboardAlerts from '@/components/StudentDashboardAlerts';
 import {
   Card,
   CardContent,
@@ -940,8 +940,8 @@ const StudentDashboard = () => {
         </Card>
       </div>
 
-      {/* Alert System */}
-      <AlertSystem userId={user?.id} userType="student" />
+      {/* Real-Time Performance Alerts */}
+      <StudentDashboardAlerts studentId={user?.id} />
     </div>
   );
 

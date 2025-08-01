@@ -108,48 +108,41 @@ const getCourseStudents = async (req, res) => {
   }
 };
 
-// Get at-risk students for a lecturer
-const getAtRiskStudents = (req, res) => {
-  const { lecturerId } = req.params;
+// Get at-risk students for a lecturer (using real-time alert system)
+const getAtRiskStudents = async (req, res) => {
+  try {
+    const { lecturerId } = req.params;
+    const RealTimeAlertService = require('../services/realTimeAlertService');
 
-  const sql = `
-    SELECT 
-      u.id,
-      u.full_name,
-      c.course_code,
-      c.course_name,
-      ROUND(
-        (COALESCE(lm.quiz1, 0) + COALESCE(lm.quiz2, 0) + 
-         COALESCE(lm.assignment1, 0) + COALESCE(lm.assignment2, 0) + 
-         COALESCE(lm.midterm_marks, 0)) / 5, 2
-      ) as predicted_grade,
-      CASE 
-        WHEN COALESCE(lm.quiz1, 0) < 50 THEN 'Poor quiz performance'
-        WHEN COALESCE(lm.assignment1, 0) < 50 OR COALESCE(lm.assignment2, 0) < 50 THEN 'Missing assignments'
-        WHEN COALESCE(lm.midterm_marks, 0) < 50 THEN 'Poor midterm performance'
-        ELSE 'General performance issues'
-      END as risk_factors
-    FROM lecturer_courses lc
-    JOIN courses c ON lc.course_id = c.id
-    JOIN student_enrollments se ON c.id = se.course_id AND se.status = 'active'
-    JOIN users u ON se.student_id = u.id
-    LEFT JOIN lecturer_marks lm ON u.id = lm.student_id AND c.id = lm.course_id
-    WHERE lc.lecturer_id = ?
-    AND (
-      ROUND((COALESCE(lm.quiz1, 0) + COALESCE(lm.quiz2, 0) + 
-             COALESCE(lm.assignment1, 0) + COALESCE(lm.assignment2, 0) + 
-             COALESCE(lm.midterm_marks, 0)) / 5, 2) < 60
-      OR COALESCE(lm.midterm_marks, 0) < 50
-    )
-    ORDER BY predicted_grade ASC
-  `;
+    // Get at-risk students from the real-time alert system
+    const alerts = await RealTimeAlertService.getAtRiskStudents(lecturerId);
+    
+    // Transform alerts into the expected format
+    const atRiskStudents = alerts.map(alert => ({
+      id: alert.student_id,
+      full_name: alert.student_name,
+      course_code: alert.course_code,
+      course_name: alert.course_name,
+      predicted_grade: alert.predicted_percentage,
+      predicted_letter_grade: alert.predicted_grade,
+      risk_level: alert.severity,
+      alert_message: alert.message,
+      created_at: alert.created_at
+    }));
 
-  db.query(sql, [lecturerId], (err, results) => {
-    if (err) {
-      return res.status(500).json({ message: "Database error", error: err.message });
-    }
-    res.json(results);
-  });
+    res.json({
+      success: true,
+      atRiskStudents,
+      total: atRiskStudents.length
+    });
+  } catch (error) {
+    console.error('Error fetching at-risk students:', error);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to fetch at-risk students", 
+      error: error.message 
+    });
+  }
 };
 
 // Lecturer submits marks
