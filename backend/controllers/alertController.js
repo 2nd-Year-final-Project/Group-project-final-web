@@ -227,7 +227,7 @@ module.exports = {
   getUnreadAlertCount,
   markAlertAsRead,
   dismissAlert,
-  generateTestAlerts,
-  generateCourseAlerts,
-  generateStudentAlerts
+  getStudentDashboardAlerts,
+  getAtRiskStudents,
+  clearAllAlerts
 };
