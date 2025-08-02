@@ -1378,16 +1378,39 @@ const StudentDashboard = () => {
         {modules
           .filter((m) => m.status === "At Risk")
           .map((module) => (
-            <Alert key={module.id} className="border-red-600 bg-red-900/20">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertTitle className="text-red-300">
-                Attention Required: {module.code}
-              </AlertTitle>
-              <AlertDescription className="text-red-200">
-                Your performance in {module.name} needs improvement. Predicted
-                grade: <span className="font-bold text-xl">{getGradeFromPercentage(module.predictedFinal)}</span> <span className="text-sm opacity-75">({module.predictedFinal}%)</span>
-              </AlertDescription>
-            </Alert>
+            <Card key={module.id} className="border-red-600 bg-red-900/20 border-l-4">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start space-x-4 flex-1">
+                    <div className="flex-shrink-0">
+                      <AlertTriangle className="h-6 w-6 text-red-400 mt-1" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-3">
+                        <h3 className="text-lg font-semibold text-red-300">
+                          Attention Required
+                        </h3>
+                        <Badge className="bg-red-600 text-red-100 font-medium">
+                          {module.code}
+                        </Badge>
+                      </div>
+                      <p className="text-red-200 mb-4 leading-relaxed">
+                        Your performance in <span className="font-medium">{module.name}</span> requires immediate attention and improvement.
+                      </p>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <span className="text-red-300 text-sm font-medium">Predicted Grade:</span>
+                          <Badge variant="outline" className="border-red-400 text-red-300 bg-red-900/30">
+                            <span className="text-lg font-bold">{getGradeFromPercentage(module.predictedFinal)}</span>
+                            <span className="text-sm font-normal ml-1 opacity-75">({module.predictedFinal}%)</span>
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           ))}
       </div>
 
