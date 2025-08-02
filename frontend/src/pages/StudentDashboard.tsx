@@ -997,7 +997,7 @@ const StudentDashboard = () => {
 
         <Card className="bg-gray-800 border-gray-700">
           <CardHeader>
-            <CardTitle className="text-white">Grade Distribution</CardTitle>
+            <CardTitle className="text-white">Predicted Grade Distribution</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
