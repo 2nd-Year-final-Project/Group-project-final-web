@@ -16,6 +16,8 @@ const LecturerDashboard = () => {
   const [isMarksModalOpen, setIsMarksModalOpen] = useState(false);
   const [courses, setCourses] = useState([]);
   const [studentRoster, setStudentRoster] = useState([]);
+  const [courseAtRiskStudents, setCourseAtRiskStudents] = useState([]);
+  const [selectedCourseTab, setSelectedCourseTab] = useState('roster');
   const [loading, setLoading] = useState(true);
   const user = useAuthStore((state) => state.user);
 
@@ -43,6 +45,20 @@ const LecturerDashboard = () => {
     return "E";
   };
 
+  // Get risk level badge colors
+  const getRiskLevelColor = (riskLevel: string) => {
+    if (riskLevel === 'critical') return 'bg-red-600 text-red-100';
+    if (riskLevel === 'high') return 'bg-orange-600 text-orange-100';
+    return 'bg-yellow-600 text-yellow-100';
+  };
+
+  // Get prediction percentage color
+  const getPredictionColor = (percentage: number) => {
+    if (percentage >= 50) return 'text-yellow-400';
+    if (percentage >= 40) return 'text-orange-400';
+    return 'text-red-400';
+  };
+
   // Fetch lecturer's courses
   useEffect(() => {
     if (user?.id) {
@@ -54,8 +70,24 @@ const LecturerDashboard = () => {
   useEffect(() => {
     if (selectedModule) {
       fetchCourseStudents(selectedModule);
+      fetchCourseAtRiskStudents(selectedModule);
     }
   }, [selectedModule]);
+
+  const fetchCourseAtRiskStudents = async (courseId: string) => {
+    try {
+      const response = await fetch(`/api/alerts/lecturer/${user.id}/course/${courseId}/at-risk`);
+      if (response.ok) {
+        const data = await response.json();
+        setCourseAtRiskStudents(data.atRiskStudents);
+      } else {
+        setCourseAtRiskStudents([]);
+      }
+    } catch (error) {
+      console.error('Error fetching course at-risk students:', error);
+      setCourseAtRiskStudents([]);
+    }
+  };
 
   const fetchLecturerCourses = async () => {
     try {
@@ -214,96 +246,189 @@ const LecturerDashboard = () => {
               <Card className="mt-6 bg-gray-800 border-gray-700">
                 <CardHeader>
                   <CardTitle className="text-white">
-                    Student Roster - {courses.find(c => c.id.toString() === selectedModule)?.course_name}
+                    {courses.find(c => c.id.toString() === selectedModule)?.course_name}
                   </CardTitle>
                   <CardDescription className="text-gray-300">
-                    Manage students and their grades. AI predictions are shown when available for students.
+                    Course management dashboard with student roster and at-risk monitoring
                   </CardDescription>
-                  {/* Prediction Summary */}
-                  {studentRoster.length > 0 && (
-                    <div className="mt-3 p-3 bg-purple-900/20 rounded-lg border border-purple-600/30">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-purple-300">
-                          AI Predictions Available: {studentRoster.filter(s => s.has_prediction).length} of {studentRoster.length} students
-                        </span>
-                        <span className="text-purple-400">
-                          {Math.round((studentRoster.filter(s => s.has_prediction).length / studentRoster.length) * 100)}% coverage
-                        </span>
-                      </div>
-                    </div>
-                  )}
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
-                    {studentRoster.map((student) => (
-                      <div key={student.id} className="p-4 border border-gray-700 rounded-lg bg-gray-750">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex-1">
-                            <div className="font-medium text-white">{student.full_name}</div>
-                            <div className="text-sm text-gray-400">{student.email}</div>
-                            <div className="text-sm text-gray-400">
-                              Enrolled: {new Date(student.enrollment_date).toLocaleDateString()}
+                  <Tabs value={selectedCourseTab} onValueChange={setSelectedCourseTab} className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 bg-gray-700">
+                      <TabsTrigger 
+                        value="roster" 
+                        className="data-[state=active]:bg-gray-600 data-[state=active]:text-blue-400"
+                      >
+                        Student Roster ({studentRoster.length})
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="at-risk" 
+                        className="data-[state=active]:bg-gray-600 data-[state=active]:text-red-400"
+                      >
+                        At-Risk Students ({courseAtRiskStudents.length})
+                      </TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="roster" className="space-y-4">
+                      {/* Prediction Summary */}
+                      {studentRoster.length > 0 && (
+                        <div className="mt-3 p-3 bg-purple-900/20 rounded-lg border border-purple-600/30">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-purple-300">
+                              AI Predictions Available: {studentRoster.filter(s => s.has_prediction).length} of {studentRoster.length} students
+                            </span>
+                            <span className="text-purple-400">
+                              {Math.round((studentRoster.filter(s => s.has_prediction).length / studentRoster.length) * 100)}% coverage
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="space-y-2">
+                        {studentRoster.map((student) => (
+                          <div key={student.id} className="p-4 border border-gray-700 rounded-lg bg-gray-750">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex-1">
+                                <div className="font-medium text-white">{student.full_name}</div>
+                                <div className="text-sm text-gray-400">{student.email}</div>
+                                <div className="text-sm text-gray-400">
+                                  Enrolled: {new Date(student.enrollment_date).toLocaleDateString()}
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-4">
+                                {/* Predicted Grade Only */}
+                                {student.has_prediction && student.predicted_grade !== null ? (
+                                  <div className="text-center">
+                                    <div className={`text-2xl font-extrabold ${
+                                      student.predicted_grade >= 60 ? 'text-green-400' : 'text-red-400'
+                                    }`}>
+                                      {getGradeFromPercentage(student.predicted_grade)}
+                                    </div>
+                                    <div className={`text-xs font-medium ${
+                                      student.predicted_grade >= 60 ? 'text-green-200' : 'text-red-200'
+                                    }`}>
+                                      {student.predicted_grade.toFixed(1)}%
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="text-center">
+                                    <div className="text-2xl text-gray-500 font-extrabold">--</div>
+                                    <div className="text-xs text-gray-400">N/A</div>
+                                  </div>
+                                )}
+                                
+                                {/* Action Button */}
+                                <Button 
+                                  size="sm" 
+                                  onClick={() => handleAddMarks(student)}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                                >
+                                  {(student.quiz1 !== null || student.quiz2 !== null || student.assignment1 !== null || student.assignment2 !== null || student.midterm !== null) ? 'Edit Marks' : 'Add Marks'}
+                                </Button>
+                              </div>
+                            </div>
+                            
+                            {/* Marks Display */}
+                            <div className="grid grid-cols-5 gap-2 mt-3">
+                              <div className="text-center p-2 bg-gray-600 rounded">
+                                <div className="text-sm font-bold text-blue-400">{student.quiz1 !== null ? student.quiz1 : 'Not Set'}</div>
+                                <div className="text-xs text-gray-300">Quiz 1</div>
+                              </div>
+                              <div className="text-center p-2 bg-gray-600 rounded">
+                                <div className="text-sm font-bold text-blue-400">{student.quiz2 !== null ? student.quiz2 : 'Not Set'}</div>
+                                <div className="text-xs text-gray-300">Quiz 2</div>
+                              </div>
+                              <div className="text-center p-2 bg-gray-600 rounded">
+                                <div className="text-sm font-bold text-purple-400">{student.assignment1 !== null ? student.assignment1 : 'Not Set'}</div>
+                                <div className="text-xs text-gray-300">Assign 1</div>
+                              </div>
+                              <div className="text-center p-2 bg-gray-600 rounded">
+                                <div className="text-sm font-bold text-purple-400">{student.assignment2 !== null ? student.assignment2 : 'Not Set'}</div>
+                                <div className="text-xs text-gray-300">Assign 2</div>
+                              </div>
+                              <div className="text-center p-2 bg-gray-600 rounded">
+                                <div className="text-sm font-bold text-green-400">{student.midterm !== null ? student.midterm : 'Not Set'}</div>
+                                <div className="text-xs text-gray-300">Midterm</div>
+                              </div>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-4">
-                            {/* Predicted Grade Only */}
-                            {student.has_prediction && student.predicted_grade !== null ? (
-                              <div className="text-center">
-                                <div className={`text-2xl font-extrabold ${
-                                  student.predicted_grade >= 60 ? 'text-green-400' : 'text-red-400'
-                                }`}>
-                                  {getGradeFromPercentage(student.predicted_grade)}
-                                </div>
-                                <div className={`text-xs font-medium ${
-                                  student.predicted_grade >= 60 ? 'text-green-200' : 'text-red-200'
-                                }`}>
-                                  {student.predicted_grade.toFixed(1)}%
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="text-center">
-                                <div className="text-2xl text-gray-500 font-extrabold">--</div>
-                                <div className="text-xs text-gray-400">N/A</div>
-                              </div>
-                            )}
-                            
-                            {/* Action Button */}
-                            <Button 
-                              size="sm" 
-                              onClick={() => handleAddMarks(student)}
-                              className="bg-blue-600 hover:bg-blue-700 text-white"
-                            >
-                              {(student.quiz1 !== null || student.quiz2 !== null || student.assignment1 !== null || student.assignment2 !== null || student.midterm !== null) ? 'Edit Marks' : 'Add Marks'}
-                            </Button>
-                          </div>
-                        </div>
-                        
-                        {/* Marks Display */}
-                        <div className="grid grid-cols-5 gap-2 mt-3">
-                          <div className="text-center p-2 bg-gray-600 rounded">
-                            <div className="text-sm font-bold text-blue-400">{student.quiz1 !== null ? student.quiz1 : 'Not Set'}</div>
-                            <div className="text-xs text-gray-300">Quiz 1</div>
-                          </div>
-                          <div className="text-center p-2 bg-gray-600 rounded">
-                            <div className="text-sm font-bold text-blue-400">{student.quiz2 !== null ? student.quiz2 : 'Not Set'}</div>
-                            <div className="text-xs text-gray-300">Quiz 2</div>
-                          </div>
-                          <div className="text-center p-2 bg-gray-600 rounded">
-                            <div className="text-sm font-bold text-purple-400">{student.assignment1 !== null ? student.assignment1 : 'Not Set'}</div>
-                            <div className="text-xs text-gray-300">Assign 1</div>
-                          </div>
-                          <div className="text-center p-2 bg-gray-600 rounded">
-                            <div className="text-sm font-bold text-purple-400">{student.assignment2 !== null ? student.assignment2 : 'Not Set'}</div>
-                            <div className="text-xs text-gray-300">Assign 2</div>
-                          </div>
-                          <div className="text-center p-2 bg-gray-600 rounded">
-                            <div className="text-sm font-bold text-green-400">{student.midterm !== null ? student.midterm : 'Not Set'}</div>
-                            <div className="text-xs text-gray-300">Midterm</div>
-                          </div>
-                        </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="at-risk" className="space-y-4">
+                      {courseAtRiskStudents.length === 0 ? (
+                        <div className="text-center py-8">
+                          <div className="h-12 w-12 text-green-400 mx-auto mb-3">✅</div>
+                          <p className="text-gray-300 text-lg">All students on track!</p>
+                          <p className="text-gray-400 text-sm">No students currently at risk in this course.</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {courseAtRiskStudents.map((student, index) => (
+                            <div key={`${student.id}-${index}`} className="p-4 border border-red-600/30 rounded-lg bg-gray-700 border-l-4 border-l-red-500">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <h4 className="font-medium text-white text-sm">{student.student_name}</h4>
+                                    <Badge className={getRiskLevelColor(student.risk_level)}>
+                                      {student.risk_level} risk
+                                    </Badge>
+                                  </div>
+                                  
+                                  <p className="text-gray-300 text-sm mb-3">
+                                    {student.alert_message}
+                                  </p>
+                                  
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                      <Badge variant="outline" className={`border-current ${getPredictionColor(student.predicted_percentage)}`}>
+                                        Predicted: {student.predicted_percentage}%
+                                      </Badge>
+                                      <div className="text-xs text-gray-400">
+                                        {new Date(student.created_at).toLocaleDateString()}
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-2">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-blue-400 border-blue-400 hover:bg-blue-600 hover:text-white"
+                                      >
+                                        Contact
+                                      </Button>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-green-400 border-green-400 hover:bg-green-600 hover:text-white"
+                                        onClick={() => {
+                                          const rosterStudent = studentRoster.find(s => s.full_name === student.student_name);
+                                          if (rosterStudent) handleAddMarks(rosterStudent);
+                                        }}
+                                      >
+                                        Add Marks
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                          
+                          <div className="mt-6 p-4 bg-blue-900/20 rounded-lg border border-blue-600/30">
+                            <h4 className="font-medium text-blue-300 mb-2">💡 Intervention Recommendations:</h4>
+                            <ul className="space-y-1 text-blue-200 text-sm">
+                              <li>• Schedule one-on-one meetings with these students</li>
+                              <li>• Provide additional study materials for this course</li>
+                              <li>• Consider extending assignment deadlines</li>
+                              <li>• Connect students with tutoring services</li>
+                            </ul>
+                          </div>
+                        </div>
+                      )}
+                    </TabsContent>
+                  </Tabs>
                 </CardContent>
               </Card>
             )}

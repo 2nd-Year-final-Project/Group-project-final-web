@@ -6,6 +6,7 @@ const {
   dismissAlert, 
   getStudentDashboardAlerts,
   getAtRiskStudents,
+  getCourseAtRiskStudents,
   clearAllAlerts
 } = require('../controllers/alertController');
 
@@ -22,6 +23,9 @@ router.get('/student/:studentId/dashboard', getStudentDashboardAlerts);
 
 // Get at-risk students for lecturer
 router.get('/lecturer/:lecturerId/at-risk', getAtRiskStudents);
+
+// Get at-risk students for a specific course
+router.get('/lecturer/:lecturerId/course/:courseId/at-risk', getCourseAtRiskStudents);
 
 // Mark alert as read
 router.patch('/:alertId/read', markAlertAsRead);

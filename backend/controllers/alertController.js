@@ -135,6 +135,28 @@ const getAtRiskStudents = async (req, res) => {
   }
 };
 
+// Get at-risk students for a specific course
+const getCourseAtRiskStudents = async (req, res) => {
+  try {
+    const { lecturerId, courseId } = req.params;
+
+    const alerts = await RealTimeAlertService.getCourseAtRiskStudents(lecturerId, courseId);
+    
+    res.json({
+      success: true,
+      atRiskStudents: alerts,
+      total: alerts.length
+    });
+  } catch (error) {
+    console.error('Error fetching course at-risk students:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch course at-risk students',
+      error: error.message
+    });
+  }
+};
+
 // Clear all alerts (admin function)
 const clearAllAlerts = async (req, res) => {
   try {
@@ -231,5 +253,6 @@ module.exports = {
   dismissAlert,
   getStudentDashboardAlerts,
   getAtRiskStudents,
+  getCourseAtRiskStudents,
   clearAllAlerts
 };

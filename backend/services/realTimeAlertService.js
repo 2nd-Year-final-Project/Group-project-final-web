@@ -321,6 +321,26 @@ class RealTimeAlertService {
     }
   }
 
+  // Get at-risk students for a specific course
+  static async getCourseAtRiskStudents(lecturerId, courseId) {
+    try {
+      const [alerts] = await db.promise().query(
+        `SELECT a.*, c.course_name, c.course_code, u.full_name as student_name, u.email as student_email
+         FROM alerts a
+         JOIN courses c ON a.course_id = c.id
+         JOIN users u ON a.student_id = u.id
+         WHERE a.recipient_id = ? AND a.recipient_type = 'lecturer' AND a.course_id = ? AND a.is_dismissed = FALSE
+         ORDER BY a.predicted_percentage ASC, a.created_at DESC`,
+        [lecturerId, courseId]
+      );
+
+      return alerts;
+    } catch (error) {
+      console.error('Error fetching course at-risk students:', error);
+      throw error;
+    }
+  }
+
   // Mark alert as read
   static async markAlertAsRead(alertId, userId) {
     try {
