@@ -1385,7 +1385,7 @@ const StudentDashboard = () => {
               </AlertTitle>
               <AlertDescription className="text-red-200">
                 Your performance in {module.name} needs improvement. Predicted
-                grade: {module.predictedFinal}%
+                grade: <span className="font-bold text-xl">{getGradeFromPercentage(module.predictedFinal)}</span> <span className="text-sm opacity-75">({module.predictedFinal}%)</span>
               </AlertDescription>
             </Alert>
           ))}
