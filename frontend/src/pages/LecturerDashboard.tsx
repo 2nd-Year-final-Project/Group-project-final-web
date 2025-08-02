@@ -17,6 +17,7 @@ const LecturerDashboard = () => {
   const [studentRoster, setStudentRoster] = useState([]);
   const [courseAtRiskStudents, setCourseAtRiskStudents] = useState([]);
   const [selectedCourseTab, setSelectedCourseTab] = useState('roster');
+  const [totalAtRiskStudents, setTotalAtRiskStudents] = useState(0);
   const [loading, setLoading] = useState(true);
   const user = useAuthStore((state) => state.user);
 
@@ -58,12 +59,28 @@ const LecturerDashboard = () => {
     return 'text-red-400';
   };
 
-  // Fetch lecturer's courses
+  // Fetch lecturer's courses and at-risk students
   useEffect(() => {
     if (user?.id) {
       fetchLecturerCourses();
+      fetchTotalAtRiskStudents();
     }
   }, [user]);
+
+  const fetchTotalAtRiskStudents = async () => {
+    try {
+      const response = await fetch(`/api/alerts/lecturer/${user.id}/at-risk`);
+      if (response.ok) {
+        const data = await response.json();
+        setTotalAtRiskStudents(data.totalAtRisk || 0);
+      } else {
+        setTotalAtRiskStudents(0);
+      }
+    } catch (error) {
+      console.error('Error fetching total at-risk students:', error);
+      setTotalAtRiskStudents(0);
+    }
+  };
 
   // Fetch students when a course is selected
   useEffect(() => {
@@ -168,6 +185,9 @@ const LecturerDashboard = () => {
         });
         // Refresh the student roster to show updated marks
         fetchCourseStudents(selectedModule);
+        fetchCourseAtRiskStudents(selectedModule);
+        // Refresh total at-risk count as predictions may have changed
+        fetchTotalAtRiskStudents();
         setIsMarksModalOpen(false);
       } else {
         const error = await response.json();
@@ -262,14 +282,20 @@ const LecturerDashboard = () => {
             
             <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-600">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                  totalAtRiskStudents > 0 ? 'bg-red-600' : 'bg-green-600'
+                }`}>
                   <span className="text-white font-semibold">
-                    {courses.reduce((total, course) => total + (course.at_risk_count || 0), 0)}
+                    {totalAtRiskStudents}
                   </span>
                 </div>
                 <div>
                   <p className="text-gray-300 text-sm">At-Risk Students</p>
-                  <p className="text-white font-semibold">Need Support</p>
+                  <p className={`font-semibold ${
+                    totalAtRiskStudents > 0 ? 'text-red-400' : 'text-green-400'
+                  }`}>
+                    {totalAtRiskStudents > 0 ? 'Need Support' : 'All On Track'}
+                  </p>
                 </div>
               </div>
             </div>
