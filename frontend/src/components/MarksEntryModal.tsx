@@ -92,7 +92,6 @@ const MarksEntryModal: React.FC<MarksEntryModalProps> = ({
               min="0"
               max="100"
               step="0.1"
-              placeholder="e.g. 85"
               value={marks.quiz1}
               onChange={(e) => setMarks(prev => ({ ...prev, quiz1: e.target.value }))}
               className="bg-gray-700 border-gray-600 text-white focus:border-blue-500"
@@ -107,7 +106,6 @@ const MarksEntryModal: React.FC<MarksEntryModalProps> = ({
               min="0"
               max="100"
               step="0.1"
-              placeholder="e.g. 92"
               value={marks.quiz2}
               onChange={(e) => setMarks(prev => ({ ...prev, quiz2: e.target.value }))}
               className="bg-gray-700 border-gray-600 text-white focus:border-blue-500"
@@ -122,7 +120,6 @@ const MarksEntryModal: React.FC<MarksEntryModalProps> = ({
               min="0"
               max="100"
               step="0.1"
-              placeholder="e.g. 78"
               value={marks.assignment1}
               onChange={(e) => setMarks(prev => ({ ...prev, assignment1: e.target.value }))}
               className="bg-gray-700 border-gray-600 text-white focus:border-blue-500"
@@ -137,7 +134,6 @@ const MarksEntryModal: React.FC<MarksEntryModalProps> = ({
               min="0"
               max="100"
               step="0.1"
-              placeholder="e.g. 88"
               value={marks.assignment2}
               onChange={(e) => setMarks(prev => ({ ...prev, assignment2: e.target.value }))}
               className="bg-gray-700 border-gray-600 text-white focus:border-blue-500"
@@ -152,7 +148,6 @@ const MarksEntryModal: React.FC<MarksEntryModalProps> = ({
               min="0"
               max="100"
               step="0.1"
-              placeholder="e.g. 82"
               value={marks.midterm_marks}
               onChange={(e) => setMarks(prev => ({ ...prev, midterm_marks: e.target.value }))}
               className="bg-gray-700 border-gray-600 text-white focus:border-blue-500"
@@ -168,7 +163,7 @@ const MarksEntryModal: React.FC<MarksEntryModalProps> = ({
           <Button variant="outline" onClick={onClose} className="border-gray-600 text-gray-300 hover:bg-gray-700">
             Cancel
           </Button>
-          <Button onClick={handleSave}>
+          <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white">
             Save Marks
           </Button>
         </div>
