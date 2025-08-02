@@ -355,7 +355,6 @@ const StudentManagement = () => {
                             min="0"
                             max="100"
                             step="0.1"
-                            placeholder="85.5"
                             value={attendanceInputs[course.course_id] || ''}
                             onChange={(e) => handleAttendanceInputChange(course.course_id, e.target.value)}
                             className="bg-gray-500 border-gray-400 text-white w-20"

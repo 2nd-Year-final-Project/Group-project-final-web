@@ -513,11 +513,11 @@ const StudentDashboard = () => {
       if (response.status === 200 || response.status === 201) {
         setProfileIncomplete(false); // Reset profile incomplete state
         toast({
-          title: "Profile Updated",
-          description: "Your profile data has been updated successfully.",
+          title: "✅ Profile Updated Successfully",
+          description: "Your profile data has been updated and predictions will be recalculated.",
         });
-        // Refresh course data to get new predictions
-        fetchStudentCourses();
+        // Refresh course data to get new predictions with visual feedback
+        await fetchStudentCourses();
       }
 
     } catch (error) {
@@ -1564,7 +1564,6 @@ const StudentDashboard = () => {
                   type="number"
                   min="0"
                   max="24"
-                  placeholder="8"
                   value={academicData.sleepHours}
                   onChange={(e) => setAcademicData(prev => ({ ...prev, sleepHours: e.target.value }))}
                   className="bg-gray-700 border-gray-600 text-white"
@@ -1578,7 +1577,6 @@ const StudentDashboard = () => {
                   type="number"
                   min="0"
                   max="168"
-                  placeholder="5"
                   value={academicData.physicalActivity}
                   onChange={(e) => setAcademicData(prev => ({ ...prev, physicalActivity: e.target.value }))}
                   className="bg-gray-700 border-gray-600 text-white"
@@ -1629,10 +1627,17 @@ const StudentDashboard = () => {
 
             <Button 
               onClick={handleUpdateProfileData} 
-              className="w-full bg-purple-600 hover:bg-purple-700"
+              className="w-full bg-purple-600 hover:bg-purple-700 transition-all duration-200"
               disabled={isLoading}
             >
-              {isLoading ? 'Updating...' : 'Update profile data'}
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Updating Profile...
+                </div>
+              ) : (
+                'Update Profile Data'
+              )}
             </Button>
 
             
