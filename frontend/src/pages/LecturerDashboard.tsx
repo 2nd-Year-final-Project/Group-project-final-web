@@ -325,7 +325,7 @@ const LecturerDashboard = () => {
                     <div className="text-2xl font-bold text-blue-400">{course.student_count}</div>
                     <div className="text-sm text-gray-300">Enrolled Students</div>
                     <div className="text-sm text-gray-400 mt-2">
-                      Credits: {course.credits} • {course.difficulty_level}
+                      Credits: {course.credits}
                     </div>
                   </CardContent>
                 </Card>
