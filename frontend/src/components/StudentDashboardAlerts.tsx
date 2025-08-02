@@ -73,21 +73,6 @@ const StudentDashboardAlerts: React.FC<StudentDashboardAlertsProps> = ({ student
     return <Bell className="h-5 w-5 text-yellow-400" />;
   };
 
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'critical':
-        return 'bg-red-600 text-red-100';
-      case 'high':
-        return 'bg-orange-600 text-orange-100';
-      case 'medium':
-        return 'bg-yellow-600 text-yellow-100';
-      case 'low':
-        return 'bg-green-600 text-green-100';
-      default:
-        return 'bg-gray-600 text-gray-100';
-    }
-  };
-
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'excellent':
@@ -101,6 +86,21 @@ const StudentDashboardAlerts: React.FC<StudentDashboardAlertsProps> = ({ student
       default:
         return 'bg-gray-600 text-gray-100';
     }
+  };
+
+  const getGradeFromPercentage = (percentage: number): string => {
+    if (percentage >= 85) return "A+";
+    if (percentage >= 70) return "A";
+    if (percentage >= 65) return "A-";
+    if (percentage >= 60) return "B+";
+    if (percentage >= 55) return "B";
+    if (percentage >= 50) return "B-";
+    if (percentage >= 45) return "C+";
+    if (percentage >= 40) return "C";
+    if (percentage >= 35) return "C-";
+    if (percentage >= 30) return "D+";
+    if (percentage >= 25) return "D";
+    return "E";
   };
 
   if (loading) {
@@ -152,9 +152,6 @@ const StudentDashboardAlerts: React.FC<StudentDashboardAlertsProps> = ({ student
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
                         <h4 className="font-medium text-white text-sm">{alert.title}</h4>
-                        <Badge className={getSeverityColor(alert.severity)} variant="secondary">
-                          {alert.severity}
-                        </Badge>
                         <Badge className={getTypeColor(alert.alert_type)} variant="secondary">
                           {alert.alert_type}
                         </Badge>
@@ -171,7 +168,8 @@ const StudentDashboardAlerts: React.FC<StudentDashboardAlertsProps> = ({ student
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <Badge variant="outline" className="text-purple-400 border-purple-400">
-                            Predicted: {alert.predicted_percentage}%
+                            <span className="text-xl font-extrabold">{getGradeFromPercentage(alert.predicted_percentage)}</span>
+                            <span className="text-sm font-normal opacity-75 ml-1">({alert.predicted_percentage}%)</span>
                           </Badge>
                           <div className="text-xs text-gray-400">
                             {new Date(alert.created_at).toLocaleDateString()}

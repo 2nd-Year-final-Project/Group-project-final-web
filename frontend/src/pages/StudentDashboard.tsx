@@ -897,9 +897,14 @@ const StudentDashboard = () => {
                       {module.name}
                     </span>
                   </div>
-                  <span className="text-white text-sm font-medium text-right min-w-[4.5rem]">
-                    {module.predictedFinal}%
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-white text-lg font-extrabold">
+                      {getGradeFromPercentage(module.predictedFinal)}
+                    </span>
+                    <span className="text-gray-400 text-sm font-normal">
+                      ({module.predictedFinal}%)
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
