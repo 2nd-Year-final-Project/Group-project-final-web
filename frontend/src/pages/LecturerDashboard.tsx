@@ -473,7 +473,7 @@ const LecturerDashboard = () => {
                                   <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                       <Badge variant="outline" className={`border-current ${getPredictionColor(student.predicted_percentage)}`}>
-                                        Predicted: {student.predicted_percentage}%
+                                        Predicted : {getGradeFromPercentage(student.predicted_percentage)} ({student.predicted_percentage}%)
                                       </Badge>
                                       <div className="text-xs text-gray-400">
                                         {new Date(student.created_at).toLocaleDateString()}
