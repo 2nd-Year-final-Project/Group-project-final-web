@@ -74,7 +74,7 @@ class RealTimeAlertService {
   static generateLecturerMessage(studentName, courseName, predictedPercentage, predictedGrade) {
     const performanceText = `${studentName} in ${courseName}`;
     
-    if (predictedPercentage >= 60) {
+    if (predictedPercentage >= 50) {
       return {
         type: 'warning',
         severity: 'medium',
@@ -145,8 +145,8 @@ class RealTimeAlertService {
   // Generate real-time alert for lecturer (only for at-risk students)
   static async generateLecturerAlert(studentId, courseId, predictedPercentage) {
     try {
-      // Only alert lecturers for at-risk students (below 50%)
-      if (predictedPercentage >= 80) {
+      // Only alert lecturers for at-risk students (below 65%)
+      if (predictedPercentage >= 65) {
         return null;
       }
 
