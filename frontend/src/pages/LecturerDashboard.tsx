@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import MarksEntryModal from '@/components/MarksEntryModal';
-import LecturerDashboardAlerts from '@/components/LecturerDashboardAlerts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -201,16 +200,81 @@ const LecturerDashboard = () => {
   return (
     <DashboardLayout title="Lecturer Dashboard">
       <div className="space-y-6">
-        {/* Welcome Section */}
-        <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-lg p-6 text-white">
-          <h2 className="text-2xl font-bold mb-2">
-            {getGreeting()}, {user?.name || 'Lecturer'}! 👋
-          </h2>
-          <p className="text-purple-100">Welcome to your Teaching Excellence Dashboard. Monitor student progress and identify those who need additional support.</p>
+        {/* Professional Welcome Section */}
+        <div className="bg-gradient-to-br from-slate-800 via-gray-800 to-slate-900 rounded-xl p-8 border border-gray-700 shadow-2xl">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <span className="text-2xl font-bold text-white">
+                  {(user?.name || 'L').charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-white mb-1">
+                  {getGreeting()}, {user?.name || 'Lecturer'}
+                </h1>
+                <p className="text-gray-300 text-lg">
+                  Teaching Excellence Dashboard
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-sm text-gray-400">
+                {new Date().toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                Academic Year 2024-2025
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-600">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-semibold">{courses.length}</span>
+                </div>
+                <div>
+                  <p className="text-gray-300 text-sm">Active Courses</p>
+                  <p className="text-white font-semibold">This Semester</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-600">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-semibold">
+                    {courses.reduce((total, course) => total + (course.student_count || 0), 0)}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-gray-300 text-sm">Total Students</p>
+                  <p className="text-white font-semibold">Enrolled</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-600">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-semibold">
+                    {courses.reduce((total, course) => total + (course.at_risk_count || 0), 0)}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-gray-300 text-sm">At-Risk Students</p>
+                  <p className="text-white font-semibold">Need Support</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-
-        {/* Real-Time At-Risk Student Alerts */}
-        <LecturerDashboardAlerts lecturerId={user?.id} />
 
         <Tabs defaultValue="courses" className="w-full">
           <TabsList className="grid w-full grid-cols-1 bg-gray-800 text-white">
