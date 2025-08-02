@@ -339,7 +339,7 @@ const LecturerDashboard = () => {
                     {courses.find(c => c.id.toString() === selectedModule)?.course_name}
                   </CardTitle>
                   <CardDescription className="text-gray-300">
-                    Course management dashboard with student roster and at-risk monitoring
+                    Student roster and at-risk students monitoring
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
