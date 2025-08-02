@@ -156,7 +156,7 @@ const MarksEntryModal: React.FC<MarksEntryModalProps> = ({
         </div>
         
         <div className="text-sm text-gray-400 mt-4 p-3 bg-gray-700 rounded">
-          <strong>Note:</strong> Leave fields empty if not yet graded. All marks should be between 0-100. Decimal values are allowed.
+          <strong>Note:</strong> Leave fields empty if not yet graded.
         </div>
         
         <div className="flex justify-end space-x-2 mt-6">
