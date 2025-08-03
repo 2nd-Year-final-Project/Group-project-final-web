@@ -1301,11 +1301,11 @@ const StudentDashboard = () => {
                         /* Normal Prediction Display */
                         <div className="grid gap-6 lg:grid-cols-2">
                           <div className="text-center space-y-2">
-                            <div className="text-4xl font-bold text-purple-400">
-                              {module.predictedFinal}%
-                            </div>
-                            <div className="text-2xl font-semibold text-white">
+                            <div className="text-5xl font-bold text-white">
                               {module.predictedGrade}
+                            </div>
+                            <div className="text-2xl font-semibold text-purple-400">
+                              {module.predictedFinal}%
                             </div>
                             <div className="text-sm text-gray-300">Predicted Final Grade</div>
                           </div>
