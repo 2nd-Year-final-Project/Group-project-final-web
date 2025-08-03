@@ -595,7 +595,6 @@ const CourseManagement = () => {
                 value={courseForm.course_code}
                 onChange={(e) => setCourseForm(prev => ({ ...prev, course_code: e.target.value }))}
                 className="bg-gray-700 border-gray-600 text-white"
-                placeholder="e.g., CSCI22062"
               />
             </div>
             <div>
@@ -605,7 +604,6 @@ const CourseManagement = () => {
                 value={courseForm.course_name}
                 onChange={(e) => setCourseForm(prev => ({ ...prev, course_name: e.target.value }))}
                 className="bg-gray-700 border-gray-600 text-white"
-                placeholder="e.g., Introduction to Cyber Security"
               />
             </div>
             <div>
@@ -615,7 +613,6 @@ const CourseManagement = () => {
                 value={courseForm.description}
                 onChange={(e) => setCourseForm(prev => ({ ...prev, description: e.target.value }))}
                 className="bg-gray-700 border-gray-600 text-white"
-                placeholder="Course description..."
               />
             </div>
             <div className="grid grid-cols-1 gap-4">
