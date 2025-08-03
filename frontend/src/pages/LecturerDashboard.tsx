@@ -388,28 +388,36 @@ const LecturerDashboard = () => {
                               <div className="flex items-center space-x-4">
                                 {/* Predicted Grade Only */}
                                 {student.has_prediction && student.predicted_grade !== null ? (
-                                  <div className="text-center">
-                                    <div className="text-sm font-semibold text-blue-400 mb-1 bg-blue-900/20 px-2 py-1 rounded border border-blue-600/30">
-                                      Predicted Grade
+                                  <div className={`bg-gradient-to-r ${
+                                    student.predicted_grade >= 60 
+                                      ? 'from-green-900/30 to-green-800/20 border-green-600/40' 
+                                      : 'from-red-900/30 to-red-800/20 border-red-600/40'
+                                  } px-2 py-1.5 rounded-lg border flex items-center space-x-2`}>
+                                    <div className="text-sm font-medium text-blue-400">
+                                      Predicted Grade:
                                     </div>
-                                    <div className={`text-2xl font-extrabold ${
-                                      student.predicted_grade >= 60 ? 'text-green-400' : 'text-red-400'
-                                    }`}>
-                                      {getGradeFromPercentage(student.predicted_grade)}
-                                    </div>
-                                    <div className={`text-xs font-medium ${
-                                      student.predicted_grade >= 60 ? 'text-green-200' : 'text-red-200'
-                                    }`}>
-                                      {student.predicted_grade.toFixed(1)}%
+                                    <div className="text-center">
+                                      <div className={`text-xl font-extrabold ${
+                                        student.predicted_grade >= 60 ? 'text-green-400' : 'text-red-400'
+                                      }`}>
+                                        {getGradeFromPercentage(student.predicted_grade)}
+                                      </div>
+                                      <div className={`text-xs font-medium ${
+                                        student.predicted_grade >= 60 ? 'text-green-200' : 'text-red-200'
+                                      }`}>
+                                        {student.predicted_grade.toFixed(1)}%
+                                      </div>
                                     </div>
                                   </div>
                                 ) : (
-                                  <div className="text-center">
-                                    <div className="text-sm font-semibold text-gray-400 mb-1 bg-gray-800/50 px-2 py-1 rounded border border-gray-600/30">
-                                      Predicted Grade
+                                  <div className="bg-gray-800/30 border-gray-600/40 px-2 py-1.5 rounded-lg border flex items-center space-x-2">
+                                    <div className="text-sm font-medium text-gray-400">
+                                      Predicted Grade:
                                     </div>
-                                    <div className="text-2xl text-gray-500 font-extrabold">--</div>
-                                    <div className="text-xs text-gray-400">N/A</div>
+                                    <div className="text-center">
+                                      <div className="text-xl text-gray-500 font-extrabold">--</div>
+                                      <div className="text-xs text-gray-400">N/A</div>
+                                    </div>
                                   </div>
                                 )}
                                 
