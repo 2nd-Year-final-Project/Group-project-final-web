@@ -378,7 +378,7 @@ const LecturerDashboard = () => {
                                 {/* Predicted Grade Only */}
                                 {student.has_prediction && student.predicted_grade !== null ? (
                                   <div className={`bg-gradient-to-r ${
-                                    student.predicted_grade >= 60 
+                                    student.predicted_grade >= 50 
                                       ? 'from-green-900/30 to-green-800/20 border-green-600/40' 
                                       : 'from-red-900/30 to-red-800/20 border-red-600/40'
                                   } px-2 py-1.5 rounded-lg border flex items-center space-x-2`}>
@@ -387,12 +387,12 @@ const LecturerDashboard = () => {
                                     </div>
                                     <div className="text-center">
                                       <div className={`text-xl font-extrabold ${
-                                        student.predicted_grade >= 60 ? 'text-green-400' : 'text-red-400'
+                                        student.predicted_grade >= 50 ? 'text-green-400' : 'text-red-400'
                                       }`}>
                                         {getGradeFromPercentage(student.predicted_grade)}
                                       </div>
                                       <div className={`text-xs font-medium ${
-                                        student.predicted_grade >= 60 ? 'text-green-200' : 'text-red-200'
+                                        student.predicted_grade >= 50 ? 'text-green-200' : 'text-red-200'
                                       }`}>
                                         {student.predicted_grade.toFixed(1)}%
                                       </div>

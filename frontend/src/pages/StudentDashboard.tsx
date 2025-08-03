@@ -128,7 +128,7 @@ const StudentDashboard = () => {
               predictedFinal: prediction !== null ? prediction : (course.current_grade || 0),
               predictedGrade: prediction !== null ? getGradeFromPercentage(prediction) : 
                              (course.current_grade ? getGradeFromPercentage(course.current_grade) : "Not Available"),
-              status: (prediction !== null ? prediction : (course.current_grade || 0)) >= 60 ? "On Track" : 
+              status: (prediction !== null ? prediction : (course.current_grade || 0)) >= 50 ? "On Track" : 
                      (prediction !== null || course.current_grade) ? "At Risk" : "Insufficient Data",
               attendance: course.attendance ? Number(course.attendance) : null, // Ensure attendance is a number
               marks: {
