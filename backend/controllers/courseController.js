@@ -34,7 +34,7 @@ const addCourse = (req, res) => {
     VALUES (?, ?, ?, ?, ?)
   `;
 
-  db.query(sql, [course_code, course_name, description, credits || 3, difficulty_level || 'Medium'], (err, result) => {
+  db.query(sql, [course_code, course_name, description, credits || 3, difficulty_level || 'Hard'], (err, result) => {
     if (err) {
       if (err.code === 'ER_DUP_ENTRY') {
         return res.status(400).json({ message: "Course code already exists" });

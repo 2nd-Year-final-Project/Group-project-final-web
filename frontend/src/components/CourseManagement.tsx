@@ -46,7 +46,7 @@ const CourseManagement = () => {
     course_name: '',
     description: '',
     credits: 3,
-    difficulty_level: 'Medium' as 'Easy' | 'Medium' | 'Hard'
+    difficulty_level: 'Hard' as 'Easy' | 'Medium' | 'Hard'
   });
 
   const [assignmentForm, setAssignmentForm] = useState({
@@ -129,13 +129,9 @@ const CourseManagement = () => {
       return;
     }
     
-    // Assign a random difficulty level
-    const difficultyLevels: ('Easy' | 'Medium' | 'Hard')[] = ['Easy', 'Medium', 'Hard'];
-    const randomDifficulty = difficultyLevels[Math.floor(Math.random() * difficultyLevels.length)];
-    
+    // Use the form's difficulty level (defaults to 'Hard')
     const courseData = {
-      ...courseForm,
-      difficulty_level: randomDifficulty
+      ...courseForm
     };
     
     console.log("🔄 Adding course with data:", courseData);
@@ -152,7 +148,7 @@ const CourseManagement = () => {
       if (response.ok) {
         const result = await response.json();
         console.log("✅ Course added successfully:", result);
-        toast({ title: "Success", description: `Course added successfully with ${randomDifficulty} difficulty level` });
+        toast({ title: "Success", description: `Course added successfully with ${courseForm.difficulty_level} difficulty level` });
         await fetchCourses(); // Wait for courses to be fetched
         setIsAddingCourse(false);
         resetCourseForm();
@@ -302,7 +298,7 @@ const CourseManagement = () => {
       course_name: '',
       description: '',
       credits: 3,
-      difficulty_level: 'Medium'
+      difficulty_level: 'Hard'
     });
   };
 
