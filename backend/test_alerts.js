@@ -2,9 +2,11 @@ const AlertService = require("./services/alertService");
 const { checkAlertTables } = require("./utils/alertMigrations");
 
 // Test alert generation
+// NOTE: These tests may fail if students don't have study parameters set for the test courses
 const testAlertGeneration = async () => {
   try {
     console.log("🧪 Starting alert system tests...");
+    console.log("📋 Note: Alerts are only generated for courses where students have set study parameters");
     
     // Ensure alert tables exist
     await checkAlertTables();

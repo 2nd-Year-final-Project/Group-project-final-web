@@ -202,10 +202,26 @@ class RealTimeAlertService {
   }
 
   // Main function to generate real-time alerts based on prediction
+  // Only generate alerts if study parameters are set for the course
   static async generateRealTimeAlerts(studentId, courseId, predictedPercentage) {
     try {
       console.log(`🔄 Generating real-time alerts for student ${studentId}, course ${courseId}, prediction: ${predictedPercentage}%`);
       
+      // First check if student has set study parameters for this course
+      const [studyParams] = await db.promise().query(
+        `SELECT hours_studied, teacher_quality 
+         FROM student_subject_data 
+         WHERE student_id = ? AND course_id = ?
+         AND hours_studied IS NOT NULL AND teacher_quality IS NOT NULL
+         AND hours_studied > 0`,
+        [studentId, courseId]
+      );
+
+      if (studyParams.length === 0) {
+        console.log(`⚠️ No study parameters set for student ${studentId}, course ${courseId}. Skipping alert generation.`);
+        return [];
+      }
+
       const alerts = [];
 
       // Generate student alert (always)
@@ -250,13 +266,17 @@ class RealTimeAlertService {
   }
 
   // Get alerts for student dashboard (one per course, latest only)
+  // Only show alerts for courses where study parameters are set
   static async getStudentDashboardAlerts(studentId) {
     try {
       const [alerts] = await db.promise().query(
         `SELECT a.*, c.course_name, c.course_code
          FROM alerts a
          JOIN courses c ON a.course_id = c.id
+         JOIN student_subject_data ssd ON a.course_id = ssd.course_id AND a.student_id = ssd.student_id
          WHERE a.student_id = ? AND a.recipient_type = 'student' AND a.is_dismissed = FALSE
+         AND ssd.hours_studied IS NOT NULL AND ssd.teacher_quality IS NOT NULL
+         AND ssd.hours_studied > 0
          ORDER BY a.course_id, a.created_at DESC`,
         [studentId]
       );

@@ -203,8 +203,24 @@ class AlertService {
   }
 
   // Generate alerts based on prediction results
+  // Only generate alerts if study parameters are set for the course
   static async generateAlertsFromPrediction(studentId, courseId, predictedPercentage) {
     try {
+      // First check if student has set study parameters for this course
+      const [studyParams] = await db.promise().query(
+        `SELECT hours_studied, teacher_quality 
+         FROM student_subject_data 
+         WHERE student_id = ? AND course_id = ?
+         AND hours_studied IS NOT NULL AND teacher_quality IS NOT NULL
+         AND hours_studied > 0`,
+        [studentId, courseId]
+      );
+
+      if (studyParams.length === 0) {
+        console.log(`⚠️ No study parameters set for student ${studentId}, course ${courseId}. Skipping alert generation.`);
+        return [];
+      }
+
       // Get course and student information
       const [courseInfo] = await db.promise().query(
         'SELECT course_name FROM courses WHERE id = ?',

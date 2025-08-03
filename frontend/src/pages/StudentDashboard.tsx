@@ -1483,7 +1483,7 @@ const StudentDashboard = () => {
         {/* Critical Alerts */}
         <div className="space-y-4">
           {modules
-            .filter((m) => m.status === "At Risk")
+            .filter((m) => m.status === "At Risk" && m.hasPrediction)
             .map((module) => (
               <Card key={module.id} className="border-red-600 bg-red-900/20 border-l-4">
                 <CardContent className="p-6">

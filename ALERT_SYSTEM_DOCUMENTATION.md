@@ -4,10 +4,13 @@
 
 The alert system generates intelligent notifications based on student performance predictions. It provides personalized feedback to both students and lecturers about academic performance across all grade ranges.
 
+**Important**: Alerts are only generated and displayed for courses where students have set their study parameters (Hours Studied and Teacher Quality). This ensures that alerts are based on meaningful prediction data.
+
 ## Features
 
 ### 🎯 Intelligent Alert Generation
 - **Based on Predicted Grades**: Alerts are generated only when AI predictions are available
+- **Study Parameters Required**: Alerts only display for courses where students have set study parameters (Hours Studied and Teacher Quality)
 - **No Hard-coded Data**: All alerts are dynamically generated from real prediction results
 - **Multiple Performance Levels**: Covers all grade ranges from excellent (A+) to critical (E)
 - **Personalized Messages**: Tailored feedback based on specific performance levels

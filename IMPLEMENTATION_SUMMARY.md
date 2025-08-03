@@ -8,6 +8,7 @@ I have successfully implemented a comprehensive alert system for the student per
 
 ### 📊 **Intelligent Alert Generation**
 - ✅ **Prediction-Based**: Alerts generated only from actual AI predictions, no hardcoded data
+- ✅ **Study Parameters Required**: Alerts only display for courses with set study parameters (Hours Studied & Teacher Quality)
 - ✅ **Comprehensive Coverage**: Alerts for ALL performance levels (A+ to E grades)
 - ✅ **Personalized Messages**: Tailored feedback based on specific predicted grades and percentages
 - ✅ **Smart Duplicate Prevention**: Avoids spam by checking for recent similar alerts
