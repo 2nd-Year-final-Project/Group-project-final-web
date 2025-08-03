@@ -1215,7 +1215,6 @@ const StudentDashboard = () => {
                             type="number"
                             min="0"
                             max="168"
-                            placeholder="10"
                             value={subjectData[module.id]?.hoursStudied || ""}
                             onChange={(e) => handleSubjectDataChange(module.id, "hoursStudied", e.target.value)}
                             className="bg-gray-600 border-gray-500 text-white"
