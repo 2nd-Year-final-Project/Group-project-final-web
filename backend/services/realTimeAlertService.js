@@ -146,7 +146,7 @@ class RealTimeAlertService {
   static async generateLecturerAlert(studentId, courseId, predictedPercentage) {
     try {
       // Only alert lecturers for at-risk students (below 65%)
-      if (predictedPercentage >= 65) {
+      if (predictedPercentage >= 50) {
         return null;
       }
 

@@ -15,17 +15,17 @@ const getLecturerCourses = (req, res) => {
       c.credits,
       c.difficulty_level,
       COUNT(DISTINCT se.student_id) as student_count,
-      COUNT(DISTINCT CASE WHEN lm.midterm_marks < 50 THEN se.student_id END) as at_risk_count
+      COUNT(DISTINCT a.student_id) as at_risk_count
     FROM courses c
     JOIN lecturer_courses lc ON c.id = lc.course_id
     LEFT JOIN student_enrollments se ON c.id = se.course_id AND se.status = 'active'
-    LEFT JOIN lecturer_marks lm ON se.student_id = lm.student_id AND c.id = lm.course_id
+    LEFT JOIN alerts a ON c.id = a.course_id AND a.recipient_id = ? AND a.recipient_type = 'lecturer' AND a.is_dismissed = FALSE
     WHERE lc.lecturer_id = ?
     GROUP BY c.id, c.course_code, c.course_name, c.description, c.credits, c.difficulty_level
     ORDER BY c.course_name
   `;
 
-  db.query(sql, [lecturerId], (err, results) => {
+  db.query(sql, [lecturerId, lecturerId], (err, results) => {
     if (err) {
       return res.status(500).json({ message: "Database error", error: err.message });
     }
