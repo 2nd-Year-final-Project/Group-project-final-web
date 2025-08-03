@@ -389,7 +389,9 @@ const LecturerDashboard = () => {
                                 {/* Predicted Grade Only */}
                                 {student.has_prediction && student.predicted_grade !== null ? (
                                   <div className="text-center">
-                                    <div className="text-xs text-gray-400 mb-1">Predicted Grade</div>
+                                    <div className="text-sm font-semibold text-blue-400 mb-1 bg-blue-900/20 px-2 py-1 rounded border border-blue-600/30">
+                                      Predicted Grade
+                                    </div>
                                     <div className={`text-2xl font-extrabold ${
                                       student.predicted_grade >= 60 ? 'text-green-400' : 'text-red-400'
                                     }`}>
@@ -403,7 +405,9 @@ const LecturerDashboard = () => {
                                   </div>
                                 ) : (
                                   <div className="text-center">
-                                    <div className="text-xs text-gray-400 mb-1">Predicted Grade</div>
+                                    <div className="text-sm font-semibold text-gray-400 mb-1 bg-gray-800/50 px-2 py-1 rounded border border-gray-600/30">
+                                      Predicted Grade
+                                    </div>
                                     <div className="text-2xl text-gray-500 font-extrabold">--</div>
                                     <div className="text-xs text-gray-400">N/A</div>
                                   </div>
