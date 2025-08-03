@@ -1395,87 +1395,114 @@ const StudentDashboard = () => {
     </div>
   );
 
-  const renderAlerts = () => (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-white">
-        Alerts & Recommendations
-      </h2>
+  const renderAlerts = () => {
+    // Check if there are any courses with predictions
+    const coursesWithPredictions = modules.filter(m => m.hasPrediction);
+    
+    return (
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold text-white">
+          Alerts & Recommendations
+        </h2>
 
-      {/* Critical Alerts */}
-      <div className="space-y-4">
-        {modules
-          .filter((m) => m.status === "At Risk")
-          .map((module) => (
-            <Card key={module.id} className="border-red-600 bg-red-900/20 border-l-4">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start space-x-4 flex-1">
-                    <div className="flex-shrink-0">
-                      <AlertTriangle className="h-6 w-6 text-red-400 mt-1" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-3">
-                        <h3 className="text-lg font-semibold text-red-300">
-                          Attention Required
-                        </h3>
-                        <Badge className="bg-red-600 text-red-100 font-medium">
-                          {module.code}
-                        </Badge>
+        {/* Critical Alerts */}
+        <div className="space-y-4">
+          {modules
+            .filter((m) => m.status === "At Risk")
+            .map((module) => (
+              <Card key={module.id} className="border-red-600 bg-red-900/20 border-l-4">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start space-x-4 flex-1">
+                      <div className="flex-shrink-0">
+                        <AlertTriangle className="h-6 w-6 text-red-400 mt-1" />
                       </div>
-                      <p className="text-red-200 mb-4 leading-relaxed">
-                        Your performance in <span className="font-medium">{module.name}</span> requires immediate attention and improvement.
-                      </p>
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                          <span className="text-red-300 text-sm font-medium">Predicted Grade:</span>
-                          <Badge variant="outline" className="border-red-400 text-red-300 bg-red-900/30">
-                            <span className="text-lg font-bold">{getGradeFromPercentage(module.predictedFinal)}</span>
-                            <span className="text-sm font-normal ml-1 opacity-75">({module.predictedFinal}%)</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-3">
+                          <h3 className="text-lg font-semibold text-red-300">
+                            Attention Required
+                          </h3>
+                          <Badge className="bg-red-600 text-red-100 font-medium">
+                            {module.code}
                           </Badge>
+                        </div>
+                        <p className="text-red-200 mb-4 leading-relaxed">
+                          Your performance in <span className="font-medium">{module.name}</span> requires immediate attention and improvement.
+                        </p>
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2">
+                            <span className="text-red-300 text-sm font-medium">Predicted Grade:</span>
+                            <Badge variant="outline" className="border-red-400 text-red-300 bg-red-900/30">
+                              <span className="text-lg font-bold">{getGradeFromPercentage(module.predictedFinal)}</span>
+                              <span className="text-sm font-normal ml-1 opacity-75">({module.predictedFinal}%)</span>
+                            </Badge>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-      </div>
+                </CardContent>
+              </Card>
+            ))}
+        </div>
 
-      {/* Performance Alerts */}
-      <Card className="bg-gray-800 border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-white">Performance Insights</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-start gap-3 p-3 bg-yellow-900/20 rounded-lg border border-yellow-600/30">
-              <AlertTriangle className="w-5 h-5 text-yellow-400 mt-0.5" />
-              <div>
-                <p className="text-yellow-300 font-medium">Study Habit Alert</p>
-                <p className="text-yellow-200 text-sm">
-                  Your study hours have decreased by 20% this week. Consider
-                  maintaining consistency.
-                </p>
+        {/* Performance Insights - Only show if there are courses with predictions */}
+        {coursesWithPredictions.length > 0 && (
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white">Performance Insights</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 p-3 bg-yellow-900/20 rounded-lg border border-yellow-600/30">
+                  <AlertTriangle className="w-5 h-5 text-yellow-400 mt-0.5" />
+                  <div>
+                    <p className="text-yellow-300 font-medium">Study Habit Alert</p>
+                    <p className="text-yellow-200 text-sm">
+                      Your study hours have decreased by 20% this week. Consider
+                      maintaining consistency.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 bg-green-900/20 rounded-lg border border-green-600/30">
+                  <CheckCircle className="w-5 h-5 text-green-400 mt-0.5" />
+                  <div>
+                    <p className="text-green-300 font-medium">
+                      Improvement Detected
+                    </p>
+                    <p className="text-green-200 text-sm">
+                      Your assignment scores have improved by 15% over the last
+                      month!
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="flex items-start gap-3 p-3 bg-green-900/20 rounded-lg border border-green-600/30">
-              <CheckCircle className="w-5 h-5 text-green-400 mt-0.5" />
-              <div>
-                <p className="text-green-300 font-medium">
-                  Improvement Detected
-                </p>
-                <p className="text-green-200 text-sm">
-                  Your assignment scores have improved by 15% over the last
-                  month!
-                </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* If no predictions available, show message */}
+        {coursesWithPredictions.length === 0 && (
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white">Performance Insights</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <div className="text-gray-400 mb-4">
+                  <Brain className="w-12 h-12 mx-auto mb-3" />
+                  <h3 className="text-lg font-medium text-gray-300">No Performance Data Available</h3>
+                  <p className="text-sm text-gray-400 mt-2">
+                    Complete your profile settings to enable AI-powered performance insights and alerts.
+                  </p>
+                </div>
               </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  };
 
   const renderProfile = () => (
     <div className="space-y-6">
