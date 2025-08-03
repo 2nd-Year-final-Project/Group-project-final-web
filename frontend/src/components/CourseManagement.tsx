@@ -355,7 +355,7 @@ const CourseManagement = () => {
                 </CardHeader>
                 <CardContent className="flex flex-col flex-grow">
                   <div className="flex-grow">
-                    <div className="space-y-2 text-sm text-gray-300">
+                    <div className="space-y-2 text-sm text-gray-300 mb-4">
                       <p>{course.description}</p>
                     </div>
                   </div>
