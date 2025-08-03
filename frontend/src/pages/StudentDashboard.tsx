@@ -108,6 +108,23 @@ const StudentDashboard = () => {
     }
   };
 
+  // Function to check if study parameters are set for a course
+  const checkStudyParameters = async (courseId: number): Promise<boolean> => {
+    try {
+      const response = await fetch(`/api/student/subject-data/${user.id}/${courseId}`);
+      if (response.ok) {
+        const data = await response.json();
+        return data.hours_studied !== null && data.teacher_quality !== null && 
+               data.hours_studied !== undefined && data.teacher_quality !== undefined &&
+               data.hours_studied > 0 && data.teacher_quality.trim() !== "";
+      }
+      return false;
+    } catch (error) {
+      console.error(`Failed to check study parameters for course ${courseId}:`, error);
+      return false;
+    }
+  };
+
   const fetchStudentCourses = async () => {
     try {
       setLoadingCourses(true);
@@ -115,24 +132,29 @@ const StudentDashboard = () => {
       if (response.ok) {
         const data = await response.json();
         
-        // Fetch predictions for all courses
+        // Fetch predictions and study parameters for all courses
         const coursesWithPredictions = await Promise.all(
           data.map(async (course) => {
             const prediction = await fetchPrediction(course.id);
             const hasPrediction = prediction !== null;
+            const hasStudyParameters = await checkStudyParameters(course.id);
+            
+            // Only show prediction if both prediction is available AND study parameters are set
+            const shouldShowPrediction = hasPrediction && hasStudyParameters;
             
             return {
               id: course.id.toString(),
               name: course.course_name,
               code: course.course_code,
               currentGrade: course.current_grade || 0,
-              predictedFinal: hasPrediction ? prediction : (course.current_grade || 0),
-              predictedGrade: hasPrediction ? getGradeFromPercentage(prediction) : 
+              predictedFinal: shouldShowPrediction ? prediction : (course.current_grade || 0),
+              predictedGrade: shouldShowPrediction ? getGradeFromPercentage(prediction) : 
                              (course.current_grade ? getGradeFromPercentage(course.current_grade) : "Not Available"),
-              status: hasPrediction 
+              status: shouldShowPrediction 
                 ? (prediction >= 50 ? "On Track" : "At Risk")
-                : "Prediction Pending",
-              hasPrediction: hasPrediction, // Track if prediction is available
+                : hasStudyParameters ? "Prediction Pending" : "Parameters Required",
+              hasPrediction: shouldShowPrediction, // Track if prediction should be shown
+              hasStudyParameters: hasStudyParameters, // Track if study parameters are set
               attendance: course.attendance ? Number(course.attendance) : null, // Ensure attendance is a number
               marks: {
                 quiz1: course.quiz1 !== null ? course.quiz1 : null,
@@ -364,7 +386,7 @@ const StudentDashboard = () => {
   };
 
   const generateGradeComparisonData = () => {
-    return modules.map(module => ({
+    return modules.filter(m => m.hasPrediction).map(module => ({
       course: module.code,
       current: module.currentGrade || 0,
       predicted: module.predictedFinal || 0,
@@ -373,7 +395,7 @@ const StudentDashboard = () => {
 
   // Generate assessment performance data showing actual marks vs attendance
   const generateAssessmentPerformanceData = () => {
-    return modules.map(module => {
+    return modules.filter(m => m.hasPrediction).map(module => {
       // Calculate average of available assessments
       const assessments = [
         module.marks.quiz1,
@@ -432,6 +454,8 @@ const StudentDashboard = () => {
         return "bg-red-600 text-red-100";
       case "Prediction Pending":
         return "bg-gray-600 text-gray-100";
+      case "Parameters Required":
+        return "bg-yellow-600 text-yellow-100";
       default:
         return "bg-gray-600 text-gray-100";
     }
@@ -776,8 +800,18 @@ const StudentDashboard = () => {
     // If no specific tips, provide encouragement - but only if there are courses with predictions
     if (tips.length === 0) {
       const coursesWithPredictions = modules.filter(m => m.hasPrediction);
+      const coursesWithoutStudyParams = modules.filter(m => !m.hasStudyParameters);
       
-      if (coursesWithPredictions.length > 0) {
+      if (coursesWithoutStudyParams.length > 0) {
+        // Prioritize study parameters message
+        tips.push({
+          type: "warning",
+          icon: "BookOpen",
+          title: "Set Study Parameters",
+          message: `Set study parameters (hours studied and teacher quality) for ${coursesWithoutStudyParams.length} course${coursesWithoutStudyParams.length > 1 ? 's' : ''} to get accurate predictions.`,
+          color: "orange"
+        });
+      } else if (coursesWithPredictions.length > 0) {
         tips.push({
           type: "success",
           icon: "Target",
@@ -811,6 +845,7 @@ const StudentDashboard = () => {
       FileText: FileText,
       TrendingUp: TrendingUp,
       Target: Target,
+      BookOpen: BookOpen,
     };
     return iconMap[iconName] || Brain;
   };
@@ -927,9 +962,13 @@ const StudentDashboard = () => {
                           ({module.predictedFinal}%)
                         </span>
                       </>
-                    ) : (
+                    ) : module.hasStudyParameters ? (
                       <span className="text-yellow-400 text-sm font-medium italic">
                         Prediction Pending
+                      </span>
+                    ) : (
+                      <span className="text-orange-400 text-sm font-medium italic">
+                        Set Study Parameters
                       </span>
                     )}
                   </div>
@@ -1120,7 +1159,9 @@ const StudentDashboard = () => {
                   <span className="font-medium text-purple-400">
                     {module.hasPrediction 
                       ? `${module.predictedGrade} (${module.predictedFinal}%)` 
-                      : "Prediction Pending"}
+                      : module.hasStudyParameters 
+                      ? "Prediction Pending"
+                      : "Set Study Parameters"}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
@@ -1160,7 +1201,7 @@ const StudentDashboard = () => {
                 <div className="space-y-6">
                   {/* Input Section */}
                   <div className="grid gap-6 lg:grid-cols-2">
-                    <Card className="bg-gray-700 border-gray-600">
+                    <Card className="bg-gray-700 border-gray-600" data-study-params>
                       <CardHeader>
                         <CardTitle className="text-white text-lg">Study Parameters</CardTitle>
                       </CardHeader>
@@ -1325,7 +1366,31 @@ const StudentDashboard = () => {
                             Complete Profile
                           </Button>
                         </div>
-                      ) : (
+                      ) : !module.hasStudyParameters ? (
+                        /* Study Parameters Required Message */
+                        <div className="text-center space-y-4 py-8">
+                          <div className="text-6xl">📚</div>
+                          <div className="space-y-2">
+                            <h3 className="text-xl font-semibold text-orange-300">Study Parameters Required</h3>
+                            <p className="text-gray-300 text-sm max-w-md mx-auto">
+                              Please set your study parameters (Hours Studied per week and Teacher Quality) 
+                              for this course to get accurate AI predictions.
+                            </p>
+                          </div>
+                          <Button 
+                            onClick={() => {
+                              // Scroll to study parameters section
+                              const studySection = document.querySelector('[data-study-params]');
+                              if (studySection) {
+                                studySection.scrollIntoView({ behavior: 'smooth' });
+                              }
+                            }}
+                            className="bg-orange-600 hover:bg-orange-700 text-white"
+                          >
+                            Set Study Parameters
+                          </Button>
+                        </div>
+                      ) : module.hasPrediction ? (
                         /* Normal Prediction Display */
                         <div className="grid gap-6 lg:grid-cols-2">
                           <div className="text-center space-y-2">
@@ -1345,6 +1410,17 @@ const StudentDashboard = () => {
                                 {getPredictionInterpretation(module.predictedGrade, module.predictedFinal)}
                               </p>
                             </div>
+                          </div>
+                        </div>
+                      ) : (
+                        /* Prediction Processing Message */
+                        <div className="text-center space-y-4 py-8">
+                          <div className="text-6xl">⏳</div>
+                          <div className="space-y-2">
+                            <h3 className="text-xl font-semibold text-blue-300">Processing Prediction</h3>
+                            <p className="text-gray-300 text-sm max-w-md mx-auto">
+                              Your prediction is being calculated. Please check back in a few moments.
+                            </p>
                           </div>
                         </div>
                       )}
