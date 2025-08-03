@@ -773,15 +773,28 @@ const StudentDashboard = () => {
       });
     }
 
-    // If no specific tips, provide encouragement
+    // If no specific tips, provide encouragement - but only if there are courses with predictions
     if (tips.length === 0) {
-      tips.push({
-        type: "success",
-        icon: "Target",
-        title: "Keep Up the Great Work!",
-        message: "You're performing well across all your courses. Maintain your current study habits and stay consistent.",
-        color: "green"
-      });
+      const coursesWithPredictions = modules.filter(m => m.hasPrediction);
+      
+      if (coursesWithPredictions.length > 0) {
+        tips.push({
+          type: "success",
+          icon: "Target",
+          title: "Keep Up the Great Work!",
+          message: "You're performing well across all your courses. Maintain your current study habits and stay consistent.",
+          color: "green"
+        });
+      } else {
+        // No courses have predictions yet
+        tips.push({
+          type: "info",
+          icon: "Brain",
+          title: "Predictions Coming Soon",
+          message: "Complete your profile settings to enable AI-powered grade predictions and personalized study recommendations.",
+          color: "blue"
+        });
+      }
     }
 
     // Limit to maximum 2 tips to avoid clutter
