@@ -119,17 +119,19 @@ const StudentDashboard = () => {
         const coursesWithPredictions = await Promise.all(
           data.map(async (course) => {
             const prediction = await fetchPrediction(course.id);
+            const hasPrediction = prediction !== null;
             
             return {
               id: course.id.toString(),
               name: course.course_name,
               code: course.course_code,
               currentGrade: course.current_grade || 0,
-              predictedFinal: prediction !== null ? prediction : (course.current_grade || 0),
-              predictedGrade: prediction !== null ? getGradeFromPercentage(prediction) : 
+              predictedFinal: hasPrediction ? prediction : (course.current_grade || 0),
+              predictedGrade: hasPrediction ? getGradeFromPercentage(prediction) : 
                              (course.current_grade ? getGradeFromPercentage(course.current_grade) : "Not Available"),
-              status: (prediction !== null ? prediction : (course.current_grade || 0)) >= 50 ? "On Track" : 
-                     (prediction !== null || course.current_grade) ? "At Risk" : "Insufficient Data",
+              status: (hasPrediction ? prediction : (course.current_grade || 0)) >= 50 ? "On Track" : 
+                     (hasPrediction || course.current_grade) ? "At Risk" : "Insufficient Data",
+              hasPrediction: hasPrediction, // Track if prediction is available
               attendance: course.attendance ? Number(course.attendance) : null, // Ensure attendance is a number
               marks: {
                 quiz1: course.quiz1 !== null ? course.quiz1 : null,
@@ -137,7 +139,7 @@ const StudentDashboard = () => {
                 assignment1: course.assignment1 !== null ? course.assignment1 : null,
                 assignment2: course.assignment2 !== null ? course.assignment2 : null,
                 midterm: course.midterm !== null ? course.midterm : null,
-                predicted: prediction !== null ? prediction : (course.current_grade || 0),
+                predicted: hasPrediction ? prediction : (course.current_grade || 0),
               },
               difficulty: course.difficulty_level || "Medium",
               lecturer: course.lecturer_name || "TBA",
@@ -670,11 +672,11 @@ const StudentDashboard = () => {
       }];
     }
 
-    // Find courses that need attention (predicted grade < 65%)
-    const strugglingCourses = modules.filter(m => m.predictedFinal < 65 && m.predictedFinal > 0);
+    // Find courses that need attention (predicted grade < 65%) - only with predictions
+    const strugglingCourses = modules.filter(m => m.hasPrediction && m.predictedFinal < 65);
     
-    // Find courses performing well (predicted grade >= 80%)
-    const excellentCourses = modules.filter(m => m.predictedFinal >= 80);
+    // Find courses performing well (predicted grade >= 80%) - only with predictions
+    const excellentCourses = modules.filter(m => m.hasPrediction && m.predictedFinal >= 80);
     
     // Find courses with low attendance (< 75%)
     const lowAttendanceCourses = modules.filter(m => m.attendance && m.attendance < 75);
@@ -752,9 +754,10 @@ const StudentDashboard = () => {
       });
     }
 
-    // Generate general performance tip
-    const overallAverage = modules.length > 0 ? 
-      modules.reduce((sum, m) => sum + m.predictedFinal, 0) / modules.length : 0;
+    // Generate general performance tip - only for courses with predictions
+    const modulesWithPredictions = modules.filter(m => m.hasPrediction);
+    const overallAverage = modulesWithPredictions.length > 0 ? 
+      modulesWithPredictions.reduce((sum, m) => sum + m.predictedFinal, 0) / modulesWithPredictions.length : 0;
     
     if (overallAverage > 0 && overallAverage < 70 && tips.length < 2) {
       tips.push({
@@ -898,12 +901,20 @@ const StudentDashboard = () => {
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-white text-lg font-extrabold">
-                      {getGradeFromPercentage(module.predictedFinal)}
-                    </span>
-                    <span className="text-gray-400 text-sm font-normal">
-                      ({module.predictedFinal}%)
-                    </span>
+                    {module.hasPrediction ? (
+                      <>
+                        <span className="text-white text-lg font-extrabold">
+                          {getGradeFromPercentage(module.predictedFinal)}
+                        </span>
+                        <span className="text-gray-400 text-sm font-normal">
+                          ({module.predictedFinal}%)
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-yellow-400 text-sm font-medium italic">
+                        Prediction Pending
+                      </span>
+                    )}
                   </div>
                 </div>
               ))}
