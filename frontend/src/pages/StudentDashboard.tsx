@@ -129,8 +129,9 @@ const StudentDashboard = () => {
               predictedFinal: hasPrediction ? prediction : (course.current_grade || 0),
               predictedGrade: hasPrediction ? getGradeFromPercentage(prediction) : 
                              (course.current_grade ? getGradeFromPercentage(course.current_grade) : "Not Available"),
-              status: (hasPrediction ? prediction : (course.current_grade || 0)) >= 50 ? "On Track" : 
-                     (hasPrediction || course.current_grade) ? "At Risk" : "Insufficient Data",
+              status: hasPrediction 
+                ? (prediction >= 50 ? "On Track" : "At Risk")
+                : "Prediction Pending",
               hasPrediction: hasPrediction, // Track if prediction is available
               attendance: course.attendance ? Number(course.attendance) : null, // Ensure attendance is a number
               marks: {
@@ -429,6 +430,8 @@ const StudentDashboard = () => {
         return "bg-blue-600 text-blue-100";
       case "At Risk":
         return "bg-red-600 text-red-100";
+      case "Prediction Pending":
+        return "bg-gray-600 text-gray-100";
       default:
         return "bg-gray-600 text-gray-100";
     }
@@ -678,11 +681,12 @@ const StudentDashboard = () => {
     // Find courses performing well (predicted grade >= 80%) - only with predictions
     const excellentCourses = modules.filter(m => m.hasPrediction && m.predictedFinal >= 80);
     
-    // Find courses with low attendance (< 75%)
-    const lowAttendanceCourses = modules.filter(m => m.attendance && m.attendance < 75);
+    // Find courses with low attendance (< 75%) - only with predictions
+    const lowAttendanceCourses = modules.filter(m => m.hasPrediction && m.attendance && m.attendance < 75);
     
-    // Find courses with missing marks
+    // Find courses with missing marks - only with predictions
     const coursesWithMissingMarks = modules.filter(m => {
+      if (!m.hasPrediction) return false; // Don't show tips for courses without predictions
       const marks = m.marks;
       return marks.quiz1 === null || marks.quiz2 === null || 
              marks.assignment1 === null || marks.assignment2 === null || 
@@ -1101,9 +1105,9 @@ const StudentDashboard = () => {
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Predicted Final:</span>
                   <span className="font-medium text-purple-400">
-                    {module.predictedFinal > 0 
+                    {module.hasPrediction 
                       ? `${module.predictedGrade} (${module.predictedFinal}%)` 
-                      : "Pending assessments"}
+                      : "Prediction Pending"}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
