@@ -94,16 +94,16 @@ class RealTimeAlertService {
   // Convert percentage to letter grade
   static getGradeFromPercentage(percentage) {
     if (percentage >= 85) return "A+";
-    if (percentage >= 70) return "A";
-    if (percentage >= 65) return "A-";
-    if (percentage >= 60) return "B+";
-    if (percentage >= 55) return "B";
-    if (percentage >= 50) return "B-";
-    if (percentage >= 45) return "C+";
-    if (percentage >= 40) return "C";
-    if (percentage >= 35) return "C-";
-    if (percentage >= 30) return "D+";
-    if (percentage >= 25) return "D";
+    if (percentage >= 75) return "A";
+    if (percentage >= 70) return "A-";
+    if (percentage >= 65) return "B+";
+    if (percentage >= 60) return "B";
+    if (percentage >= 55) return "B-";
+    if (percentage >= 50) return "C+";
+    if (percentage >= 45) return "C";
+    if (percentage >= 40) return "C-";
+    if (percentage >= 35) return "D+";
+    if (percentage >= 30) return "D";
     return "E";
   }
 
