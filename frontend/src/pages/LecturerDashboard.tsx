@@ -433,11 +433,11 @@ const LecturerDashboard = () => {
                               </div>
                               <div className="text-center p-2 bg-gray-600 rounded">
                                 <div className="text-sm font-bold text-purple-400">{student.assignment1 !== null ? student.assignment1 : 'Not Set'}</div>
-                                <div className="text-xs text-gray-300">Assign 1</div>
+                                <div className="text-xs text-gray-300">Assignment 1</div>
                               </div>
                               <div className="text-center p-2 bg-gray-600 rounded">
                                 <div className="text-sm font-bold text-purple-400">{student.assignment2 !== null ? student.assignment2 : 'Not Set'}</div>
-                                <div className="text-xs text-gray-300">Assign 2</div>
+                                <div className="text-xs text-gray-300">Assignment 2</div>
                               </div>
                               <div className="text-center p-2 bg-gray-600 rounded">
                                 <div className="text-sm font-bold text-green-400">{student.midterm !== null ? student.midterm : 'Not Set'}</div>
