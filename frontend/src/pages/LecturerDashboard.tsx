@@ -360,19 +360,8 @@ const LecturerDashboard = () => {
                     </TabsList>
                     
                     <TabsContent value="roster" className="space-y-4">
-                      {/* Prediction Summary */}
-                      {studentRoster.length > 0 && (
-                        <div className="mt-3 p-3 bg-purple-900/20 rounded-lg border border-purple-600/30">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-purple-300">
-                              AI Predictions Available: {studentRoster.filter(s => s.has_prediction).length} of {studentRoster.length} students
-                            </span>
-                            <span className="text-purple-400">
-                              {Math.round((studentRoster.filter(s => s.has_prediction).length / studentRoster.length) * 100)}% coverage
-                            </span>
-                          </div>
-                        </div>
-                      )}
+                      
+                      
                       
                       <div className="space-y-2">
                         {studentRoster.map((student) => (
