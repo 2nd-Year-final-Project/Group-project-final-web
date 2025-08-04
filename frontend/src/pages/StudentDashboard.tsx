@@ -1267,7 +1267,7 @@ const StudentDashboard = () => {
                           />
                         </div>
 
-                        <div className="space-y-2 relative z-20">
+                        <div className="space-y-2 relative z-10">
                           <Label className="text-gray-200">Teacher Quality</Label>
                           <Select
                             value={subjectData[module.id]?.teacherQuality || ""}
@@ -1276,7 +1276,7 @@ const StudentDashboard = () => {
                             <SelectTrigger className="bg-gray-600 border-gray-500 text-white">
                               <SelectValue placeholder="Select quality" />
                             </SelectTrigger>
-                            <SelectContent className="z-50 bg-gray-600 border-gray-500">
+                            <SelectContent className="z-30 bg-gray-600 border-gray-500">
                               <SelectItem value="low">Low</SelectItem>
                               <SelectItem value="medium">Medium</SelectItem>
                               <SelectItem value="high">High</SelectItem>
@@ -1865,7 +1865,7 @@ const StudentDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-900 flex">
       {/* Sidebar - Fixed Position */}
-      <div className="w-64 bg-gray-800 border-r border-gray-700 flex flex-col fixed left-0 top-0 h-screen z-10">
+      <div className="w-64 bg-gray-800 border-r border-gray-700 flex flex-col fixed left-0 top-0 h-screen z-40">
         {/* Logo */}
         <div className="p-6 border-b border-gray-700">
           <div className="flex items-center gap-2">
@@ -1920,7 +1920,7 @@ const StudentDashboard = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col ml-64">
         {/* Top Bar - Fixed Position */}
-        <header className="bg-gray-800 border-b border-gray-700 p-4 fixed top-0 right-0 left-64 z-10">
+        <header className="bg-gray-800 border-b border-gray-700 p-4 fixed top-0 right-0 left-64 z-50">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-white">
