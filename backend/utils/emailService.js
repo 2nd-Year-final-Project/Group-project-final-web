@@ -13,7 +13,7 @@ function sendApprovalEmail(email, name, username, password) {
     from: "akilafernando196@gmail.com",
     to: email,
     subject: "Your Account Has Been Approved",
-    text: `Hello ${name},\n\nYour account has been approved!\n\nLogin Credentials:\nUsername: ${username}\nPassword: ${password}\n\nPlease change your password after logging in.\n\nBest,\nAdmin Team`,
+    text: `Hello ${name},\n\nWe are pleased to inform you that your account has been approved!\n\nLogin Credentials:\nUsername: ${username}\nPassword: ${password}\n\nFor security reasons, please make sure to change your password after logging in.\n\nBest regards,\nAdmin Team`,
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
