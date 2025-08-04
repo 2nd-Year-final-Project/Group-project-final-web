@@ -93,6 +93,7 @@ const StudentDashboard = () => {
       if (response.status === 400) {
         const errorData = await response.json();
         if (errorData.requiresProfileUpdate) {
+          // Only set profile incomplete if it wasn't already determined to be incomplete
           setProfileIncomplete(true);
           return null;
         }
@@ -128,6 +129,31 @@ const StudentDashboard = () => {
   const fetchStudentCourses = async () => {
     try {
       setLoadingCourses(true);
+      
+      // First check profile completion
+      let isProfileIncomplete = false;
+      try {
+        const profileResponse = await axios.get(`http://localhost:5000/api/student/common/${user.id}`);
+        
+        if (profileResponse.data) {
+          // Check if all required fields are present
+          const requiredFields = ['gender', 'peer_influence', 'extracurricular_activities', 'physical_activity', 'sleep_hours'];
+          const missingFields = requiredFields.filter(field => 
+            profileResponse.data[field] === null || profileResponse.data[field] === undefined
+          );
+          
+          isProfileIncomplete = missingFields.length > 0;
+        } else {
+          isProfileIncomplete = true;
+        }
+      } catch (error) {
+        console.error("Failed to check profile completion:", error);
+        isProfileIncomplete = true;
+      }
+      
+      // Update profile incomplete status
+      setProfileIncomplete(isProfileIncomplete);
+      
       const response = await fetch(`/api/student/courses/${user.id}`);
       if (response.ok) {
         const data = await response.json();
@@ -135,12 +161,13 @@ const StudentDashboard = () => {
         // Fetch predictions and study parameters for all courses
         const coursesWithPredictions = await Promise.all(
           data.map(async (course) => {
-            const prediction = await fetchPrediction(course.id);
+            // If profile is incomplete, don't fetch predictions
+            const prediction = isProfileIncomplete ? null : await fetchPrediction(course.id);
             const hasPrediction = prediction !== null;
             const hasStudyParameters = await checkStudyParameters(course.id);
             
-            // Only show prediction if both prediction is available AND study parameters are set
-            const shouldShowPrediction = hasPrediction && hasStudyParameters;
+            // Only show prediction if profile is complete AND prediction is available AND study parameters are set
+            const shouldShowPrediction = !isProfileIncomplete && hasPrediction && hasStudyParameters;
             
             return {
               id: course.id.toString(),
@@ -150,7 +177,9 @@ const StudentDashboard = () => {
               predictedFinal: shouldShowPrediction ? prediction : (course.current_grade || 0),
               predictedGrade: shouldShowPrediction ? getGradeFromPercentage(prediction) : 
                              (course.current_grade ? getGradeFromPercentage(course.current_grade) : "Not Available"),
-              status: shouldShowPrediction 
+              status: isProfileIncomplete 
+                ? "Profile Required"
+                : shouldShowPrediction 
                 ? (prediction >= 50 ? "On Track" : "At Risk")
                 : hasStudyParameters ? "Prediction Pending" : "Parameters Required",
               hasPrediction: shouldShowPrediction, // Track if prediction should be shown
@@ -602,13 +631,22 @@ const StudentDashboard = () => {
     }
   };
 
-  const fetchExistingCommonData = async () => {
+  const checkProfileCompletion = async () => {
     try {
       if (!user?.id) return;
       
       const response = await axios.get(`http://localhost:5000/api/student/common/${user.id}`);
       
       if (response.data) {
+        // Check if all required fields are present
+        const requiredFields = ['gender', 'peer_influence', 'extracurricular_activities', 'physical_activity', 'sleep_hours'];
+        const missingFields = requiredFields.filter(field => 
+          response.data[field] === null || response.data[field] === undefined
+        );
+        
+        // Set profile incomplete status
+        setProfileIncomplete(missingFields.length > 0);
+        
         // Map the API response back to form values
         const peerInfluenceReverseMap = { 0: "negative", 1: "natural", 2: "positive" };
         const extracurricularReverseMap = { 0: "no", 1: "yes" };
@@ -621,11 +659,19 @@ const StudentDashboard = () => {
           peerInfluence: peerInfluenceReverseMap[response.data.peer_influence] || "",
           gender: genderReverseMap[response.data.gender] || "",
         });
+      } else {
+        // No data found, profile is incomplete
+        setProfileIncomplete(true);
       }
     } catch (error) {
       console.error("Failed to fetch existing common data:", error);
-      // Don't show error toast for this since it's optional
+      // If API call fails, assume profile might be incomplete
+      setProfileIncomplete(true);
     }
+  };
+
+  const fetchExistingCommonData = async () => {
+    await checkProfileCompletion();
   };
 
   // Fetch real student profile data
