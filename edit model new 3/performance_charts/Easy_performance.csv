@@ -1,0 +1,8 @@
+Algorithm,Accuracy (%),R2_Score,MSE,Training Time (s),Best_Params
+Linear Regression,79.93770838470608,0.7993770838470609,2.9374484736790465,0.1759951114654541,"{'copy_X': True, 'fit_intercept': True, 'n_jobs': None, 'positive': False}"
+Decision Tree,76.22502366236114,0.7622502366236114,3.4810463975866988,8.413431644439697,"{'min_samples_split': 5, 'min_samples_leaf': 4, 'max_depth': 10}"
+Random Forest,87.03986440772421,0.8703986440772421,1.8975763708460216,53.113837480545044,"{'n_estimators': 200, 'min_samples_split': 5, 'min_samples_leaf': 1, 'max_depth': 30}"
+Gradient Boosting,87.94351989738676,0.8794351989738677,1.7652663890283196,17.457213401794434,"{'n_estimators': 100, 'max_depth': 5, 'learning_rate': 0.1}"
+K-Neighbors,85.99654745085601,0.8599654745085601,2.050335081629574,1.111518383026123,"{'weights': 'distance', 'p': 1, 'n_neighbors': 9}"
+Neural Network,83.17007088271448,0.8317007088271449,2.4641775997319244,90.73570775985718,"{'hidden_layer_sizes': (100, 50), 'alpha': 0.01, 'activation': 'relu'}"
+XGBoost,88.67777585983276,0.8867777585983276,1.6577595798669458,10.749491453170776,"{'subsample': 0.8, 'n_estimators': 200, 'max_depth': 3, 'learning_rate': 0.1, 'colsample_bytree': 1.0}"

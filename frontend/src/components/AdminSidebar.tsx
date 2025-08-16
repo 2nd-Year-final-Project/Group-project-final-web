@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, GraduationCap, BookOpen, Settings, BarChart3, UserCheck, Shield, Database } from 'lucide-react';
+import { GraduationCap, BookOpen, BarChart3, UserCheck, Shield, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AdminSidebarProps {
@@ -10,11 +10,10 @@ interface AdminSidebarProps {
 //////////////////////newly added//////////////////////////////////
 const sidebarItems = [
   { id: 'overview', label: 'Dashboard Overview', icon: BarChart3 },
-  { id: 'students', label: 'Student Management', icon: Users },
+  { id: 'student-management', label: 'Student Data Management', icon: TrendingUp },
   { id: 'lecturers', label: 'Lecturer Management', icon: UserCheck },
-  { id: 'courses', label: 'Course Management', icon: BookOpen }, // Added this line
+  { id: 'courses', label: 'Course Management', icon: BookOpen },
   { id: 'verifications', label: 'User Verifications', icon: Shield },
-  { id: 'settings', label: 'System Settings', icon: Settings },
 ];
 
 ///////////////////////////////////////////////////////////////////////
@@ -27,10 +26,10 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange }) =
       description: 'System statistics'
     },
     {
-      id: 'students',
-      label: 'Students',
-      icon: Users,
-      description: 'Manage student accounts'
+      id: 'student-management',
+      label: 'Student Data',
+      icon: TrendingUp,
+      description: 'Motivation & Attendance'
     },
     {
       id: 'lecturers',
@@ -49,24 +48,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange }) =
       label: 'Verifications',
       icon: UserCheck,
       description: 'Pending verifications'
-    },
-    {
-      id: 'permissions',
-      label: 'Permissions',
-      icon: Shield,
-      description: 'User permissions'
-    },
-    {
-      id: 'database',
-      label: 'Database',
-      icon: Database,
-      description: 'Data management'
-    },
-    {
-      id: 'system',
-      label: 'System Settings',
-      icon: Settings,
-      description: 'System configuration'
     }
   ];
 
@@ -108,16 +89,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange }) =
           })}
         </ul>
       </nav>
-      
-      <div className="absolute bottom-4 left-4 right-4">
-        <div className="bg-gray-700 rounded-lg p-3">
-          <div className="text-sm text-gray-300">System Status</div>
-          <div className="flex items-center gap-2 mt-1">
-            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-            <span className="text-xs text-gray-400">All systems operational</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

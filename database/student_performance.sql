@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 15, 2025 at 08:03 AM
+-- Generation Time: Jul 31, 2025 at 06:22 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -24,6 +24,178 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `admin_inputs`
+--
+
+CREATE TABLE `admin_inputs` (
+  `id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
+  `course_id` int(11) NOT NULL,
+  `attendance` decimal(5,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `admin_inputs`
+--
+
+INSERT INTO `admin_inputs` (`id`, `student_id`, `course_id`, `attendance`) VALUES
+(1, 1, 3, 54.60),
+(2, 1, 1, 78.90),
+(3, 4, 2, 86.00),
+(4, 4, 4, 90.40),
+(5, 3, 3, 89.00),
+(6, 3, 2, 78.00),
+(7, 2, 2, NULL),
+(8, 9, 2, 82.00),
+(9, 11, 4, 87.00),
+(10, 15, 4, 78.50),
+(11, 17, 2, 72.00),
+(12, 5, 10, 69.00),
+(13, 1, 8, 78.00);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `alerts`
+--
+
+CREATE TABLE `alerts` (
+  `id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
+  `course_id` int(11) NOT NULL,
+  `recipient_type` enum('student','lecturer') NOT NULL,
+  `recipient_id` int(11) NOT NULL,
+  `alert_type` enum('performance','grade_prediction','improvement','warning','excellent') NOT NULL,
+  `severity` enum('low','medium','high','critical') NOT NULL DEFAULT 'medium',
+  `title` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `predicted_grade` decimal(5,2) DEFAULT NULL,
+  `predicted_percentage` decimal(5,2) DEFAULT NULL,
+  `is_read` tinyint(1) DEFAULT 0,
+  `is_dismissed` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `alerts`
+-- Note: Starting with empty table - alerts will be generated in real-time based on predictions
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `alert_generation_log`
+--
+
+CREATE TABLE `alert_generation_log` (
+  `id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
+  `course_id` int(11) NOT NULL,
+  `alert_type` varchar(50) NOT NULL,
+  `predicted_grade` decimal(5,2) DEFAULT NULL,
+  `last_generated` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `alert_generation_log`
+-- Note: Starting with empty table - logs will be created when real alerts are generated
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `courses`
+--
+
+CREATE TABLE `courses` (
+  `id` int(11) NOT NULL,
+  `course_code` varchar(20) NOT NULL,
+  `course_name` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `credits` int(11) DEFAULT 3,
+  `difficulty_level` enum('Easy','Medium','Hard') NOT NULL DEFAULT 'Medium',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `courses`
+--
+
+INSERT INTO `courses` (`id`, `course_code`, `course_name`, `description`, `credits`, `difficulty_level`, `created_at`, `updated_at`) VALUES
+(1, 'CSCI 22062', 'Introduction to Cyber Security', 'Fundamentals of cybersecurity, threat analysis, and security measures', 3, 'Medium', '2025-07-14 05:56:13', '2025-07-30 02:44:07'),
+(2, 'CSCI 22022', 'Data Structures & Algorithms', 'Advanced data structures and algorithmic problem solving', 4, 'Hard', '2025-07-14 05:56:13', '2025-07-30 02:43:58'),
+(3, 'CSCI 22052', 'Introduction to Web Development', 'Frontend and backend web development technologies', 3, 'Medium', '2025-07-14 05:56:13', '2025-07-30 02:43:46'),
+(4, 'CSCI 22032', 'Database Management Systems', 'Design and implementation of database systems', 3, 'Medium', '2025-07-14 05:56:13', '2025-07-30 02:43:30'),
+(5, 'CSCI 22042', 'Software Engineering', 'Software development lifecycle and engineering practices', 2, 'Medium', '2025-07-14 05:56:13', '2025-07-30 02:43:19'),
+(6, 'CSCI 12043', 'Computer Architecture', '', 3, 'Easy', '2025-07-14 06:12:55', '2025-07-15 09:01:57'),
+(7, 'CSCI 22034', 'Statistics ', '', 4, 'Medium', '2025-07-14 06:15:08', '2025-07-15 09:02:38'),
+(8, 'CSCI 72819', 'Advanced Operating Systems', 'Advanced concepts of Operating systemssasadsasdYour registration will be revie', 3, 'Hard', '2025-07-14 06:15:49', '2025-07-29 02:19:28'),
+(10, 'CSCI 12032', 'Mathematics for computer science', '', 3, 'Hard', '2025-07-15 09:35:59', '2025-07-15 09:35:59');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `lecturer_courses`
+--
+
+CREATE TABLE `lecturer_courses` (
+  `id` int(11) NOT NULL,
+  `lecturer_id` int(11) NOT NULL,
+  `course_id` int(11) NOT NULL,
+  `assigned_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `lecturer_courses`
+--
+
+INSERT INTO `lecturer_courses` (`id`, `lecturer_id`, `course_id`, `assigned_at`) VALUES
+(2, 13, 3, '2025-07-14 06:21:20'),
+(3, 14, 4, '2025-07-14 06:40:36'),
+(4, 13, 5, '2025-07-14 06:41:19'),
+(5, 14, 2, '2025-07-14 08:57:54'),
+(6, 12, 5, '2025-07-14 13:57:38'),
+(7, 16, 10, '2025-07-15 09:38:35'),
+(8, 12, 6, '2025-07-15 11:28:40');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `lecturer_marks`
+--
+
+CREATE TABLE `lecturer_marks` (
+  `id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
+  `course_id` int(11) NOT NULL,
+  `quiz1` decimal(5,2) DEFAULT NULL,
+  `quiz2` decimal(5,2) DEFAULT NULL,
+  `assignment1` decimal(5,2) DEFAULT NULL,
+  `assignment2` decimal(5,2) DEFAULT NULL,
+  `midterm_marks` decimal(5,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `lecturer_marks`
+--
+
+INSERT INTO `lecturer_marks` (`id`, `student_id`, `course_id`, `quiz1`, `quiz2`, `assignment1`, `assignment2`, `midterm_marks`) VALUES
+(1, 3, 3, 34.00, 54.00, 91.00, 89.00, 78.00),
+(2, 3, 2, NULL, NULL, 92.00, 83.00, 73.00),
+(3, 2, 2, 17.00, NULL, 10.00, NULL, 12.00),
+(4, 1, 1, 78.00, NULL, NULL, NULL, NULL),
+(5, 4, 2, 72.00, 86.00, 86.00, 68.00, 78.00),
+(6, 15, 4, 78.00, 83.00, 92.00, NULL, NULL),
+(7, 17, 2, 74.00, NULL, 88.00, NULL, NULL),
+(8, 4, 4, 23.00, 10.00, NULL, NULL, 10.00),
+(9, 5, 10, 73.00, 42.00, 87.00, 81.00, 73.00),
+(10, 9, 2, 42.00, 57.00, 86.00, 64.00, 74.00);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `pending_users`
 --
 
@@ -37,6 +209,114 @@ CREATE TABLE `pending_users` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `pending_users`
+--
+
+INSERT INTO `pending_users` (`id`, `full_name`, `email`, `role`, `id_card`, `status`, `created_at`) VALUES
+(42, 'Skwmkksm', 'jwnnjn@gmail.com', 'student', '1753623279328.jpg', 'rejected', '2025-07-27 13:34:39'),
+(43, 'dnkjnd', 'wjnjn@gg.com', 'student', '1753623505090.jpg', 'rejected', '2025-07-27 13:38:25');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `student_common_data`
+--
+
+CREATE TABLE `student_common_data` (
+  `id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
+  `gender` tinyint(4) DEFAULT NULL,
+  `peer_influence` tinyint(4) DEFAULT NULL,
+  `motivation_level` tinyint(4) DEFAULT NULL,
+  `extracurricular_activities` tinyint(4) DEFAULT NULL,
+  `physical_activity` tinyint(4) DEFAULT NULL,
+  `sleep_hours` decimal(3,1) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `student_common_data`
+--
+
+INSERT INTO `student_common_data` (`id`, `student_id`, `gender`, `peer_influence`, `motivation_level`, `extracurricular_activities`, `physical_activity`, `sleep_hours`) VALUES
+(1, 1, 1, 1, 1, 0, 3, 6.5),
+(6, 4, 1, 0, 0, 1, 4, 12.0),
+(7, 10, 0, 0, 1, 1, 3, 7.0),
+(8, 3, 1, 1, NULL, 0, 4, 7.0),
+(9, 2, 1, 1, NULL, 1, 3, 7.0),
+(10, 11, 0, 0, NULL, 0, 2, 4.0),
+(11, 15, 1, 0, NULL, 1, 2, 7.0),
+(12, 17, 1, 2, 1, 1, 3, 6.0);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `student_enrollments`
+--
+
+CREATE TABLE `student_enrollments` (
+  `id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
+  `course_id` int(11) NOT NULL,
+  `enrollment_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` enum('active','dropped','completed') DEFAULT 'active'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `student_enrollments`
+--
+
+INSERT INTO `student_enrollments` (`id`, `student_id`, `course_id`, `enrollment_date`, `status`) VALUES
+(1, 1, 1, '2025-07-14 06:21:04', 'active'),
+(2, 2, 1, '2025-07-14 06:21:12', 'active'),
+(3, 1, 3, '2025-07-14 06:21:35', 'active'),
+(4, 3, 3, '2025-07-14 06:21:43', 'active'),
+(5, 4, 4, '2025-07-14 06:40:48', 'active'),
+(6, 5, 4, '2025-07-14 06:41:00', 'active'),
+(7, 9, 2, '2025-07-14 06:44:54', 'active'),
+(8, 2, 2, '2025-07-14 08:57:36', 'active'),
+(9, 3, 2, '2025-07-14 08:57:36', 'active'),
+(10, 4, 2, '2025-07-14 08:57:44', 'active'),
+(11, 10, 5, '2025-07-14 13:57:45', 'active'),
+(12, 11, 4, '2025-07-14 14:00:43', 'active'),
+(13, 1, 8, '2025-07-15 05:30:03', 'active'),
+(14, 2, 8, '2025-07-15 05:30:03', 'active'),
+(15, 3, 8, '2025-07-15 05:30:03', 'active'),
+(16, 15, 4, '2025-07-15 08:36:10', 'active'),
+(17, 15, 5, '2025-07-15 08:36:27', 'active'),
+(18, 17, 2, '2025-07-15 09:23:01', 'active'),
+(21, 2, 10, '2025-07-15 09:36:30', 'active'),
+(22, 3, 10, '2025-07-15 09:36:30', 'active'),
+(23, 4, 10, '2025-07-15 09:36:30', 'active'),
+(24, 5, 10, '2025-07-15 09:36:30', 'active');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `student_subject_data`
+--
+
+CREATE TABLE `student_subject_data` (
+  `id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
+  `course_id` int(11) NOT NULL,
+  `hours_studied` decimal(4,2) DEFAULT NULL,
+  `teacher_quality` tinyint(4) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `student_subject_data`
+--
+
+INSERT INTO `student_subject_data` (`id`, `student_id`, `course_id`, `hours_studied`, `teacher_quality`) VALUES
+(1, 3, 3, 13.00, 1),
+(2, 3, 2, 2.00, 0),
+(3, 2, 2, 5.00, 2),
+(4, 11, 4, 2.00, 2),
+(5, 17, 2, 7.00, 2),
+(6, 3, 8, 1.00, 1),
+(7, 4, 4, 0.00, 2);
+
 -- --------------------------------------------------------
 
 --
@@ -45,26 +325,93 @@ CREATE TABLE `pending_users` (
 
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
-  `full_name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `role` enum('student','lecturer') NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `username` varchar(50) NOT NULL
+  `username` varchar(50) DEFAULT NULL,
+  `full_name` varchar(100) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `role` enum('student','lecturer','admin') NOT NULL,
+  `gender` tinyint(4) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `full_name`, `email`, `role`, `password`, `created_at`, `username`) VALUES
-(7, 'Akila Fernando', 'chandaniekariyawasam18@gmail.com', 'lecturer', '$2b$10$llNEW3wiaqQttvrbL/njj.i9KF7N/EG0dejDJN8NZmv.kwhAOiBmu', '2025-03-13 11:40:00', 'akila5519'),
-(8, 'Jagath Fernando', 'kjagathfernando184@gmail.com', 'student', '$2b$10$NJvBrKywWV9ozQ8c0760aO5atPzgroJ3roR7Z3xWiIBKV.lI.YTC2', '2025-03-13 13:02:51', 'jagath6937'),
-(9, 'Pasan De Silva', 'fernand-cs21058@stu.kln.ac.lk', 'student', '$2b$10$JCFDCrBLfC7SpcM3tWhjbuzAZDhSJ1TN1UQm2iINEHADkESxc9i3O', '2025-03-14 02:12:07', 'pasan9354');
+INSERT INTO `users` (`id`, `username`, `full_name`, `email`, `password`, `role`, `gender`, `created_at`) VALUES
+(1, 'akila1824', 'Akila Fernando', 'fernand-cs21058@stu.kln.ac.lk', '$2b$10$zfundww7r1oYlJDvok4Rf.82S1OWGVEO9WMXFBkyXfaEyBPguc8KC', 'student', NULL, '2025-07-09 13:38:03'),
+(2, 'hiruna7231', 'Kavindu Pasan ', 'example1@gmail.com', '$2b$10$.pazXFDA.KMhMKJ2EhgUt.vNHr/vzWtW7EQlPBpMNov7uGKgh08Km', 'student', NULL, '2025-07-14 03:37:49'),
+(3, 'renuja9713', 'Renuja Sthnidu', 'example2@gmail.com', '$2b$10$GsEu.xw7Q9g/GYLCBwtljO9JNjajNxALTuioVjtgN3B3OQBexXpkq', 'student', NULL, '2025-07-14 03:45:03'),
+(4, 'anujaya6836', 'Anujaya Jayanath', 'example3@gmail.com', '$2b$10$VhQ7AO2qncPiBSWulpn5eeBskcOrK22lxsnL7dgbdAq0X7oLxmHFC', 'student', NULL, '2025-07-14 03:52:43'),
+(5, 'awanki2505', 'Awanki Thathsaranie', 'xample4@gmail.com', '$2b$10$3IyInNoWcrleodOCrdVBreZVnZNGx4kZXNYJUE5H0rjlVkBW0ll.6', 'student', NULL, '2025-07-14 03:52:48'),
+(6, 'tharushi8670', 'Tharushi Perera', 'example5@gmail.com', '$2b$10$Rs.vt30tlsiGH28lAbsqFuM1zINZ1wJUvyKNEdx7BK8ArNrNCZaZW', 'student', NULL, '2025-07-14 03:52:53'),
+(7, 'akila3634', 'Akila Fernando', 'example6@gmail.com', '$2b$10$nNIBDlfG0YXv1BxCpJCo0.sxVJa9Ar9UeJb9AOgf2gZFjfQvNO3Lu', 'student', NULL, '2025-07-14 03:52:59'),
+(8, 'pasindu5124', 'Pasindu Silva', 'example7@gmail.com', '$2b$10$p0byMionFVz8yfDgVb1NvucYvq6l2gc9f.rTifXF0ZggjyVp/xs2W', 'student', NULL, '2025-07-14 03:53:03'),
+(9, 'sithara7217', 'Sithara Hansamali', 'example8@gmail.com', '$2b$10$QlvrnUdEsWbvCAD3Iowv1O0O5DI0N3ezRw45R3FS80kE4lnY3g0RO', 'student', NULL, '2025-07-14 03:53:06'),
+(10, 'anumi5465', 'Anumi Vithana', 'example9@gmail.com', '$2b$10$ML0pGMHXC515lQ4bGdKrz.IXUD58s47M3GuYjGozwJoZQ0Fi5C012', 'student', NULL, '2025-07-14 03:53:12'),
+(11, 'ashika7850', 'Ashika Chamodi', 'example10@gmail.com', '$2b$10$/XT.1DrvkHkxSsXgfIxZ0evN8sJmIfuZ5TBjFw4Tn6bmtUsUcqvH6', 'student', NULL, '2025-07-14 03:53:17'),
+(12, 'subhoda1273', 'Subhoda Rathnayake', 'lecturer1@gmail.com', '$2b$10$ySFRdum2oL7w.3bS7T07quBGNYzPXdpIXg8YnDvFrzk4vHDQCkcZ2', 'lecturer', NULL, '2025-07-14 03:53:21'),
+(13, 'navodi8813', 'Navodi Mekala', 'lecturer2@gmail.com', '$2b$10$CB59vQlUV0kvzK47jGYZ2ODCRh/b7VdsE5Atbp5ol6DzoI4stscyC', 'lecturer', NULL, '2025-07-14 03:53:25'),
+(14, 'sidath7328', 'Sidath Liyanage', 'lecturer3@gmail.com', '$2b$10$OMr.8hFj6KkpdPXXu14ngO1ka.h7LYweKXIJ4AQ/1BxPoBjtX7Snm', 'lecturer', NULL, '2025-07-14 03:53:29'),
+(15, 'hiruna6837', 'Hiruna Mendis', 'hirunamendis@gmail.com', '$2b$10$LmuIuaSvZljA5a16wwuIw.RMmAfnNSYcpupAYTpTVqPmg89bMVzrq', 'student', NULL, '2025-07-15 08:34:57'),
+(16, 'vihan7343', 'Vihan Perera', 'anujayanath16@gmail.com', '$2b$10$NqbEG0wQ67QplfeGoWkTWuWV7Gn5jJVTmbr0ZAl.zmJvp8Wfm5ife', 'lecturer', NULL, '2025-07-15 09:13:58'),
+(17, 'harin5050', 'Harin Dulneth', 'harindulneth8@gmail.com', '$2b$10$85b0JDg5wa9r.kwzkK0SWufz3xG6z3Wej/AR3ZYdJykCLyLQle/A2', 'student', NULL, '2025-07-15 09:21:10'),
+(18, 'anujaa4306', 'Anujaa', 'renujasathnidu@gmail.com', '$2b$10$kh.MIrA5QIu3Iik85TbLue1eKmLSPGgbHqVK7grO1r8V.jtP6HYga', 'student', NULL, '2025-07-15 11:23:02'),
+(20, 'akjskjiwj8497', 'Akjskjiwj', 'harindulneth7@gmail.com', '$2b$10$nupMuu5Es5XhLcUiL3sK1u/iOuKeI8kN20j4.f0pdJ7d5I537jaRy', 'student', NULL, '2025-07-27 13:05:32');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `admin_inputs`
+--
+ALTER TABLE `admin_inputs`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `student_course_unique` (`student_id`,`course_id`),
+  ADD KEY `course_id` (`course_id`);
+
+--
+-- Indexes for table `alerts`
+--
+ALTER TABLE `alerts`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_recipient` (`recipient_type`,`recipient_id`),
+  ADD KEY `idx_student_course` (`student_id`,`course_id`),
+  ADD KEY `idx_created_at` (`created_at`),
+  ADD KEY `course_id` (`course_id`),
+  ADD KEY `recipient_id` (`recipient_id`);
+
+--
+-- Indexes for table `alert_generation_log`
+--
+ALTER TABLE `alert_generation_log`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_student_course_type` (`student_id`,`course_id`,`alert_type`),
+  ADD KEY `course_id` (`course_id`);
+
+--
+-- Indexes for table `courses`
+--
+ALTER TABLE `courses`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `course_code` (`course_code`);
+
+--
+-- Indexes for table `lecturer_courses`
+--
+ALTER TABLE `lecturer_courses`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `lecturer_course_unique` (`lecturer_id`,`course_id`),
+  ADD KEY `course_id` (`course_id`);
+
+--
+-- Indexes for table `lecturer_marks`
+--
+ALTER TABLE `lecturer_marks`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `student_course_unique` (`student_id`,`course_id`),
+  ADD KEY `course_id` (`course_id`);
 
 --
 -- Indexes for table `pending_users`
@@ -74,28 +421,165 @@ ALTER TABLE `pending_users`
   ADD UNIQUE KEY `email` (`email`);
 
 --
+-- Indexes for table `student_common_data`
+--
+ALTER TABLE `student_common_data`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `student_id` (`student_id`);
+
+--
+-- Indexes for table `student_enrollments`
+--
+ALTER TABLE `student_enrollments`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `student_course_unique` (`student_id`,`course_id`),
+  ADD KEY `course_id` (`course_id`);
+
+--
+-- Indexes for table `student_subject_data`
+--
+ALTER TABLE `student_subject_data`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `student_course_unique` (`student_id`,`course_id`),
+  ADD KEY `course_id` (`course_id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`),
-  ADD UNIQUE KEY `username` (`username`);
+  ADD UNIQUE KEY `username` (`username`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- AUTO_INCREMENT for dumped tables
 --
 
 --
+-- AUTO_INCREMENT for table `admin_inputs`
+--
+ALTER TABLE `admin_inputs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT for table `alerts`
+--
+ALTER TABLE `alerts`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+
+--
+-- AUTO_INCREMENT for table `alert_generation_log`
+--
+ALTER TABLE `alert_generation_log`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+
+--
+-- AUTO_INCREMENT for table `courses`
+--
+ALTER TABLE `courses`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT for table `lecturer_courses`
+--
+ALTER TABLE `lecturer_courses`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `lecturer_marks`
+--
+ALTER TABLE `lecturer_marks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
 -- AUTO_INCREMENT for table `pending_users`
 --
 ALTER TABLE `pending_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+
+--
+-- AUTO_INCREMENT for table `student_common_data`
+--
+ALTER TABLE `student_common_data`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT for table `student_enrollments`
+--
+ALTER TABLE `student_enrollments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+
+--
+-- AUTO_INCREMENT for table `student_subject_data`
+--
+ALTER TABLE `student_subject_data`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `admin_inputs`
+--
+ALTER TABLE `admin_inputs`
+  ADD CONSTRAINT `admin_inputs_course_fk` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `admin_inputs_student_fk` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `alerts`
+--
+ALTER TABLE `alerts`
+  ADD CONSTRAINT `alerts_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `alerts_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `alerts_ibfk_3` FOREIGN KEY (`recipient_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `alert_generation_log`
+--
+ALTER TABLE `alert_generation_log`
+  ADD CONSTRAINT `alert_generation_log_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `alert_generation_log_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `lecturer_courses`
+--
+ALTER TABLE `lecturer_courses`
+  ADD CONSTRAINT `lecturer_courses_ibfk_1` FOREIGN KEY (`lecturer_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `lecturer_courses_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `lecturer_marks`
+--
+ALTER TABLE `lecturer_marks`
+  ADD CONSTRAINT `lecturer_marks_course_fk` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `lecturer_marks_student_fk` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `student_common_data`
+--
+ALTER TABLE `student_common_data`
+  ADD CONSTRAINT `student_common_data_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `student_enrollments`
+--
+ALTER TABLE `student_enrollments`
+  ADD CONSTRAINT `student_enrollments_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `student_enrollments_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `student_subject_data`
+--
+ALTER TABLE `student_subject_data`
+  ADD CONSTRAINT `student_subject_data_course_fk` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `student_subject_data_student_fk` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -2,12 +2,12 @@
 import React from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
-import { Bell } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { 
+  Bell,
+  User,
   GraduationCap
 } from "lucide-react";
 
@@ -36,22 +36,49 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
                 <GraduationCap className="h-6 w-6 text-blue-400" />
                 <h1 className="text-xl font-bold text-blue-400">EduTrack</h1>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-6">
+              {/* Notification Bell */}
               <div className="relative">
-                <Bell className="h-6 w-6 text-gray-300 hover:text-white cursor-pointer" />
-                <Badge className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs h-5 w-5 rounded-full flex items-center justify-center p-0">
+                <Bell className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
+                <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs h-5 w-5 rounded-full flex items-center justify-center p-0">
                   3
                 </Badge>
               </div>
-              <span className="text-sm text-gray-300">
-                Welcome, {user?.name}
-              </span>
-              <span className="text-xs bg-blue-600 text-purple-100 px-2 py-1 rounded-full capitalize">
-                {user?.role}
-              </span>
-              <Button variant="outline" size="sm" onClick={handleLogout} className="border-blue-600 text-white bg-blue-600 hover:bg-blue-700">
-                Logout
-              </Button>
+              
+              {/* User Profile Section */}
+              <div className="flex items-center space-x-4 border-l border-gray-600 pl-6">
+                {/* User Avatar */}
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <User className="h-5 w-5 text-white" />
+                </div>
+                
+                <div className="text-right">
+                  <div className="text-sm font-medium text-white">
+                    {user?.name}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {user?.email}
+                  </div>
+                </div>
+                
+                {/* Role Badge */}
+                <Badge 
+                  variant="secondary" 
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 px-3 py-1 font-medium capitalize"
+                >
+                  {user?.role}
+                </Badge>
+                
+                {/* Logout Button */}
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleLogout} 
+                  className="text-gray-300 hover:text-white hover:bg-gray-700 border border-gray-600 hover:border-gray-500 transition-colors"
+                >
+                  Logout
+                </Button>
+              </div>
             </div>
           </div>
         </div>

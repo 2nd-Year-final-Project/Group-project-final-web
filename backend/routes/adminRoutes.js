@@ -3,6 +3,33 @@ const db = require("../config/db");
 const bcrypt = require("bcryptjs");
 const { sendApprovalEmail } = require("../utils/emailService"); // Import email sender
 const router = express.Router();
+const { 
+  submitAdminInput,
+  getAllStudentsForAdmin,
+  getStudentEnrolledCourses,
+  updateStudentMotivation,
+  updateStudentAttendance,
+  getAllLecturersForAdmin,
+  getSystemStats
+} = require("../controllers/adminController");
+
+// Import course management routes
+const courseRoutes = require("./courseRoutes");
+
+// Use course management routes under /admin prefix
+router.use("/", courseRoutes);
+
+// New routes for student and lecturer management
+router.get("/students-management", getAllStudentsForAdmin);
+router.get("/students/:studentId/courses", getStudentEnrolledCourses);
+router.post("/students/motivation", updateStudentMotivation);
+router.post("/students/attendance", updateStudentAttendance);
+router.get("/lecturers-management", getAllLecturersForAdmin);
+router.get("/system-stats", getSystemStats);
+
+// Original admin input route
+router.post("/admin-input", submitAdminInput);
+
 
 // Get all pending users
 router.get("/pending-users", (req, res) => {
@@ -33,8 +60,17 @@ router.post("/approve/:id", async (req, res) => {
     const randomNumber = Math.floor(1000 + Math.random() * 9000);
     const username = `${firstName}${randomNumber}`;
 
-    // Generate a random password
-    const plainPassword = Math.random().toString(36).slice(-8);
+    // Generate random password
+    const generateRandomPassword = () => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+      let password = '';
+      for (let i = 0; i < 6; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return password;
+    };
+
+    const plainPassword = generateRandomPassword();
 
     // Hash the password before storing
     const hashedPassword = await bcrypt.hash(plainPassword, 10);
@@ -73,5 +109,8 @@ router.post("/reject/:id", (req, res) => {
     res.json({ message: "User rejected" });
   });
 });
+
+router.post("/input", submitAdminInput);
+
 
 module.exports = router;

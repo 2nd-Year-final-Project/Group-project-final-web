@@ -16,6 +16,10 @@ interface LoginCredentials {
 
 interface LoginResponse {
   success: boolean;
+  id?: number;
+  username?: string;
+  fullName?: string;
+  email?: string;
   role?: 'student' | 'lecturer' | 'admin';
   message?: string;
   user?: {
@@ -55,13 +59,16 @@ const Login: React.FC = () => {
       const data: LoginResponse = await response.json();
       
       if (response.ok && data.success) {
+        // Store username in localStorage for all roles
+        localStorage.setItem("username", username);
+        
         // If login is successful and user role is returned
         if (data.role === "student") {
           // Create user object for auth store
           const user = {
-            id: '1', // You may want to get this from the backend response
-            name: username, // You may want to get actual name from backend
-            email: `${username}@university.edu`,
+            id: data.id.toString(), // Use actual user ID from backend
+            name: data.fullName || username, // Use full name from backend
+            email: data.email || `${username}@university.edu`,
             role: data.role as const
           };
           
@@ -76,9 +83,9 @@ const Login: React.FC = () => {
         } else if (data.role === "lecturer") {
           // Create user object for auth store
           const user = {
-            id: '1', // You may want to get this from the backend response
-            name: username, // You may want to get actual name from backend
-            email: `${username}@university.edu`,
+            id: data.id.toString(), // Use actual user ID from backend
+            name: data.fullName || username, // Use full name from backend
+            email: data.email || `${username}@university.edu`,
             role: data.role as const
           };
           
@@ -93,16 +100,16 @@ const Login: React.FC = () => {
         } else if (data.role === "admin") {
           // Handle admin login if needed
           const user = {
-            id: '1',
-            name: username,
-            email: `${username}@university.edu`,
+            id: data.id.toString(), // Use actual user ID from backend
+            name: data.fullName || username,
+            email: data.email || `${username}@university.edu`,
             role: data.role as const
           };
           
           setUser(user);
           toast({ 
             title: "Login successful", 
-            description: `Welcome back, Admin!` 
+            description: `Welcome back, ${user.name}!` 
           });
           
           navigate("/admin");

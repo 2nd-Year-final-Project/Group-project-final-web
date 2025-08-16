@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import AdminSidebar from '@/components/AdminSidebar';
-import StudentDetailsModal from '@/components/StudentDetailsModal';
+import CourseManagement from '@/components/CourseManagement';
+import StudentManagement from '@/components/StudentManagement';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,21 +21,12 @@ interface PendingUser {
   id_card: string;
 }
 
-interface Student {
-  id: string;
-  name: string;
-  email: string;
-  course: string;
-  attendance: number;
-  motivation: number;
-}
-
 interface Lecturer {
-  id: string;
-  name: string;
+  id: number;
+  username: string;
+  full_name: string;
   email: string;
-  department: string;
-  courses: number;
+  course_count: number;
 }
 
 interface SystemStats {
@@ -55,8 +47,6 @@ interface PendingRegistration {
 }
 
 const AdminDashboard: React.FC = () => {
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>('overview');
   const [pendingRegistrations, setPendingRegistrations] = useState<PendingRegistration[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -69,32 +59,21 @@ const AdminDashboard: React.FC = () => {
     'Web Development': 9.1
   });
 
-
   // Your original user verification state
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
 
   const [systemStats, setSystemStats] = useState<SystemStats>({
-    totalStudents: 1247,
-    totalLecturers: 81,
-    activeCourses: 156,
+    totalStudents: 0,
+    totalLecturers: 0,
+    activeCourses: 0,
     pendingVerifications: 0
   });
 
-  const allStudents: Student[] = [
-    { id: '1', name: 'Akila Fernando', email: 'AkilaF@university.edu', course: 'Computer Science', attendance: 85, motivation: 7 },
-    { id: '2', name: 'Hiruna Mendis', email: 'HirunaM@university.edu', course: 'Computer Science', attendance: 92, motivation: 9 },
-    { id: '3', name: 'Anujaya Jayanath', email: 'AnujayaJ@university.edu', course: 'Computer Science', attendance: 78, motivation: 6 },
-    { id: '4', name: 'Renuja Sathnidu', email: 'RenujaS@university.edu', course: 'Computer Science', attendance: 95, motivation: 8},
-  ];
-
-  const allLecturers: Lecturer[] = [
-    { id: '1', name: 'Prof. N. G. J.Dias', email: 'ngjdias@kln.ac.lk', department: 'Computer Science', courses: 3 },
-    { id: '2', name: 'Dr. Rasika Rajapaksha', email: 'rasikar@kln.ac.lk', department: 'Computer Science', courses: 2 },
-    { id: '3', name: 'Prof. Dhammika weerasinghe', email: 'hesiri@kln.ac.lk', department: 'Computer Science', courses: 4 },
-  ];
+  const [allLecturers, setAllLecturers] = useState<Lecturer[]>([]);
 
   // Your original user verification useEffect (unchanged)
   useEffect(() => {
+    // Fetch pending users
     fetch("http://localhost:5000/api/admin/pending-users")
       .then((res) => res.json())
       .then((data) => {
@@ -106,6 +85,25 @@ const AdminDashboard: React.FC = () => {
         }));
       })
       .catch((error) => console.error("Error fetching users:", error));
+
+    // Fetch system statistics
+    fetch("http://localhost:5000/api/admin/system-stats")
+      .then((res) => res.json())
+      .then((data) => {
+        setSystemStats(prev => ({
+          ...prev,
+          ...data
+        }));
+      })
+      .catch((error) => console.error("Error fetching system stats:", error));
+
+    // Fetch lecturers
+    fetch("http://localhost:5000/api/admin/lecturers-management")
+      .then((res) => res.json())
+      .then((data) => {
+        setAllLecturers(data);
+      })
+      .catch((error) => console.error("Error fetching lecturers:", error));
   }, []);
 
   // Your original handleAction function (unchanged)
@@ -134,16 +132,6 @@ const AdminDashboard: React.FC = () => {
     } catch (error) {
       console.error("Error processing user:", error);
     }
-  };
-
-  const handleStudentClick = (student: Student): void => {
-    setSelectedStudent(student);
-    setIsModalOpen(true);
-  };
-
-  const handleSaveStudentData = (studentId: string, data: any): void => {
-    console.log('Saving data for student:', studentId, data);
-    // Here you would typically update the backend
   };
 
   const handleTeacherQualityChange = (course: string, value: number) => {
@@ -210,40 +198,8 @@ const AdminDashboard: React.FC = () => {
           </div>
         );
 
-      case 'students':
-        return (
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-white">All Students</CardTitle>
-              <CardDescription className="text-gray-300">Click on a student to input administrative data</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {allStudents.map((student) => (
-                  <div 
-                    key={student.id} 
-                    className="flex items-center justify-between p-3 border border-gray-700 rounded-lg hover:bg-gray-700 cursor-pointer transition-colors"
-                    onClick={() => handleStudentClick(student)}
-                  >
-                    <div>
-                      <div className="font-medium text-white">{student.name}</div>
-                      <div className="text-sm text-gray-400">{student.email}</div>
-                      <div className="text-sm text-gray-400">Course: {student.course}</div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant="outline" className="border-gray-600 text-gray-300">
-                        Attendance: {student.attendance}%
-                      </Badge>
-                      <Button size="sm" variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
-                        View Details
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        );
+      case 'student-management':
+        return <StudentManagement />;
 
       case 'lecturers':
         return (
@@ -254,67 +210,34 @@ const AdminDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {allLecturers.map((lecturer) => (
-                  <div key={lecturer.id} className="flex items-center justify-between p-3 border border-gray-700 rounded-lg">
-                    <div>
-                      <div className="font-medium text-white">{lecturer.name}</div>
-                      <div className="text-sm text-gray-400">{lecturer.email}</div>
-                      <div className="text-sm text-gray-400">Department: {lecturer.department}</div>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <span className="text-lg font-bold text-purple-400">{lecturer.courses} courses</span>
-                      <Button size="sm" variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
-                        Manage
-                      </Button>
-                    </div>
+                {allLecturers.length === 0 ? (
+                  <div className="text-center py-8 text-gray-400">
+                    Loading lecturers...
                   </div>
-                ))}
+                ) : (
+                  allLecturers.map((lecturer) => (
+                    <div key={lecturer.id} className="flex items-center justify-between p-3 border border-gray-700 rounded-lg">
+                      <div>
+                        <div className="font-medium text-white">{lecturer.full_name}</div>
+                        <div className="text-sm text-gray-400">{lecturer.email}</div>
+                        <div className="text-sm text-gray-400">Username: {lecturer.username}</div>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <span className="text-lg font-bold text-purple-400">{lecturer.course_count} courses</span>
+                        <Button size="sm" variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+                          Manage
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
         );
       
         case 'courses':
-          return (
-            <div className="space-y-6">
-              <Card className="bg-gray-800 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-white">Course Management</CardTitle>
-                  <CardDescription className="text-gray-300">Manage courses and set teacher quality ratings</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {Object.keys(courseTeacherQuality).map((course) => (
-                      <div key={course} className="p-4 border border-gray-700 rounded-lg">
-                        <div className="flex items-center justify-between mb-4">
-                          <div>
-                            <h3 className="font-medium text-white text-lg">{course}</h3>
-                            <p className="text-gray-400 text-sm">Set teacher quality rating for this course</p>
-                          </div>
-                          <Badge variant="outline" className="border-purple-600 text-purple-400">
-                            {courseTeacherQuality[course]}/10
-                          </Badge>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                          <Label className="text-gray-200 whitespace-nowrap">Teacher Quality Rating:</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            max="10"
-                            step="0.1"
-                            value={courseTeacherQuality[course]}
-                            onChange={(e) => handleTeacherQualityChange(course, parseFloat(e.target.value) || 0)}
-                            className="bg-gray-700 border-gray-600 text-white max-w-24"
-                          />
-                          <span className="text-gray-400 text-sm">out of 10</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          );
+          return <CourseManagement />;
           
       case 'verifications':
         return (
@@ -432,13 +355,6 @@ const AdminDashboard: React.FC = () => {
           {renderContent()}
         </div>
       </div>
-
-      <StudentDetailsModal
-        student={selectedStudent}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveStudentData}
-      />
     </DashboardLayout>
   );
 };

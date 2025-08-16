@@ -1,0 +1,111 @@
+const db = require("../config/db");
+const axios = require("axios");
+const RealTimeAlertService = require("../services/realTimeAlertService");
+
+const getPrediction = async (req, res) => {
+  const { student_id, course_id } = req.params;
+
+  try {
+    // 1. Check if course exists
+    const [courseCheck] = await db.promise().query(
+      "SELECT * FROM courses WHERE id = ?", [course_id]
+    );
+    if (courseCheck.length === 0) {
+      return res.status(404).json({ message: "Invalid course_id" });
+    }
+
+    // 2. Check if student is enrolled in this course
+    const [enrollmentCheck] = await db.promise().query(
+      "SELECT * FROM student_enrollments WHERE student_id = ? AND course_id = ? AND status = 'active'",
+      [student_id, course_id]
+    );
+    if (enrollmentCheck.length === 0) {
+      return res.status(404).json({ message: "Student is not enrolled in this course" });
+    }
+
+    // 3. Fetch common student data
+    const [commonData] = await db.promise().query(
+      "SELECT gender, peer_influence, motivation_level, extracurricular_activities, physical_activity, sleep_hours FROM student_common_data WHERE student_id = ?",
+      [student_id]
+    );
+    if (commonData.length === 0) {
+      return res.status(404).json({ message: "Common data not found for student" });
+    }
+
+    // Set default motivation_level to "Medium" (2) if not set by admin
+    if (commonData[0].motivation_level === null || commonData[0].motivation_level === undefined) {
+      commonData[0].motivation_level = 2; // Default to "Medium"
+    }
+
+    // Check if all required profile fields are completed
+    const requiredFields = ['gender', 'peer_influence', 'extracurricular_activities', 'physical_activity', 'sleep_hours'];
+    const missingFields = requiredFields.filter(field => 
+      commonData[0][field] === null || commonData[0][field] === undefined
+    );
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({ 
+        message: "Please complete your profile data to get an accurate prediction",
+        missingFields: missingFields,
+        requiresProfileUpdate: true
+      });
+    }
+
+    // 4. Get other course-related data
+    const [subjectData] = await db.promise().query(
+      "SELECT hours_studied, teacher_quality FROM student_subject_data WHERE student_id = ? AND course_id = ?",
+      [student_id, course_id]
+    );
+    const [marksData] = await db.promise().query(
+      "SELECT quiz1, quiz2, assignment1, assignment2, midterm_marks FROM lecturer_marks WHERE student_id = ? AND course_id = ?",
+      [student_id, course_id]
+    );
+    const [adminData] = await db.promise().query(
+      "SELECT attendance FROM admin_inputs WHERE student_id = ? AND course_id = ?",
+      [student_id, course_id]
+    );
+
+    // Merge into one input object
+    const features = {
+      subject: courseCheck[0].difficulty_level, // Using course difficulty level
+      ...commonData[0],
+      ...(subjectData[0] || {}),
+      ...(adminData[0] || {})
+    };
+
+    // Only add marks that are not null to avoid sending 0 for ungraded assessments
+    if (marksData[0]) {
+      const marks = marksData[0];
+      if (marks.quiz1 !== null) features.quiz1 = marks.quiz1;
+      if (marks.quiz2 !== null) features.quiz2 = marks.quiz2;
+      if (marks.assignment1 !== null) features.assignment1 = marks.assignment1;
+      if (marks.assignment2 !== null) features.assignment2 = marks.assignment2;
+      if (marks.midterm_marks !== null) features.midterm_marks = marks.midterm_marks;
+    }
+
+    console.log("Features being sent to ML model:", features);
+
+    // Send to Python model
+    const response = await axios.post("http://localhost:5002/predict", features);
+    
+    // Generate alerts based on prediction if we have a valid prediction
+    if (response.data && response.data.predicted_grade) {
+      try {
+        const predictedPercentage = parseFloat(response.data.predicted_grade);
+        const alerts = await RealTimeAlertService.generateRealTimeAlerts(student_id, course_id, predictedPercentage);
+        console.log(`Generated ${alerts.length} real-time alerts for student ${student_id}, course ${course_id}`);
+      } catch (alertError) {
+        console.error('Error generating real-time alerts:', alertError);
+        // Don't fail the prediction request if alert generation fails
+      }
+    }
+    
+    res.json(response.data);
+  } catch (err) {
+    console.error("Prediction error:", err);
+    res.status(500).json({ message: "Prediction failed", error: err.message });
+  }
+};
+
+
+module.exports = { getPrediction };
